@@ -317,7 +317,7 @@ def lambda_handler(event, context):
     print("uploading")
 
     # Upload the HTML content to S3
-    file_name = "bastex_players.html"
+    file_name = ""
     my_acl = "public-read"
     content_type = "text/html"
     s3 = boto3.resource('s3')
