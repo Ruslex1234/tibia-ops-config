@@ -33,7 +33,7 @@ chat_id_rod = ""
 chat_id_mykera = ""
 
 
-bucket_name = "jokindude"  # Change to your bucket name
+bucket_name = ""  # Change to your bucket name
 
 def lambda_handler(event, context):
     print("starting lambda_handler")
