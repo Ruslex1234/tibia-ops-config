@@ -13,7 +13,7 @@ def correct_names():
             correct_name = data["character"]["character"]["name"]  # Adjust based on actual API response structure
             if troll != correct_name:
                 print(f"Correcting name: {troll} to {correct_name}")
-                troll['name'] = correct_name
+                troll = correct_name
                 updated = True
 
     if updated:
