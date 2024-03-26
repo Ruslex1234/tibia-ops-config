@@ -10,7 +10,7 @@ def correct_names():
         response = requests.get(f"https://api.tibiadata.com/v4/character/{troll}")
         if response.status_code == 200:
             data = response.json()
-            correct_name = data["characters"]["data"]["name"]  # Adjust based on actual API response structure
+            correct_name = data["character"]["character"]["name"]  # Adjust based on actual API response structure
             if troll != correct_name:
                 print(f"Correcting name: {troll} to {correct_name}")
                 troll['name'] = correct_name
