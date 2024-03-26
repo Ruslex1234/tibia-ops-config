@@ -26,8 +26,13 @@ jobs:
       - name: Run sanity check script
         run: python sanity_troll.py
 
+      - name: Configure Git
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
       - name: Commit and push if changes
         run: |
           git add trolls.json
-          git commit -m "Sanity check corrections for trolls list" || echo "No changes to commit"
-          git push
+          git diff --staged --quiet || git commit -m "Sanity check corrections for trolls list"
+          git push || echo "No changes to commit"
