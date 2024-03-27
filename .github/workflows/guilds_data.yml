@@ -1,4 +1,4 @@
-name: Run Python Script
+name: Generate Guilds Data
 
 on:
   schedule:
