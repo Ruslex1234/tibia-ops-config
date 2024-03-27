@@ -12,21 +12,7 @@ base_url = "https://api.tibiadata.com/v4/world/{world_name}"
 # Worlds to fetch online players from
 worlds = ['Flamera', 'Mykera', 'Kardera', 'Firmera', 'Gravitera', 'Wildera']
 
-special_guilds = ['Bastex', 'Pentagrama', 'Demon Horde', 'Pink Mango', 'Partners', 'Bastex Flamera Owners', 'Bad Boysz', 'Bastex Boys', 'Bastex Rushback', 'Vidiuneta Bastex']
-
-# trolls
-trolls = ['trip wick', 'crowley saint', 'savage kley', 'willy saint', 'true sanielon codioff', 'parcher',
-    'Nix Dametc', 'Inquieto Ed', 'Sleeping Booty', 'Krod', 'Amm Sky', 'Legend Thegoat',
-        'rodryk style', 'parangarih', 'morinor', 'besas tan biien', 'rod sin plata', 
-            'el rod', 'mykera da rod', 'yelsew element', 'pelon rod sinleche', 'rod sin jotape',
-                'diez minibankers incluyendome', 'retro rod', 'sleeping booty', 'kleening up',
-                    'bvbe rindofull', 'danny veneco king', 'Qorothor Alar', 'true samix', 'Bell luben' ,
-                        'helboy knight', 'rampage loony', 'leyva disaster', 'Tatami Warlover', 'Valcru Machine', 'Kothe',
-                            'Sir Kurogane', 'geb hatshepsut', 'Totixi', 'Leozin Rajada', 'Mrchampions Pluma', 'Scobith Iv',
-                                'Panoramics', 'Javier Good Boy', 'horkside', 'corridoss tumbadoss']
-
-alert = ["Bladexz Bad Boy", "Fego", "Bolt ada", "Elreon", "Kazo Bait Voi", "Rod Mimascota Eterna", "Scarlet Cifer",
-    "Lucy Cifer", "Exu star", "Escorpion Ruler", "Aztek Ruler", "Tathrion Elvotton", "Udyr Tanker", "Julio Warrior", "Yoshua Cobra Ruler"]
+special_guilds = ['Bastex', 'Bastex Flamera Owners', 'Bad Boysz', 'Bastex Boys', 'Bastex Rushback', 'Vidiuneta Bastex']
 
 telegram =""
 chat_id_rod = ""
