@@ -13,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        persist-credentials: false
+        token: ${{ secrets.GH_PAT }} 
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -28,13 +28,13 @@ jobs:
     - name: Run Python script
       run: python gen_worlds_guilds.py
 
-    - name: Commit and push if it changed
+    - name: Configure Git
       run: |
-        git config user.name "Automated"
-        git config user.email "actions@users.noreply.github.com"
-        git add -A
-        timestamp=$(date -u)
-        git commit -m "Automated job: ${timestamp}" || exit 0
-        git push
-      env:
-        GH_PAT: ${{ secrets.GH_PAT }}
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+
+    - name: Commit and push if changes
+      run: |
+        git add world_guilds_data.json
+        git diff --staged --quiet || git commit -m "Sanity check corrections for trolls list"
+        git push || echo "No changes to commit"
