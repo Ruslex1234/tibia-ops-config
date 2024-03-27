@@ -1,11 +1,8 @@
 import json
 import urllib.request
-import boto3
 import gzip
 from io import BytesIO
 
-# Replace 'your_bucket_name' with your actual S3 bucket name
-S3_BUCKET = 'jokindude'
 # Worlds to fetch guilds from
 WORLDS = ['Flamera', 'Mykera', 'Kardera', 'Firmera', 'Gravitera', 'Wildera']
 
@@ -69,13 +66,13 @@ def lambda_handler(event, context):
     # Convert the data structure to JSON
     json_data = json.dumps(worlds_data, indent=4)
 
-    # Upload the JSON to S3
-    s3 = boto3.client('s3')
+    # Write the JSON to a local file
     try:
-        s3.put_object(Bucket=S3_BUCKET, Key='world_guilds_data.txt', Body=json_data)
-        print("Successfully uploaded data to S3.")
+        with open('world_guilds_data.json', 'w') as f:
+            f.write(json_data)
+        print("Successfully wrote data to file.")
     except Exception as e:
-        print(f"Failed to upload data to S3: {e}")
+        print(f"Failed to write data to file: {e}")
 
 # For local testing or direct invocation, you might want to call lambda_handler directly
 lambda_handler(None, None)
