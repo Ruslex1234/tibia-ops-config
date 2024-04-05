@@ -66,3 +66,5 @@ def lambda_handler(event, context):
         print("Successfully wrote data to file.")
     except Exception as e:
         print(f"Failed to write data to file: {e}")
+
+lambda_handler(None, None)
