@@ -15,6 +15,14 @@ jobs:
       with:
         token: ${{ secrets.GH_PAT }} 
 
+    - name: Set up Docker
+      uses: docker-practice/actions-setup-docker@master
+
+    - name: Run TibiaData API
+      run: |
+        docker pull ghcr.io/tibiadata/tibiadata-api-go:latest
+        docker run -d -p 127.0.0.1:80:8080/tcp ghcr.io/tibiadata/tibiadata-api-go:latest
+      
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
