@@ -1,69 +1,68 @@
 import json
-import requests
-
+import urllib.request
+import gzip
+from io import BytesIO
 # Worlds to fetch guilds from
 WORLDS = ['Flamera', 'Mykera', 'Kardera', 'Firmera', 'Gravitera', 'Wildera']
-
 def fetch_guilds_for_world(world):
-    url = f"http://localhost:80/v4/guilds/{world}"
-    print(f"Fetching guilds for world: {world}")
+    url = f"https://api.tibiadata.com/v4/guilds/{world}"
+    request = urllib.request.Request(url)
     try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            print(f"Successfully fetched guilds for world: {world}")
-            data = response.json()
-            return data.get('guilds', {}).get('active', [])
-        else:
-            print(f"Failed to fetch guilds for world: {world}, status code: {response.status_code}")
-            return []
+        with urllib.request.urlopen(request) as response:
+            if response.info().get('Content-Encoding') == 'gzip':
+                buffer = BytesIO(response.read())
+                with gzip.open(buffer, 'rb') as f:
+                    data = json.loads(f.read().decode('utf-8'))
+            else:
+                data = json.loads(response.read().decode('utf-8'))
+            if response.status == 200:
+                return data.get('guilds', {}).get('active', [])
+            else:
+                print(f"Failed to fetch guilds for world: {world}")
+                return []
     except Exception as e:
         print(f"Error fetching guilds for world {world}: {e}")
         return []
-
 def fetch_guild_data(guild_name):
-    encoded_guild_name = requests.utils.quote(guild_name)
-    url = f"http://localhost:80/v4/guild/{encoded_guild_name}"
-    print(f"Fetching data for guild: {guild_name}")
+    encoded_guild_name = urllib.parse.quote(guild_name)
+    url = f"https://api.tibiadata.com/v4/guild/{encoded_guild_name}"
+    request = urllib.request.Request(url)
+    request.add_header('Accept-Encoding', 'gzip')
     try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            print(f"Successfully fetched data for guild: {guild_name}")
-            data = response.json()
+        with urllib.request.urlopen(request) as response:
+            if response.info().get('Content-Encoding') == 'gzip':
+                buffer = BytesIO(response.read())
+                with gzip.open(buffer, 'rb') as f:
+                    data = json.loads(f.read().decode('utf-8'))
+            else:
+                data = json.loads(response.read().decode('utf-8'))
             return data.get('guild', {})
-        else:
-            print(f"Failed to fetch data for guild: {guild_name}, status code: {response.status_code}")
-            return {}
     except Exception as e:
         print(f"Error fetching data for {guild_name}: {e}")
         return {}
 
 def lambda_handler(event, context):
+    print("Starting data fetch...")
+    worlds_data = {}
+
+    for world in WORLDS:
+        print(world)
+        worlds_data[world] = {}
+        guilds = fetch_guilds_for_world(world)
+        for guild in guilds:
+            print(guild["name"])
+            guild_name = guild.get('name')
+            guild_data = fetch_guild_data(guild_name)
+            if guild_data:
+                worlds_data[world][guild_name] = [member['name'] for member in guild_data.get('members', [])]
+
+    # Convert the data structure to JSON
+    json_data = json.dumps(worlds_data, indent=4)
+
+    # Write the JSON to a local file
     try:
-        print("Starting data fetch...")
-        worlds_data = {}
-
-        for world in WORLDS:
-            print(f"Processing world: {world}")
-            worlds_data[world] = {}
-            guilds = fetch_guilds_for_world(world)
-            for guild in guilds:
-                print(f"Processing guild: {guild['name']}")
-                guild_name = guild.get('name')
-                guild_data = fetch_guild_data(guild_name)
-                if guild_data:
-                    worlds_data[world][guild_name] = [member['name'] for member in guild_data.get('members', [])]
-
-        # Convert the data structure to JSON
-        json_data = json.dumps(worlds_data, indent=4)
-
-        # Write the JSON to a local file
         with open('world_guilds_data.json', 'w') as f:
-            print("Writing data to file...")
             f.write(json_data)
         print("Successfully wrote data to file.")
     except Exception as e:
-        print(f"Failed to fetch data or write to file: {e}")
-        raise e  # Raise the exception to stop execution
-
-# For local testing or direct invocation, you might want to call lambda_handler directly
-lambda_handler(None, None)
+        print(f"Failed to write data to file: {e}")
