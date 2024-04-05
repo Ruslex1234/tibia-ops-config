@@ -7,7 +7,7 @@ from io import BytesIO
 WORLDS = ['Flamera', 'Mykera', 'Kardera', 'Firmera', 'Gravitera', 'Wildera']
 
 def fetch_guilds_for_world(world):
-    url = f"https://api.tibiadata.com/v4/guilds/{world}"
+    url = f"http://localhost:80/v4/guilds/{world}"
     request = urllib.request.Request(url)
 
     try:
@@ -30,7 +30,7 @@ def fetch_guilds_for_world(world):
 
 def fetch_guild_data(guild_name):
     encoded_guild_name = urllib.parse.quote(guild_name)
-    url = f"https://api.tibiadata.com/v4/guild/{encoded_guild_name}"
+    url = f"http://localhost:80/v4/guild/{encoded_guild_name}"
     request = urllib.request.Request(url)
     request.add_header('Accept-Encoding', 'gzip')
 
