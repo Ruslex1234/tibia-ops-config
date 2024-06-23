@@ -3,7 +3,7 @@ import urllib.request
 import gzip
 from io import BytesIO
 # Worlds to fetch guilds from
-WORLDS = ['Flamera', 'Mykera', 'Kardera', 'Firmera', 'Gravitera', 'Wildera']
+WORLDS = ['Flamera', 'Mykera', 'Kardera', 'Firmera', 'Gravitera', 'Wildera', 'Lobera']
 def fetch_guilds_for_world(world):
     url = f"https://api.tibiadata.com/v4/guilds/{world}"
     request = urllib.request.Request(url)
