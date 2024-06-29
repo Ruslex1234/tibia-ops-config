@@ -7583,6 +7583,7 @@
             "Picking",
             "Prince Of Paradise",
             "Puzzle Grow",
+            "Ratz Paladin",
             "Ravex Vukar",
             "Reed Flash",
             "Relavan",
@@ -7667,7 +7668,6 @@
             "Old Skratch",
             "Princes of Tenebra",
             "Ramzha Beoulve",
-            "Ratz Paladin",
             "Red Blood Sells",
             "Romaneth Black",
             "Sam of Boa",
@@ -9046,13 +9046,14 @@
             "Gacys",
             "Loberitoo",
             "Loberitooo",
+            "Lucilveno Zeni",
             "Marezus Drarus",
-            "Miikassa",
             "Padrastro Mala Copa",
             "Pozole assesino",
             "Sopita De Jerez",
             "Takeashower",
-            "Theeryn"
+            "Theeryn",
+            "Miikassa"
         ],
         "Friends Forfun": [
             "Khanzor",
@@ -14051,6 +14052,8 @@
             "Xenosphere",
             "Zeias",
             "Onokz",
+            "Benny Bombasi",
+            "Awtism",
             "Edinarre",
             "Gallo vivo",
             "Noxteh",
@@ -14119,9 +14122,7 @@
             "Neto Handaxe",
             "Partiu Farra",
             "Queloquexp",
-            "Queloquexp Pro",
-            "Awtism",
-            "Benny Bombasi"
+            "Queloquexp Pro"
         ],
         "Revocs": [
             "Katsura Kamikaze",
