@@ -2623,14 +2623,6 @@
             "Zaipper",
             "Zielarz of Eldera",
             "Zutok We"
-        ],
-        "Requiem Elite": [
-            "Niavala",
-            "Pinfildii",
-            "Sinatix Manniac",
-            "Tabula Esmaradigma",
-            "Joako Manniac",
-            "Siinatix"
         ]
     },
     "Gravitera": {
@@ -7420,9 +7412,11 @@
             "Bones Jonez",
             "Chigurrh",
             "Despells",
+            "Emvaruz",
             "End Result",
             "Finger Nervous",
             "Futsunushi",
+            "Lord Piezas",
             "Mago de Blair",
             "Ramzha Beoulve",
             "Ratz Paladin",
@@ -7471,7 +7465,6 @@
             "Elder Laybow",
             "Elguerreiro Bundon",
             "Ellothere",
-            "Emvaruz",
             "Escamilla",
             "Eundjix",
             "Fallen Disciple",
@@ -7510,7 +7503,6 @@
             "Likwidex",
             "Liquidex",
             "Longbolt",
-            "Lord Piezas",
             "Lormion The Second",
             "Luisongue",
             "Lykos",
@@ -13775,6 +13767,7 @@
             "Yokerit",
             "Ze Pequeno do Cidade de Deus",
             "Drax Wakos",
+            "Geniuszczart",
             "Kyk",
             "Lysy Greg Borshevsky",
             "Pan Szczepan",
@@ -13786,7 +13779,6 @@
             "Orofin",
             "Piv'osz",
             "Puppetmaster",
-            "Geniuszczart",
             "Kartus Loko"
         ],
         "Our Guildhall": [
@@ -14058,6 +14050,7 @@
             "Xare Aydix",
             "Yennefer from Vengerbergg",
             "Zeias",
+            "Criminal plague",
             "Abraham Torres Lopez",
             "Agapito Pelaez",
             "Armlock",
@@ -14134,8 +14127,7 @@
             "Partiu Farra",
             "Queloquexp",
             "Queloquexp Pro",
-            "Super Fumeta",
-            "Criminal plague"
+            "Super Fumeta"
         ],
         "Ragnarok Fullbless": [
             "Ro",
@@ -14986,26 +14978,6 @@
             "Olgasan",
             "Universidad de amigos",
             "Yermackur Airak"
-        ],
-        "Yellow Rune": [
-            "Mahomes paysbills",
-            "Magic Mutation",
-            "People Burning",
-            "Sonjay",
-            "Acolypso",
-            "Cle not Cleveland",
-            "Deeniinhow",
-            "Delayz",
-            "Fask One",
-            "Ghost The Sorcere",
-            "Magicmaster",
-            "Massiv Legend",
-            "Messi Paysbills",
-            "Papi Munyanyo",
-            "Sir Johnwick",
-            "Trayeighte",
-            "Wrath of Johnwick",
-            "Yma Boss"
         ]
     }
 }
