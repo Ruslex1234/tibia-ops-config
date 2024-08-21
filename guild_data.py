@@ -4,7 +4,7 @@ import tibiapy
 from tibiapy.parsers import GuildsSectionParser, GuildParser
 
 # Worlds to fetch guilds from
-WORLDS = ['Flamera', 'Mykera', 'Kardera', 'Firmera', 'Gravitera', 'Wildera', 'Lobera']
+WORLDS = ['Flamera', 'Temera', 'Mykera', 'Kardera', 'Firmera', 'Gravitera', 'Wildera', 'Lobera']
 
 def fetch_guilds_for_world(world):
     url = tibiapy.urls.get_world_guilds_url(world)
