@@ -2763,7 +2763,6 @@
             "Lucy Cifer",
             "Rebanada de pastel",
             "Robz Cifer",
-            "Sneck",
             "Troll Vox",
             "Varon Rojo",
             "Zval",
@@ -2829,7 +2828,8 @@
             "Sleyther",
             "Tiriryn",
             "Wolfgar",
-            "Xan Rak"
+            "Xan Rak",
+            "Zneck"
         ],
         "Panda Banda": [
             "Smile Gabbita",
@@ -13372,8 +13372,8 @@
         ],
         "Mercenary": [
             "Jotanks",
-            "Acke Heimdall",
             "Aiken Sensey",
+            "Archer Rush Enterprise",
             "Ruthless Hero",
             "Unkind Cesinha",
             "Vegeta Furious",
