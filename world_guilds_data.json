@@ -7644,6 +7644,8 @@
             "Soldier son",
             "The Lockerroom",
             "Vincent Alan",
+            "Emvaruz",
+            "Lord Piezas",
             "Ramzha Beoulve",
             "Vincente Valentine",
             "Boudreaux",
@@ -7653,14 +7655,12 @@
             "Doc Lawless",
             "Dragon Knight of Rubera",
             "Early Crit",
-            "Emvaruz",
             "Fallen Disciple",
             "Houndstooth",
             "Kazuroth Darkflare",
             "Lambe Bife",
             "Liquidex",
             "Longbolt",
-            "Lord Piezas",
             "Matts Paladin",
             "Niklaus Slimshady",
             "Princes of Tenebra",
@@ -8725,6 +8725,7 @@
             "Jhonnk",
             "Last breakz",
             "Magnos Altec",
+            "Palovizk",
             "Sir smallville",
             "The Big Magnos",
             "Viejo Maniatico",
@@ -8760,7 +8761,6 @@
             "Nil Vi",
             "Oshlt",
             "Osita Palencia",
-            "Palovizk",
             "Ponchito goodenough",
             "Primo De Sindel",
             "Puro Mazatlan",
@@ -9325,7 +9325,8 @@
             "Rhasz",
             "Mim Kna",
             "Traky nas",
-            "Khanzinha"
+            "Khanzinha",
+            "Yoshi Usumaki"
         ],
         "Friends to Boss": [
             "Thatay Mello",
@@ -14322,6 +14323,7 @@
             "Insuperable Sufrimiento",
             "Jugo Betrugo",
             "Ken Guay",
+            "Kenn Guay",
             "Nawtson",
             "No Diddy",
             "Raya Cris",
@@ -14337,6 +14339,7 @@
             "Dalis Vita",
             "Danzksu",
             "Kniitemare",
+            "Nema Bimbash",
             "Raph Muka",
             "Saghaiz Graaul",
             "Sidestep Paralysis",
@@ -14422,6 +14425,8 @@
             "Tamal Holmes",
             "Tequiebro",
             "Vatoproxp",
+            "Vazile",
+            "Vermito",
             "Wakacoule",
             "Wylli Tornner",
             "Xerucee Zyide",
@@ -14441,11 +14446,7 @@
             "Partiu Farra",
             "Queloquexp",
             "Queloquexp Pro",
-            "Super Fumeta",
-            "Kenn Guay",
-            "Nema Bimbash",
-            "Vazile",
-            "Vermito"
+            "Super Fumeta"
         ],
         "Ragnarok Fullbless": [
             "Ro",
@@ -19086,13 +19087,6 @@
             "Royal Nishiyama",
             "Royal Prhimo",
             "Skinee Dabzo"
-        ],
-        "Blackpearl": [
-            "Blam Glexus",
-            "Cero Marykoteo",
-            "Maguito Espartano",
-            "Mharlexphil",
-            "Nath Azagabrina"
         ],
         "Camara Criogenica": [
             "Wophi",
