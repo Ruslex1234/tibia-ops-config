@@ -55,7 +55,7 @@ def lambda_handler(event, context):
                 print(guild["name"])
                 guild_name = guild.get('name')
                 guild_data = fetch_guild_data(guild_name)
-                if guild_data:
+                if guild_data and 'members' in guild_data and guild_data['members']:
                     worlds_data[world][guild_name] = [member['name'] for member in guild_data.get('members', [])]
 
         # Convert the data structure to JSON
