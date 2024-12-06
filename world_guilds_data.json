@@ -2513,6 +2513,7 @@
             "Almightz",
             "Annubyz Blade",
             "Aramis Pump",
+            "Bossss",
             "Clippedya",
             "Curandogente",
             "Dacorte",
@@ -2522,7 +2523,6 @@
             "Doctor Crayz",
             "Dont Majster",
             "Dope Dawg",
-            "Ill iterate",
             "Kill Raven",
             "Kurokokoro",
             "La Mujer Maravilla",
@@ -2530,6 +2530,8 @@
             "Liso Raven",
             "Lok Faraway",
             "Long Raven",
+            "Mochi Katakuri",
+            "Noruto",
             "Osito Golpeador",
             "Puum Opresorxz",
             "Senja Ninja",
@@ -2543,6 +2545,7 @@
             "Valcrist Beoulve",
             "Wako Raven",
             "Warden Frost",
+            "Xxja",
             "Yukey",
             "Zaran Haladkos",
             "Zaria Pako",
@@ -2569,6 +2572,7 @@
             "Felsonn",
             "Gorlockk",
             "Gum Gum",
+            "Ill iterate",
             "Jonny Concrete",
             "Kyrou",
             "Lekar Raven",
@@ -2594,12 +2598,8 @@
             "Wako Tha Sorc",
             "Whiskey Raven",
             "Xxjas",
-            "Bossss",
             "Gargahmell",
-            "Mochi Katakuri",
-            "Noruto",
-            "Silvousplait",
-            "Xxja"
+            "Silvousplait"
         ],
         "Right Wing": [
             "Iron Tyrebel",
@@ -5414,6 +5414,7 @@
             "Cobri",
             "Creyon Amarillo",
             "Ius Divine",
+            "Rammer Luck",
             "Gara Iku",
             "Gerardo Santana",
             "Lian kaus"
@@ -5816,6 +5817,7 @@
             "Ez Ed",
             "Fadiix",
             "Faruko",
+            "Fearless Frobbe",
             "Fearless Komando",
             "Fearless Luna",
             "Fearless Mors",
@@ -5824,7 +5826,6 @@
             "Forcemick",
             "Forronin",
             "Freway Malandro",
-            "Frobbe",
             "Fulcker Ens",
             "Fulckerzitok",
             "Fulgore Star",
@@ -10819,7 +10820,6 @@
             "Thug Alter Ego",
             "Ti Thor",
             "Tilinxz Silva",
-            "Tilinxz Tankmode",
             "Tiraleon Wey",
             "Tirita",
             "Tiwyn Maru",
@@ -20212,6 +20212,7 @@
             "Noorgon",
             "Quixil",
             "Ramon Rambo",
+            "Ruin Poseidon",
             "Seryllax Nolf",
             "Shuura",
             "Vampiiro Trolazo",
@@ -21319,7 +21320,8 @@
             "Neto Handaxe",
             "Prinsipito De Caramelo",
             "Queloquexp",
-            "Queloquexp Pro"
+            "Queloquexp Pro",
+            "Full Holy"
         ],
         "Reannimation": [
             "Cruzector",
@@ -26686,6 +26688,15 @@
             "Weddarkness",
             "Xarcus",
             "Zioon Hydera"
+        ],
+        "Pandemonium": [
+            "Silver Awesome",
+            "Elder Sadoc",
+            "Michii Black",
+            "Reelzur",
+            "Seratly",
+            "Cholo Issac",
+            "Dragonaids"
         ],
         "Pocos Serios": [
             "Jhonnyxz",
