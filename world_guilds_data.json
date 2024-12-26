@@ -1336,7 +1336,6 @@
             "Draxler Break",
             "Durnhevir",
             "El Mazart",
-            "Enfermo Demoni",
             "Estako in Quidera",
             "Fakerw",
             "Falon Ferd",
@@ -1388,7 +1387,8 @@
             "Voldeemord Wick",
             "White Rabbit Shelby",
             "Wizera Swag",
-            "Zard Killer"
+            "Zard Killer",
+            "Zigurt"
         ],
         "Guildhall": [
             "Sporty Spice",
@@ -6700,6 +6700,7 @@
             "Purplehaze Wizard",
             "Tontinox",
             "Cortesz",
+            "Dodymex",
             "El Nigromante",
             "Fichiz",
             "Freya Elspeth",
