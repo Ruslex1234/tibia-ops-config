@@ -1339,6 +1339,7 @@
             "Clark Kenn",
             "Concord Onlywar",
             "Dagotee Kene",
+            "Dala Crina",
             "Dark Magician Nice",
             "Demitry Sky",
             "Dortredtz",
@@ -1355,6 +1356,7 @@
             "Fakerw",
             "Falon Ferd",
             "Farmeador Loco",
+            "Flexdruiiid",
             "Fryky Tys",
             "Fumerolas Hibierbita",
             "Gageroz Acon",
@@ -1391,6 +1393,7 @@
             "Polishoee",
             "Polishoee og",
             "Ponderousfau",
+            "Profesor John Frink",
             "Puntero Belico",
             "Queteval Gaverg",
             "Quetzalkoatlz",
@@ -8846,6 +8849,15 @@
         ]
     },
     "Aethera": {
+        "Blood Brotherhood": [
+            "Ares War",
+            "Doda Step",
+            "Kayn Elite",
+            "Boss Exterminator",
+            "Ho Lala",
+            "Paginazull",
+            "Rpfullwasted"
+        ],
         "Maestres": [
             "Ak Jun",
             "Deadly Rex",
@@ -28006,7 +28018,8 @@
             "Ragyo Kiryuin",
             "Sethalfur",
             "Tenoriio Mage",
-            "Versence"
+            "Versence",
+            "Zephyrusz"
         ],
         "Rook Guardians": [
             "Gandalf Rooker",
