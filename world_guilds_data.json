@@ -2897,7 +2897,6 @@
             "Killa Skillz",
             "Killa Skullz",
             "Killa Sovek",
-            "Killa Target",
             "Killa Vibez",
             "Killa Waves",
             "Killa Yeto",
@@ -8469,6 +8468,17 @@
             "Zyke Fatality",
             "Zyon on calvera"
         ],
+        "Dark Side": [
+            "Assassin Tox",
+            "Conner Tank",
+            "Peligroso Iguanero",
+            "Sainttmos",
+            "Ur Wiztiano",
+            "Reksai",
+            "Tox Malandrisao",
+            "Tu Dealer Favorito",
+            "Wizardo Milos Dance"
+        ],
         "Demon Horde": [
             "Boybarian",
             "Assassin Cove",
@@ -8930,7 +8940,8 @@
             "Kiko kat",
             "Yungu",
             "Uncrwnd",
-            "Galius Thian"
+            "Galius Thian",
+            "Tatintqm"
         ],
         "Soulless": [
             "Arkhxn Soulless",
@@ -9150,7 +9161,6 @@
             "Wanden Reich",
             "Warlosky",
             "Wevin Stanex",
-            "Yensigab Royal",
             "Yuta Okkotsv",
             "Zalfrag Charola",
             "Zaroxz",
@@ -10324,7 +10334,6 @@
         ],
         "Watch The Throne": [
             "Geek Dan",
-            "Bad Luck Brian",
             "Bagulhao Doidow",
             "Higgaun",
             "Jayemx",
