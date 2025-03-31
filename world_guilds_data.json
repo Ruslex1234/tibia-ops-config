@@ -1605,6 +1605,7 @@
             "Viva Mexico Alvg",
             "Zoncito",
             "Secret Agent Slugga",
+            "Muertolaz",
             "Zadkiel Dawnbringer"
         ],
         "Los Retired": [
@@ -5409,7 +5410,8 @@
             "Occipiticio",
             "Strigarma",
             "Zwalabarg",
-            "Obsidian Knife"
+            "Obsidian Knife",
+            "Sope Samurai"
         ],
         "Sweetiiees": [
             "Sweetiees",
@@ -11392,7 +11394,6 @@
             "Misionera",
             "Necrozzii",
             "Nusmanek",
-            "Pay de Crema",
             "Rak Mag",
             "Reign Slayz",
             "Sall over",
@@ -25403,12 +25404,13 @@
             "Silverstein"
         ],
         "La Horda": [
-            "Two orlando",
+            "Zyndasinset",
             "Bark Of Dath",
             "Benny Teller",
             "Daliuz",
             "Guachin del monte",
             "Thomas The Brave",
+            "Two orlando",
             "Zazare Sokor",
             "Alex Kun",
             "Asprientje",
@@ -25433,14 +25435,12 @@
             "Lord Zikah",
             "Mymir",
             "Papitas con Catsup",
-            "Pomo Barato",
             "Poseidon Wargod",
             "Timpen",
             "Touland",
             "Velveren",
             "Zandsirion The Handless",
-            "Zyndachynz",
-            "Zyndasinset"
+            "Zyndachynz"
         ],
         "Las Fuerzas Especiales": [
             "Zeeux",
@@ -27822,6 +27822,7 @@
             "Hokkaidoz",
             "Magnonzin Cachaca",
             "Papi Skor",
+            "Pomo Barato",
             "Shiko Guapo",
             "Shykazor"
         ],
