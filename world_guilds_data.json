@@ -10221,7 +10221,8 @@
             "Warbeast Mercenary",
             "Project Warbeast",
             "Mambeitor",
-            "Mister Milo Warbeast"
+            "Mister Milo Warbeast",
+            "Satanic Warbeast"
         ],
         "Watch The Throne": [
             "Razor Blades",
@@ -14502,7 +14503,6 @@
             "Tia Perfectpush",
             "Tokayoh",
             "Uberr Driver",
-            "Van dame Deshuesado",
             "Vanhelsing",
             "Viernes Trece",
             "Viernes Trece Beliks",
@@ -39350,12 +39350,12 @@
         ],
         "Warriors of honor": [
             "Maximus Criss",
-            "Angela Donoso",
+            "Elite Thorin",
             "Keric Kina",
             "Lady Pekosa",
-            "Tharsonis Queen",
             "Viejo Belico",
             "Adrian Del'Vodka",
+            "Angela Donoso",
             "Anon Unsterblich",
             "Anthony Inmortality",
             "Fahcilona",
@@ -39363,6 +39363,7 @@
             "Legolas Devil",
             "Quimbombo",
             "Tex Diel",
+            "Tharsonis Queen",
             "Darkpooh",
             "Goku Del'Vodka",
             "Jaguars",
@@ -39492,7 +39493,6 @@
             "Warder Vall",
             "Llajuas",
             "Pink Gudo",
-            "Prinss Esmerald",
             "Sioxek"
         ]
     }
