@@ -12375,7 +12375,6 @@
             "Kard Aizar",
             "Kisuke Uraharaa",
             "Magito Poderoso",
-            "Majiin Bo",
             "Mina Beautiful",
             "Morpheusz",
             "Mortencent'The Death",
@@ -14883,6 +14882,7 @@
             "Mage Braba",
             "Mage Violent",
             "Magic Lachin",
+            "Magic'human",
             "Mague Strunsks",
             "Malkeown Cley",
             "Manexxona",
@@ -25805,6 +25805,13 @@
             "Timpen",
             "Touland",
             "Velveren"
+        ],
+        "Last Breath Gang": [
+            "Criminal plague",
+            "Ax Thorn",
+            "Maurocp",
+            "Taffybattle",
+            "Taffyclint"
         ],
         "Legends": [
             "Tarlo Darkhalf",
@@ -40094,6 +40101,7 @@
         "The Cousins": [
             "Luciducy One",
             "Dark Shishiyin",
+            "Dark Siirius",
             "Link Tapion",
             "Mal Bicho",
             "Poco Seria",
