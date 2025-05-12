@@ -8660,6 +8660,7 @@
             "Killer Abyso",
             "Knight Ikarus",
             "Kungfu Sion",
+            "Manehex",
             "Martin Rica",
             "Meiroth",
             "Peasize Yolo",
@@ -13364,7 +13365,6 @@
             "Jordixz",
             "Jose Chocolatozo",
             "Jose Passarinho",
-            "Jossesito",
             "Jotadeath",
             "Jovanny",
             "Joven Cabo",
@@ -29567,7 +29567,6 @@
             "Ziaber",
             "Andromeda Despiadada",
             "Churpia Queen",
-            "Corazaaoo",
             "Cuatro stragus",
             "Devorah Hawk",
             "Dominc Santiago",
@@ -33780,14 +33779,6 @@
             "Cami Inhigh",
             "Punoactivo Inhigh"
         ],
-        "Intended": [
-            "Alleryc",
-            "Allerac",
-            "Allergick",
-            "Allergico",
-            "Dark kempo",
-            "Sailent Zaos"
-        ],
         "La Patrulla Espiritual": [
             "Rodilladebronc",
             "Ak General",
@@ -34155,7 +34146,6 @@
             "Keltset",
             "Miss Pinkz",
             "Noyadona",
-            "Rhudor Bloodaxe",
             "Rotten",
             "Tropper",
             "Adrixh",
@@ -34164,7 +34154,15 @@
             "Hulligun",
             "Ironhide",
             "Medusa Of Dead",
-            "Rafita super Power"
+            "Rafita super Power",
+            "Rhudor Bloodaxe"
+        ],
+        "Old Intended": [
+            "Alleroc",
+            "Allerac",
+            "Allergick",
+            "Allerwc",
+            "Dark kempo"
         ],
         "Panda Power": [
             "Elysita",
@@ -35528,7 +35526,6 @@
             "Exivatemple",
             "Exona",
             "Expresion Nofake",
-            "Expresionn",
             "Exs Convicto",
             "Ezio il Mago",
             "Fabiaanszk",
