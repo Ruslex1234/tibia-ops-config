@@ -17284,6 +17284,7 @@
             "Buskaar",
             "Ca Milla",
             "Caboon",
+            "Cachetonsita",
             "Caladi Cath",
             "Calcetiin",
             "Call My Name",
@@ -35468,7 +35469,6 @@
             "Elder Blue Sky",
             "Elder Deivis",
             "Elder Kotriv",
-            "Elder Locck",
             "Elder Maniack",
             "Elder Proos",
             "Elder Rullando",
@@ -36704,7 +36704,6 @@
             "Wintera Defender",
             "Winterita Os",
             "Wintoro",
-            "Without Blesskiller",
             "Wizae Liran",
             "Wizz Ryu San",
             "Wolaffyn Knight",
@@ -37620,7 +37619,8 @@
             "Roronoa Shadown",
             "Sara Wick",
             "Shar Serius",
-            "Ward Gandyz"
+            "Ward Gandyz",
+            "Xeniah Swift"
         ],
         "Ghostmane Clan": [
             "Zombie Brains",
@@ -40103,9 +40103,11 @@
             "Vermelo",
             "Astro Than",
             "Duro Knight",
+            "Elder Locck",
             "Frozen jrarms",
             "Ohm Shanti",
-            "Romerinha"
+            "Romerinha",
+            "Without Blesskiller"
         ],
         "Smiley Boys": [
             "Mia Saori",
