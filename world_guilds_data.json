@@ -1814,6 +1814,14 @@
             "Voypor Unakawa",
             "Yssenegg"
         ],
+        "Imperium Draconis": [
+            "King Magnos",
+            "Bencrof vilao",
+            "Filistrin",
+            "King Vilao",
+            "Veronica Full tank",
+            "Maikelxx"
+        ],
         "Infierno Verde": [
             "Lince Lohan",
             "Campito King",
@@ -14750,6 +14758,7 @@
             "Gekk Master",
             "Gocho Kiill",
             "Gocho Kill",
+            "Gram Black",
             "Guerrero Ezor",
             "Hakned",
             "Heredero Delucifer",
@@ -14879,6 +14888,7 @@
             "Storm Assasin",
             "Suiciide Siilence",
             "Svel Jabox",
+            "Swezpolk",
             "Sylphed zyke",
             "Taldo Belicon",
             "Taldo Schneider",
@@ -15261,7 +15271,6 @@
             "Brown talera",
             "Bruna Mortal",
             "Bruno Onil",
-            "Bruxa das Treva",
             "Brycee",
             "Bryon Lencastre",
             "Buda Lidera",
@@ -15558,7 +15567,6 @@
             "Emiide",
             "Emisantino forterino",
             "Empregadinho do Governo",
-            "Emz Barley",
             "Engel Deer Finsternis",
             "Engel Tankk",
             "Engelbert Humperdinck",
@@ -37250,6 +37258,7 @@
         ],
         "Fragmentados": [
             "Ethar Kald",
+            "Bosko Mercado",
             "Chizmoso",
             "Hilsz",
             "Krauz",
@@ -37257,6 +37266,7 @@
             "Ratio retennn",
             "Athenea of Silvera",
             "Aztec Mexitl",
+            "Aztec Volvento",
             "Cabeca Historinha",
             "Chancudo",
             "Dominado Pekando",
@@ -37272,6 +37282,8 @@
             "Serch Heals",
             "Shar Serius",
             "Staping",
+            "Terewinx",
+            "Velovisky volvento",
             "Vgod",
             "Ward Gandyz",
             "Xeniah Swift",
@@ -37286,11 +37298,8 @@
             "Supermega Kamal",
             "Supermega Paralyze",
             "Supermega Primo",
-            "Aztec Volvento",
-            "Bosko Mercado",
-            "Lithlad",
-            "Velovisky volvento",
-            "Wallicious"
+            "Wallicious",
+            "Lithlad"
         ],
         "Ghostmane Clan": [
             "Zombie Brains",
