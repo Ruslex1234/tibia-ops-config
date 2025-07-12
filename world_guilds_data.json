@@ -8788,6 +8788,7 @@
         ],
         "The Witchers": [
             "Gwynbleiddz",
+            "Dalithiyan",
             "Paralelo",
             "Valion Sanke",
             "Zhune brood",
@@ -8795,7 +8796,6 @@
             "Biscochito",
             "Cannavaro Madlife",
             "Cinque Steelle",
-            "Dalithiyan",
             "Drak Cirilla",
             "Drak Feminar",
             "Drak Mohney",
@@ -10464,6 +10464,13 @@
             "Mob psy",
             "Utopia Ckruzber",
             "Zapateria La Bailarina"
+        ],
+        "Ragnarok Reborn": [
+            "Tamenar Yuton",
+            "Gaenar Contim",
+            "Kivarth Nigon",
+            "Marake Fenecong",
+            "Shaturyus Suri"
         ],
         "Trogo Killseller": [
             "Mandatory Namechangiie",
@@ -37799,7 +37806,6 @@
             "Knight Juzz",
             "Krolitos",
             "Kruzty",
-            "Kuroj Mlkzica",
             "Kuroond",
             "Legend Erickao",
             "Loi ser",
