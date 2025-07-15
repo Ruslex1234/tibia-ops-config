@@ -13798,12 +13798,10 @@
             "Assasin Arcangel",
             "Bank Nomercy",
             "Doon Chiquini",
-            "Drakon Matanovatos",
             "Er nanu kaos",
             "Kryuset Dorimofex",
             "Leri Kantel",
             "Lucerwyn",
-            "Mabux Matanovatos",
             "Maestro Aangg",
             "Momo Matanovatos",
             "Niezwycieny wojownik Sain",
@@ -13814,7 +13812,6 @@
             "Soldado Ryan Beliks",
             "Thundersocks",
             "Tu exx",
-            "Valanar Anai",
             "Visa Zenath",
             "Will Monkk",
             "Xayn Kurkssy"
@@ -14954,7 +14951,9 @@
             "Pally Matanovatos",
             "Dath Matanovatos",
             "Destroyer Matanovatos",
-            "Gocho Matanovatos"
+            "Drakon Matanovatos",
+            "Gocho Matanovatos",
+            "Mabux Matanovatos"
         ],
         "Pack": [
             "Dabbed",
@@ -39084,6 +39083,7 @@
             "Quidera Mato Areappers",
             "Quimico Rockefeller",
             "Qwak Qwak",
+            "Raakz",
             "Rafa Hamanati",
             "Rahad",
             "Raiklix",
