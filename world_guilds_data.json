@@ -8759,6 +8759,8 @@
             "Deexoor",
             "Njal kroth",
             "Pebbek",
+            "Rastta Yasin",
+            "Saydox",
             "Uriel Hans",
             "Volt Hans",
             "Ariel Hans",
@@ -8780,12 +8782,13 @@
             "Monster Hans",
             "Monstrodudo",
             "Moodith Corik",
+            "Omar Kalil",
             "Polenteiro de Fox",
             "Ralf Knutsson",
             "Robin Hans",
-            "Saydox",
             "Silemcer",
             "Trek Aurlis",
+            "Vemsofrendo",
             "Zell Hans"
         ],
         "Order Firmera": [
@@ -43643,6 +43646,42 @@
             "Tiika Prime",
             "Tika Prime",
             "Vampinhata"
+        ]
+    },
+    "Mystera": {
+        "Clan Samurai": [
+            "Fred samurai",
+            "Akira samurai",
+            "Art samurai",
+            "Svea Elone",
+            "Tawur samurai",
+            "Archer samurai",
+            "Dark Genio",
+            "Nocta Druid"
+        ],
+        "Degenerates": [
+            "Shaneomatic",
+            "Bibhatsu",
+            "Earth Lazer",
+            "Paas",
+            "Shil Gunne"
+        ],
+        "Never Surrender": [
+            "Never tirasio",
+            "Never Die Erick",
+            "Never paralyse",
+            "Never stong Lure",
+            "Never strong mana",
+            "Never Mars",
+            "Never Nutellita",
+            "Never asessino"
+        ],
+        "Retro Faction": [
+            "Bron Najwyzsza",
+            "Bron Najwyszsa",
+            "Mortem Kwitoslaw",
+            "Mortem Kwitoslow",
+            "Mortem Kwituslaw"
         ]
     }
 }
