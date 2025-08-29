@@ -62,7 +62,7 @@ def lambda_handler(event, context):
         json_data = json.dumps(worlds_data, indent=4)
 
         # Write the JSON to a local file
-        with open('world_guilds_data.json', 'w') as f:
+        with open('.configs/world_guilds_data.json', 'w') as f:
             f.write(json_data)
         print("Successfully wrote data to file.")
     except Exception as e:
