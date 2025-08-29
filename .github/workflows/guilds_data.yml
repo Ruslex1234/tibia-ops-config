@@ -29,6 +29,6 @@ jobs:
         git config --global user.name "github-actions[bot]"
     - name: Commit and push if changes
       run: |
-        git add world_guilds_data.json
+        git add .configs/world_guilds_data.json
         git diff --staged --quiet || git commit -m "Sanity check corrections for trolls list"
         git push || echo "No changes to commit"
