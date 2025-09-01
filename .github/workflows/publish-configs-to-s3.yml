@@ -1,4 +1,4 @@
-name: Merge & publish configs to S3
+name: Publish configs to S3 on .configs change
 
 on:
   workflow_dispatch:
@@ -8,20 +8,18 @@ on:
       - '.configs/**'
 
 permissions:
-  id-token: write   # for GitHub OIDC to assume AWS role
+  id-token: write
   contents: read
 
 env:
   AWS_REGION: us-east-1
-  # Prefer a repo/org Variable, fall back to Secret. Set one of these in repo settings.
   S3_BUCKET: ${{ vars.S3_BUCKET || secrets.S3_BUCKET }}
   S3_KEY: configs/combined.json
-  DRY_RUN: 'false'  # set to 'true' to preview without uploading
+  DRY_RUN: 'false'
   CONFIG_DIR: .configs
-
-  # Optional: enable server-side encryption
-  # S3_SSE: AES256               # or aws:kms
-  # S3_KMS_KEY_ID: your-kms-key  # when using aws:kms
+  # Optional SSE:
+  # S3_SSE: AES256
+  # S3_KMS_KEY_ID: your-kms-id
 
 concurrency:
   group: publish-configs-to-s3
@@ -30,100 +28,84 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout (last 2 commits to diff)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Short-circuit if .configs didn't actually change
+        id: guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEFORE="${{ github.event.before }}"
+          SHA="${{ github.sha }}"
+          # Handle first push / squash merges where BEFORE may be 0000...
+          if [[ -z "$BEFORE" || "$BEFORE" == 0000000000000000000000000000000000000000 ]]; then
+            echo "first_push=true" >> "$GITHUB_OUTPUT"
+            echo "Proceeding (no reliable BEFORE)."
+            exit 0
+          fi
+          CHANGED="$(git diff --name-only "$BEFORE" "$SHA" -- .configs/)"
+          if [[ -z "$CHANGED" ]]; then
+            echo "No changes under .configs/ in this commit range. Exiting."
+            echo "continue=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "Changed files under .configs/:"
+          echo "$CHANGED"
+          echo "continue=true" >> "$GITHUB_OUTPUT"
+
+      - name: Stop early (no .configs changes)
+        if: steps.guard.outputs.continue == 'false'
+        run: echo "Guard prevented unnecessary work."
 
       - name: Configure AWS credentials (OIDC)
+        if: steps.guard.outputs.continue != 'false' || steps.guard.outputs.first_push == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN || vars.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Verify AWS identity
+        if: steps.guard.outputs.continue != 'false' || steps.guard.outputs.first_push == 'true'
         run: aws sts get-caller-identity
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Generate world_guilds_data.json (no repo commit)
-        run: |
-          set -euo pipefail
-          python gen_worlds_guilds.py
-          test -f "${CONFIG_DIR}/world_guilds_data.json"
-
-      - name: Combine configs into single JSON
+      - name: Combine .configs/*.json into a single JSON
+        if: steps.guard.outputs.continue != 'false' || steps.guard.outputs.first_push == 'true'
         id: combine
         shell: bash
         run: |
           set -euo pipefail
           python - << 'PY'
-          import json, os, glob, sys, hashlib
+          import json, os, glob, hashlib
           base = os.environ.get('CONFIG_DIR', '.configs')
-
-          # Collect *.json under .configs plus legacy '.configs*.json' files
           paths = sorted(glob.glob(os.path.join(base, '*.json')))
-          if os.path.exists('.configsbastex.json'):
-            paths.append('.configsbastex.json')
-
+          if not paths:
+            raise SystemExit(f"No JSON files found in {base}")
           combined = {}
           for p in paths:
-            # derive key from filename (strip leading dot/config path and .json)
-            fname = os.path.basename(p)
-            key = fname[:-5] if fname.endswith('.json') else fname
+            name = os.path.basename(p)
+            key = name[:-5] if name.endswith('.json') else name
             with open(p, 'r', encoding='utf-8') as f:
               try:
                 combined[key] = json.load(f)
               except Exception as e:
                 raise SystemExit(f"Failed to parse JSON in {p}: {e}")
-
-          # Minified & stable (sorted keys) for cheap diffs
           payload = json.dumps(combined, sort_keys=True, separators=(',', ':')).encode('utf-8')
-          out = 'combined_config.json'
-          with open(out, 'wb') as f:
+          with open('combined_config.json','wb') as f:
             f.write(payload)
-
-          # Write a SHA256 for logs/debug
           sha = hashlib.sha256(payload).hexdigest()
           open('combined.sha256','w').write(sha)
-          print("Combined keys:", ",".join(sorted(combined.keys())))
+          print("Keys:", ",".join(sorted(combined.keys())))
           print("SHA256:", sha)
           print("Bytes:", len(payload))
           PY
           echo "path=combined_config.json" >> "$GITHUB_OUTPUT"
 
-      - name: Diff against S3 (skip upload if identical)
-        id: diff
-        shell: bash
-        env:
-          BUCKET: ${{ env.S3_BUCKET }}
-          KEY: ${{ env.S3_KEY }}
-        run: |
-          set -euo pipefail
-
-          # Try to download existing object (ignore if missing)
-          if aws s3 cp "s3://${BUCKET}/${KEY}" existing.json --only-show-errors; then
-            :
-          else
-            echo "no_remote=true" >> "$GITHUB_OUTPUT"
-            echo "changed=true"    >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          # Compare bytes exactly
-          if cmp -s "combined_config.json" "existing.json"; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "reason=No changes detected" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "reason=Content differs from S3" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Upload to S3 (only if changed)
-        if: steps.diff.outputs.changed == 'true' && env.DRY_RUN != 'true'
+      - name: Upload to S3 (replace existing)
+        if: (steps.guard.outputs.continue != 'false' || steps.guard.outputs.first_push == 'true') && env.DRY_RUN != 'true'
         env:
           BUCKET: ${{ env.S3_BUCKET }}
           KEY: ${{ env.S3_KEY }}
@@ -132,10 +114,13 @@ jobs:
           EXTRA_ARGS=()
           if [ -n "${S3_SSE:-}" ]; then EXTRA_ARGS+=(--sse "${S3_SSE}"); fi
           if [ -n "${S3_KMS_KEY_ID:-}" ]; then EXTRA_ARGS+=(--sse-kms-key-id "${S3_KMS_KEY_ID}"); fi
-          aws s3 cp "combined_config.json" "s3://${BUCKET}/${KEY}"             --only-show-errors             --content-type application/json             --metadata commit="${GITHUB_SHA}"             "${EXTRA_ARGS[@]}"
+          aws s3 cp "combined_config.json" "s3://${BUCKET}/${KEY}" \
+            --only-show-errors \
+            --content-type application/json \
+            --metadata commit="${GITHUB_SHA}" \
+            "${EXTRA_ARGS[@]}"
           echo "Uploaded to s3://${BUCKET}/${KEY}"
 
-      - name: Skip notice (unchanged or dry-run)
-        if: steps.diff.outputs.changed != 'true' || env.DRY_RUN == 'true'
-        run: |
-          echo "No upload performed. DRY_RUN=${DRY_RUN} changed=${{ steps.diff.outputs.changed || 'false' }} reason='${{ steps.diff.outputs.reason || 'n/a' }}'"
+      - name: Dry-run notice
+        if: env.DRY_RUN == 'true'
+        run: echo "DRY_RUN=true; skipping upload."
