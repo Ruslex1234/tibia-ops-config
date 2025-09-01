@@ -33,6 +33,7 @@ This workflow merges your config JSON files and the generated `world_guilds_data
   world_guilds_data.json   # created by the script each run (not committed)
 gen_worlds_guilds.py
 .github/workflows/publish-configs-to-s3.yml  # the workflow below
+.github/workflows/guilds_data.yml # this commits world_guilds_data.json from gen_worlds_guilds.py
 ```
 
 ## Setup
