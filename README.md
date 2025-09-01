@@ -29,8 +29,8 @@ This workflow merges your config JSON files and the generated `world_guilds_data
   alerts.json
   block.json
   trolls.json
+  bastex.json
   world_guilds_data.json   # created by the script each run (not committed)
-.configsbastex.json         # optional legacy path; recommend moving into .configs/
 gen_worlds_guilds.py
 .github/workflows/publish-configs-to-s3.yml  # the workflow below
 ```
