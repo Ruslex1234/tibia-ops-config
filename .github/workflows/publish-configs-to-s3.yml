@@ -3,13 +3,9 @@ name: Merge & publish configs to S3
 on:
   workflow_dispatch:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
     paths:
       - '.configs/**'
-      - 'gen_worlds_guilds.py'
-      - '.github/workflows/publish-configs-to-s3.yml'
-  schedule:
-    - cron: '*/10 * * * *'  # every 10 minutes (for fresh world_guilds_data.json)
 
 permissions:
   id-token: write   # for GitHub OIDC to assume AWS role
