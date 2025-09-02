@@ -104,12 +104,6 @@ gen_worlds_guilds.py
 
    Versioning is helpful if you ever need to roll back a bad config quickly.
 
-## Why this saves money/time
-
-- **No pointless git commits** every 10 minutes.
-- **Single S3 GET** per run to compare, and **PUT only on change**.
-- **Minified, deterministic JSON** (sorted keys) makes the diff cheap and reliable.
-
 ## FAQs
 
 - **What if the object doesn’t exist yet?** The first run uploads it.
