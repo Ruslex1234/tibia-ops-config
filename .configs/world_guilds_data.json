@@ -9074,11 +9074,10 @@
         ],
         "The Witchers": [
             "Gwynbleiddz",
+            "Firee Dran",
             "Sheepnight",
             "Valion Sanke",
             "Yosmax",
-            "Zhune brood",
-            "Zondux",
             "Biscochito",
             "Cannavaro Madlife",
             "Cinque Steelle",
@@ -9088,7 +9087,6 @@
             "Drak Feminar",
             "Drak Mohney",
             "Emmafire",
-            "Firee Dran",
             "Fracturado",
             "Hektor Skylight",
             "Ice Emma",
@@ -9107,8 +9105,10 @@
             "Tychke",
             "Vitinho Do Ralflaren",
             "Xayh",
+            "Zhune brood",
             "Zhune xix",
-            "Ziggi Zagiie"
+            "Ziggi Zagiie",
+            "Zondux"
         ],
         "Tropa Do Intercambio": [
             "Tank Zika",
@@ -11228,7 +11228,6 @@
             "Hellriser Distance",
             "Ice Cognac",
             "Invencible Evilangel",
-            "Ivoinge",
             "Joyce Pequena Padawan",
             "Joyceta Hijynx",
             "Kak majstor",
@@ -38130,6 +38129,7 @@
             "Supermega Thonikz",
             "Supermega Xeniah",
             "Svems",
+            "Swag The Druid",
             "Swaggy Dan",
             "Syd Trip",
             "Syrius Zuth",
