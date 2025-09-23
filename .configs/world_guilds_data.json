@@ -4832,6 +4832,7 @@
             "Grdito Two",
             "Hikenx",
             "Hipps",
+            "Jinwoo Ice",
             "King Clowns",
             "Loco Meme",
             "Nightwol",
@@ -4841,6 +4842,7 @@
             "Quiderina",
             "Sergei King",
             "Shakitoz",
+            "Talashe",
             "Wrath of Winter",
             "Yaconda",
             "Aldo Patinho",
@@ -4857,15 +4859,13 @@
             "Erux Ania",
             "Helado Obscuro",
             "Jackz eme ese",
-            "Jinwoo Ice",
             "Liberattor",
             "Meiyara",
             "Milo Matador",
             "Monje Con Pelo",
             "Obelizco",
             "Queen Clownz",
-            "Shuryousha",
-            "Talashe"
+            "Shuryousha"
         ],
         "Rust": [
             "Senior Toxic",
@@ -43575,13 +43575,6 @@
         ]
     },
     "Mystera": {
-        "Auxilium": [
-            "Mythic Lotus",
-            "Arckangel Fury",
-            "Arckangel black",
-            "Booze Calarel",
-            "Get Dough Bandit"
-        ],
         "Badstex": [
             "Gsix Financiero",
             "Gfive Financiero",
