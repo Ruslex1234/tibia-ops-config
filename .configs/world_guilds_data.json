@@ -8657,6 +8657,7 @@
             "Little Samantha",
             "Viejo hambrientox",
             "Yefry King",
+            "Abudabe",
             "Annabelle Druid",
             "Annabelle Ix",
             "Bahirz",
@@ -8670,7 +8671,6 @@
             "Thanatos Holindor",
             "Yefry Dangers",
             "Yefry Massacre",
-            "Abudabe",
             "Expresz of king",
             "Loco Humilde Real"
         ],
@@ -14597,7 +14597,6 @@
             "Ek Matanovatos",
             "Elite Matanovatos",
             "Pally Matanovatos",
-            "Anapple",
             "Aphey Grion",
             "Caza Ratas",
             "Crazy Matanovatos",
@@ -14616,7 +14615,8 @@
             "Peppa Matanovatos",
             "Piirru",
             "Rhoger Matanovatos",
-            "Taz Matanovatos"
+            "Taz Matanovatos",
+            "Yisuz Matanovatos"
         ],
         "Over Powered": [
             "Anira Mustafa",
@@ -14810,6 +14810,7 @@
             "Black Favo",
             "Bombita Kriminal",
             "Bone Breacker",
+            "Brigid Off",
             "Canibal Necromancer",
             "Chloe Tapp",
             "Comandante Saliinas",
@@ -14858,7 +14859,6 @@
             "Jedansz Talera",
             "Ecroz",
             "Vinte Fuzila",
-            "Brigid Off",
             "Keny Monk",
             "Lukezera",
             "Mazakre Sky",
@@ -20420,7 +20420,9 @@
             "Lith Dubian",
             "Nemas Kort",
             "Seviiz Maldro",
-            "Astrid Lyra"
+            "Astrid Lyra",
+            "Donferr",
+            "Ferking"
         ],
         "Blan Dittos": [
             "Boltman Stabbe",
@@ -33153,13 +33155,6 @@
             "Tronky Estudioso",
             "Tronky Reprobado"
         ],
-        "Los Sin Rostros": [
-            "Aguacate horneao",
-            "Hans Quintera",
-            "Moiseswiek",
-            "Pepe Truena",
-            "Shanys"
-        ],
         "Mancha Truzas": [
             "Ethernal Oblivionn",
             "Clik Derecho",
@@ -43329,6 +43324,7 @@
             "Mommy Rev",
             "Moort death",
             "Old Wesofut",
+            "Pshyco Terror",
             "Queen Gravity",
             "Rampetamper",
             "Rocket Ram",
@@ -43349,6 +43345,7 @@
             "Vegetable Farmer",
             "Vineyard Grower",
             "Vrquu",
+            "Zenfyll",
             "Alberto Prisco",
             "Aldoros",
             "Archer Cassiopeia",
@@ -43413,7 +43410,6 @@
             "Ozil Oz",
             "Pally Cheloh",
             "Pepe de Pxnda",
-            "Pshyco Terror",
             "Queen Nezkay",
             "Rayner Zebulon",
             "Razz al Ghull",
@@ -43442,7 +43438,6 @@
             "Vilcayu",
             "Wang Cristal",
             "Wilca",
-            "Zenfyll",
             "Zivaro Soprano"
         ],
         "Los Miserables": [
@@ -43901,15 +43896,6 @@
             "Triple Sam",
             "Annie Bocelli",
             "Plan Levin"
-        ],
-        "Clan Samurai": [
-            "Archer samurai",
-            "Akira samurai",
-            "Nocta Druid",
-            "Ons tic tac",
-            "Svea Elone",
-            "Tawur samurai",
-            "Kuruk Kaede"
         ],
         "El Gobierno": [
             "Tuntun saghur",
