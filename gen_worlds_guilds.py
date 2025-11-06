@@ -5,7 +5,7 @@ import gzip
 from io import BytesIO
 
 # Worlds to fetch guilds from
-WORLDS = ['Quidera', 'Vandera', 'Firmera', 'Aethera', 'Monstera', 'Talera', 'Lobera', 'Quintera', 'Wintera', 'Eclipta', 'Epoca', 'Zunera', 'Mystera', 'Xymera', 'Tempestera']
+WORLDS = ['Quidera', 'Firmera', 'Aethera', 'Monstera', 'Talera', 'Lobera', 'Quintera', 'Wintera', 'Eclipta', 'Epoca', 'Zunera', 'Mystera', 'Xymera', 'Tempestera']
 
 def fetch_guilds_for_world(world):
     url = f"https://api.tibiadata.com/v4/guilds/{world}"
