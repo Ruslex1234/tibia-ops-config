@@ -86,9 +86,22 @@ def lambda_handler(event, context):
     """
     Main handler that fetches guild data for all worlds.
     Continues processing even if individual requests fail.
+    Preserves old data if fetches fail.
     """
     print("Starting data fetch...")
-    worlds_data = {}
+
+    # Load existing data to preserve it if fetches fail
+    existing_data = {}
+    try:
+        with open('.configs/world_guilds_data.json', 'r') as f:
+            existing_data = json.load(f)
+        print(f"Loaded existing data with {len(existing_data)} worlds")
+    except FileNotFoundError:
+        print("No existing data file found - starting fresh")
+    except Exception as e:
+        print(f"Warning: Could not load existing data: {e}")
+
+    worlds_data = existing_data.copy()
     total_worlds = len(WORLDS)
     successful_worlds = 0
     failed_worlds = 0
@@ -97,13 +110,16 @@ def lambda_handler(event, context):
 
     for world in WORLDS:
         print(f"\n[{world}]")
-        worlds_data[world] = {}
 
         guilds = fetch_guilds_for_world(world)
         if guilds is None:
-            print(f"  ✗ Failed to fetch guild list for {world}. Skipping world.")
+            print(f"  ✗ Failed to fetch guild list for {world}. Keeping old data.")
             failed_worlds += 1
             continue
+
+        # Start with old data for this world, then update what we can fetch
+        old_world_data = existing_data.get(world, {})
+        worlds_data[world] = old_world_data.copy()
 
         successful_worlds += 1
         print(f"  Found {len(guilds)} guilds")
@@ -121,7 +137,11 @@ def lambda_handler(event, context):
                 print(f"✓ ({len(guild_data['members'])} members)")
                 total_guilds_processed += 1
             else:
-                print("✗ Failed or no members")
+                # Keep old data if we had it
+                if guild_name in old_world_data:
+                    print(f"✗ Failed - keeping old data ({len(old_world_data[guild_name])} members)")
+                else:
+                    print("✗ Failed or no members")
                 total_guilds_failed += 1
 
     # Summary
