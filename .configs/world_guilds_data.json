@@ -33584,7 +33584,6 @@
             "Aenyn",
             "Blaizin",
             "Codwhy",
-            "Digger the Packrat",
             "Dreadnox",
             "Dverg",
             "Exothath",
@@ -37277,17 +37276,18 @@
             "Shanty Rogerecos"
         ],
         "Viziers of Vermin": [
-            "Ratpack Alpha",
+            "Digger the Packrat",
             "Black Powder",
             "Kingo Ringo",
             "Monkrat",
             "Pale Seeker",
-            "Rustyrat",
+            "Ratpack Alpha",
             "Fatrat",
             "Firerat",
             "Lady of Rohan",
             "Littlerat",
             "Rookrat",
+            "Rustyrat",
             "Swamprat",
             "Testrat",
             "Thermalrat",
@@ -37310,7 +37310,8 @@
             "Ratpack Swiss",
             "Ratpack Swordrat",
             "Ratpack Talir",
-            "Ratpack of Danubia"
+            "Ratpack of Danubia",
+            "Digger the Monkrat"
         ],
         "Winter Wolves": [
             "Soul kamas",
