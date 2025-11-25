@@ -2223,7 +2223,6 @@
             "Etcom Ekim",
             "Eter Driona",
             "Eternal Dormammu",
-            "Eternal Gerry",
             "Eternal Gozzyks",
             "Eternal Peka",
             "Eternal Sanelo",
@@ -19850,6 +19849,7 @@
             "Jaime Nahc",
             "Kane Stook",
             "Kedgar Igan",
+            "Lord Ferdz",
             "Nanzer",
             "Neo Merovingio",
             "Nispa",
@@ -27821,7 +27821,6 @@
             "Ibon Blonia",
             "Icardii",
             "Ice Raz",
-            "Ichigo Boy",
             "Ignorado Znow",
             "Ikermon",
             "Ikl",
@@ -38547,7 +38546,6 @@
             "Chrysaor Icarus",
             "Chuck Legend",
             "Clean Room",
-            "Clear Damar",
             "Cloudstride",
             "Cobra Tobbe",
             "Codeye",
@@ -39248,6 +39246,7 @@
             "Queen Hilling",
             "Queen Keykey",
             "Queen Nox",
+            "Quickbuy Prices Only",
             "Quiet Quiet",
             "Quincy Black Mercedes",
             "Quix Star",
@@ -42478,6 +42477,14 @@
             "Thoth El Atlante",
             "Warhov",
             "Zafiraeth"
+        ],
+        "Heroes of Valhalla": [
+            "Xnigther",
+            "Abercane",
+            "Arphegyuz",
+            "Gae Bulg Lancer",
+            "Tacosychorizo",
+            "Minion Gota"
         ]
     }
 }
