@@ -10045,7 +10045,6 @@
             "Hamburgaler",
             "Hamelins Pied Piper",
             "Hammer Ingrato Neutralizado",
-            "Hanserek",
             "Hare Brim",
             "Hare Sam",
             "Harigh Jafynney",
@@ -15398,6 +15397,7 @@
             "Siranit Shadowrose",
             "Title Taker",
             "Walnut Gatherer",
+            "Yufs",
             "Yung Clau",
             "Aeschylus",
             "Albus Doombledore",
@@ -15455,7 +15455,6 @@
             "Windanna",
             "Xineeth",
             "Xowe Daeph",
-            "Yufs",
             "Yung Clay",
             "Zoxtar"
         ],
@@ -35493,6 +35492,7 @@
             "Namo Ralmemo",
             "Ninja Cloud Strife",
             "Noetheros",
+            "Not Ferumbras",
             "Ojanfwita",
             "Omegapeanut",
             "Pain in Theaxe",
@@ -41610,6 +41610,15 @@
             "Aurieny Keril",
             "Skailii",
             "Tori Bredoka"
+        ],
+        "Tribu Mala": [
+            "Frostwood Druid",
+            "Danvix",
+            "Dge Malkai",
+            "Ennsage",
+            "Jyxxd",
+            "Infernus Star",
+            "Jyxdd"
         ]
     },
     "Tempestera": {
