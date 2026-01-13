@@ -10475,11 +10475,13 @@
             "Klade Arkwidrion",
             "Klich Erre Quince",
             "Klich Erre Smashi",
+            "Kmi thief",
             "Knight Scar",
             "Knight Topito",
             "Knight of Os",
             "Koala Pancho",
             "Kodrran",
+            "Kpe Paralyse",
             "Kptaa",
             "Krackin",
             "Krah Azek",
@@ -12700,6 +12702,7 @@
             "Fumunda",
             "Monk Fear",
             "Muillo",
+            "Pharaonic monk",
             "Polety",
             "Futakuchi onna",
             "Slow Joe",
@@ -16184,7 +16187,6 @@
             "Sarg Nicolas",
             "Auronts",
             "Cariocat",
-            "Kmi",
             "Marioony",
             "Panconpate",
             "Aboogie",
@@ -16267,7 +16269,6 @@
             "Knight Troyano",
             "Knightsitax",
             "Korridan",
-            "Kpe Paralyse",
             "Kriz Orochi",
             "Lacosty",
             "Lady Frozelake",
@@ -31526,8 +31527,7 @@
             "Sonkin",
             "Thibruvic",
             "Tronky Colegiala",
-            "Tronky Reprobado",
-            "Zizi Balagan"
+            "Tronky Reprobado"
         ],
         "Los Mancos": [
             "Almighty Valodia",
@@ -42765,7 +42765,8 @@
             "Xalas Ryia",
             "Zagothor Qirane",
             "Zetaldet Ason",
-            "Zidan Etoor"
+            "Zidan Etoor",
+            "Adriian Barnes"
         ],
         "Tempestira": [
             "Ashanaven Arcsblam",
