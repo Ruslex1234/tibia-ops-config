@@ -209,7 +209,6 @@
             "Gharsharak",
             "Gi",
             "Gloin Fafinir",
-            "Goa Primeape",
             "Guih Returns",
             "Guizao Monk",
             "Gyoubu Masataka Oniwa",
@@ -15546,6 +15545,7 @@
             "Vaso De Licuado",
             "Vaso De Limon",
             "Vaso De Melon",
+            "Vaso De Pobre",
             "Vaso bombiiinhha",
             "Vaso bombiiinnhha",
             "Vaso bombiiinnhhaaa",
@@ -25068,7 +25068,6 @@
             "Menino Cabreiro",
             "Mentalsoma",
             "Metanol Injet",
-            "Milis Gart",
             "Mistonga",
             "Mizix Calling",
             "Nandagrrl",
@@ -25622,7 +25621,8 @@
             "Graybeard",
             "Minarth",
             "Orofin",
-            "Puppetmaster"
+            "Puppetmaster",
+            "Solvay"
         ],
         "Orden del Fenix": [
             "Lord Di Entis",
@@ -36928,7 +36928,6 @@
             "Eeje",
             "Ego Maniac",
             "Eh Piuca Pow",
-            "El Tio Gazpacho",
             "El demente",
             "El pollo enmascarado",
             "Elcuarentenas",
