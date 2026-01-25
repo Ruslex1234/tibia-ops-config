@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Check online enemies from Bastex (Tempestera) and Bastex Ruzh (Firmera) guilds.
+Check online enemies from Bastex (Firmera) and Bastex Ruzh (Tempestera) guilds.
 For each online member, check their death list and add unguilded killers to trolls.json.
+
+Includes sanity check functionality:
+- Case-insensitive duplicate detection
+- Automatic name normalization to proper Tibia capitalization
 """
 
 import json
@@ -134,29 +138,33 @@ def extract_killers_from_deaths(deaths, target_world):
     return list(killers)
 
 
-def is_unguilded_player_on_world(character_name, target_world):
+def check_character_for_troll(character_name, target_world):
     """
     Check if a character is on the target world and has no guild.
-    Returns tuple: (is_valid_troll, character_world)
+    Returns tuple: (is_valid_troll, correct_name, character_world)
+    - is_valid_troll: True if character should be added to trolls
+    - correct_name: The properly capitalized name from Tibia
+    - character_world: The world the character is on
     """
     char_data = fetch_character_data(character_name)
     if char_data is None:
-        return False, None
+        return False, None, None
 
     character_info = char_data.get('character', {})
+    correct_name = character_info.get('name', character_name)
     char_world = character_info.get('world', '')
     char_guild = character_info.get('guild', {})
 
     # Check if character is on the target world
     if char_world.lower() != target_world.lower():
-        return False, char_world
+        return False, correct_name, char_world
 
     # Check if character has no guild (guild dict is empty or name is empty)
     guild_name = char_guild.get('name', '') if char_guild else ''
     if guild_name:
-        return False, char_world
+        return False, correct_name, char_world
 
-    return True, char_world
+    return True, correct_name, char_world
 
 
 def load_trolls():
@@ -184,18 +192,35 @@ def save_trolls(trolls):
         return False
 
 
+def build_case_insensitive_map(trolls):
+    """
+    Build a case-insensitive lookup map.
+    Returns dict: lowercase_name -> (index, actual_name)
+    """
+    lookup = {}
+    for idx, name in enumerate(trolls):
+        lookup[name.lower()] = (idx, name)
+    return lookup
+
+
 def main():
     """Main function to check online enemies and update trolls list."""
     print("=" * 60)
     print("Checking Online Enemies - Death List Analysis")
+    print("(with case-insensitive duplicate detection & normalization)")
     print("=" * 60)
 
     # Load existing trolls
     trolls = load_trolls()
-    trolls_set = set(trolls)  # For fast lookup
     initial_count = len(trolls)
 
+    # Build case-insensitive lookup map
+    trolls_lookup = build_case_insensitive_map(trolls)
+
+    # Track changes
     new_trolls_added = []
+    names_normalized = []
+    list_modified = False
 
     for guild_name, world in ENEMY_GUILDS.items():
         print(f"\n[{guild_name}] ({world})")
@@ -235,20 +260,48 @@ def main():
 
             # Check each killer
             for killer_name in killers:
-                # Skip if already in trolls list
-                if killer_name in trolls_set:
-                    print(f"      [{killer_name}] Already in trolls list")
+                killer_lower = killer_name.lower()
+
+                # Case-insensitive check if already in trolls list
+                if killer_lower in trolls_lookup:
+                    idx, existing_name = trolls_lookup[killer_lower]
+
+                    # Check if the case matches
+                    if existing_name == killer_name:
+                        print(f"      [{killer_name}] Already in trolls list")
+                    else:
+                        # Name exists but with different case - need to normalize
+                        print(f"      [{killer_name}] Found with different case: '{existing_name}'")
+
+                        # Fetch correct name from TibiaData
+                        is_troll, correct_name, char_world = check_character_for_troll(killer_name, world)
+
+                        if correct_name and correct_name != existing_name:
+                            print(f"        [NORMALIZED] '{existing_name}' -> '{correct_name}'")
+                            trolls[idx] = correct_name
+                            trolls_lookup[killer_lower] = (idx, correct_name)
+                            names_normalized.append((existing_name, correct_name))
+                            list_modified = True
+                        else:
+                            print(f"        Keeping existing: '{existing_name}'")
                     continue
 
                 print(f"      Checking [{killer_name}]...", end=" ")
 
-                is_troll, char_world = is_unguilded_player_on_world(killer_name, world)
+                is_troll, correct_name, char_world = check_character_for_troll(killer_name, world)
 
                 if is_troll:
+                    # Use the correct name from TibiaData API
+                    name_to_add = correct_name if correct_name else killer_name
                     print(f"ADDING (unguilded on {world})")
-                    trolls.append(killer_name)
-                    trolls_set.add(killer_name)
-                    new_trolls_added.append((killer_name, world, member_name))
+
+                    if correct_name and correct_name != killer_name:
+                        print(f"        [NORMALIZED] Using correct name: '{correct_name}'")
+
+                    trolls.append(name_to_add)
+                    trolls_lookup[name_to_add.lower()] = (len(trolls) - 1, name_to_add)
+                    new_trolls_added.append((name_to_add, world, member_name))
+                    list_modified = True
                 elif char_world and char_world.lower() != world.lower():
                     print(f"Skipped (different world: {char_world})")
                 else:
@@ -260,6 +313,7 @@ def main():
     print("=" * 60)
     print(f"Initial trolls count: {initial_count}")
     print(f"New trolls added: {len(new_trolls_added)}")
+    print(f"Names normalized: {len(names_normalized)}")
     print(f"Final trolls count: {len(trolls)}")
 
     if new_trolls_added:
@@ -267,8 +321,13 @@ def main():
         for name, world, killed_by in new_trolls_added:
             print(f"  - {name} ({world}) - killed {killed_by}")
 
-    # Save if there are new entries
-    if new_trolls_added:
+    if names_normalized:
+        print("\nNames normalized (case corrected):")
+        for old_name, new_name in names_normalized:
+            print(f"  - '{old_name}' -> '{new_name}'")
+
+    # Save if there were any changes
+    if list_modified:
         save_trolls(trolls)
     else:
         print("\nNo changes to save.")
