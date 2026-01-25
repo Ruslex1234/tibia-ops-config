@@ -22,7 +22,7 @@ jobs:
         python -m pip install --upgrade pip
 
     - name: Run check online enemies script
-      run: python check_online_enemies.py
+      run: python scripts/check_online_enemies.py
 
     - name: Configure Git
       run: |

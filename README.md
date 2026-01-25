@@ -1,119 +1,238 @@
-# Config Publisher — Merge & Upload to S3 (No Repo Commits)
+# Tibia Ops Config
 
-This workflow merges your config JSON files and the generated `world_guilds_data.json` into **one** canonical JSON, and uploads it to S3 **only when the content changes**. It uses **GitHub OIDC** to assume an AWS role (no static keys) and **does not commit** generated files back to the repo (keeps your history clean, cuts pointless CI time, and avoids extra S3 PUTs).
+A comprehensive Tibia game operations management system that monitors enemy guilds, tracks player deaths, and maintains configuration lists. Data is automatically published to AWS S3 for consumption by external systems.
 
-## What it does
+## Features
 
-- Runs every 10 minutes (to refresh guild data) and on pushes that touch configs.
-- Executes `gen_worlds_guilds.py` to regenerate `.configs/world_guilds_data.json` locally.
-- Reads all JSON under `.configs/` (also supports a legacy one-off file named `.configsbastex.json`).
-- Builds a **single minified, sorted** JSON file `combined_config.json` with keys equal to the source filenames (minus `.json`), for example:
-  ```json
-  {
-    "alerts": [...],
-    "bastex": [...],
-    "block": [...],
-    "trolls": [...],
-    "world_guilds_data": { "...": "..." }
-  }
-  ```
-- Downloads the current S3 object and **byte-compares** it; if identical, **skips upload**. If different or missing, uploads with optional SSE/KMS.
-- Never pushes any generated files to Git — you can delete your old GH_PAT and commit steps.
+- **Enemy Death Tracking**: Monitors online members of enemy guilds and checks their death lists
+- **Automatic Troll Detection**: Adds unguilded killers to the trolls list automatically
+- **Name Normalization**: Ensures all names use proper Tibia capitalization
+- **Case-Insensitive Duplicate Detection**: Prevents duplicate entries regardless of case
+- **World Guild Data**: Fetches and maintains guild member lists for 14 Tibia worlds
+- **S3 Publishing**: Combines all configs into a single JSON and uploads to AWS S3
 
-> **Tip:** For consistency, consider renaming `".configsbastex.json"` to `".configs/bastex.json"`. The workflow already supports both, but normalizing paths is cleaner.
-
-## Repo layout (expected)
+## Repository Structure
 
 ```
-.configs/
-  alerts.json
-  block.json
-  trolls.json
-  bastex.json
-  world_guilds_data.json   # created by the script each run (not committed)
-gen_worlds_guilds.py
-.github/workflows/publish-configs-to-s3.yml  # the workflow below
-.github/workflows/guilds_data.yml # this commits world_guilds_data.json from gen_worlds_guilds.py
+tibia-ops-config/
+├── scripts/                          # Python scripts
+│   ├── config.py                     # Centralized configuration
+│   ├── tibia_api.py                  # Shared TibiaData API client
+│   ├── check_online_enemies.py       # Enemy death tracker
+│   └── gen_worlds_guilds.py          # World guilds data generator
+├── .configs/                         # Configuration files
+│   ├── trolls.json                   # Tracked troll players
+│   ├── bastex.json                   # Bastex guild tracking list
+│   ├── block.json                    # Blocked players list
+│   ├── alerts.json                   # Alert players list
+│   └── world_guilds_data.json        # Auto-generated guild data
+├── .github/workflows/                # GitHub Actions
+│   ├── check_online_enemies.yml      # Runs every 10 min
+│   ├── guilds_data.yml               # Runs every 10 min
+│   └── publish-configs-to-s3.yml     # Publishes to S3
+└── README.md
 ```
+
+## Configuration
+
+All configuration is centralized in `scripts/config.py`:
+
+```python
+# Enemy guilds to monitor (guild_name -> world)
+ENEMY_GUILDS = {
+    "Bastex": "Firmera",
+    "Bastex Ruzh": "Tempestera"
+}
+
+# Worlds to fetch guild data from
+WORLDS = [
+    'Quidera', 'Firmera', 'Aethera', 'Monstera', 'Talera',
+    'Lobera', 'Quintera', 'Wintera', 'Eclipta', 'Epoca',
+    'Zunera', 'Mystera', 'Xymera', 'Tempestera'
+]
+```
+
+To add or change enemy guilds, simply edit the `ENEMY_GUILDS` dictionary.
+
+## Pipelines
+
+### 1. Check Online Enemies (`check_online_enemies.yml`)
+
+**Schedule**: Every 10 minutes
+
+**What it does**:
+1. Fetches online members from configured enemy guilds
+2. Checks each online member's death list via TibiaData API
+3. For each player killer in the deaths:
+   - Checks if they're on the same server
+   - Checks if they have no guild affiliation
+   - If both conditions met, adds them to `trolls.json`
+4. Automatically normalizes names to proper Tibia capitalization
+5. Detects and corrects case-insensitive duplicates
+
+**Example output**:
+```
+[Bastex] (Firmera)
+  Found 3 online member(s)
+
+  Checking deaths for: Enemy Player
+    Found 5 death(s)
+    Found 2 unique player killer(s)
+      [New Troll] Checking... ADDING (unguilded on Firmera)
+        [NORMALIZED] Using correct name: 'New Troll'
+
+Summary
+============================================================
+Initial trolls count: 112
+New trolls added: 1
+Names normalized: 0
+Final trolls count: 113
+```
+
+### 2. Generate Guilds Data (`guilds_data.yml`)
+
+**Schedule**: Every 10 minutes
+
+**What it does**:
+1. Fetches active guild lists for all 14 configured worlds
+2. For each guild, fetches the member list
+3. Saves data to `.configs/world_guilds_data.json`
+4. Preserves old data if API fetches fail (resilient to outages)
+
+### 3. Publish Configs to S3 (`publish-configs-to-s3.yml`)
+
+**Schedule**: On changes to `.configs/` or manual trigger
+
+**What it does**:
+1. Combines all `.configs/*.json` files into a single `combined_config.json`
+2. Compares with existing S3 object (byte-comparison)
+3. Only uploads if content has changed
+4. Uses GitHub OIDC for secure AWS authentication (no static keys)
+
+## Configuration Files
+
+| File | Description |
+|------|-------------|
+| `trolls.json` | Players identified as "trolls" (unguilded killers from death lists) |
+| `bastex.json` | Manual tracking list for Bastex-related players |
+| `block.json` | Players to block/ignore |
+| `alerts.json` | Players that trigger alerts |
+| `world_guilds_data.json` | Auto-generated: All guild members by world |
 
 ## Setup
 
-1. **Create an IAM Role for GitHub OIDC** (one-time)
+### Prerequisites
 
-   Trust policy (replace `ORG/REPO` and branches as needed):
+- Python 3.9+
+- GitHub repository with Actions enabled
+- AWS account (for S3 publishing)
 
-   ```json
-   {
-     "Version": "2012-10-17",
-     "Statement": [
-       {
-         "Effect": "Allow",
-         "Principal": { "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com" },
-         "Action": "sts:AssumeRoleWithWebIdentity",
-         "Condition": {
-           "StringEquals": { "token.actions.githubusercontent.com:aud": "sts.amazonaws.com" },
-           "StringLike": { "token.actions.githubusercontent.com:sub": "repo:ORG/REPO:*" }
-         }
-       }
-     ]
-   }
-   ```
+### GitHub Secrets/Variables Required
 
-   Permissions policy (least-privileged S3 access to a single object path):
+| Name | Type | Description |
+|------|------|-------------|
+| `GH_PAT` | Secret | GitHub Personal Access Token for pushing changes |
+| `S3_BUCKET` | Variable/Secret | S3 bucket name |
+| `AWS_ROLE_ARN` | Variable/Secret | IAM role ARN for OIDC |
+| `AWS_REGION` | Variable | AWS region (default: `us-east-1`) |
 
-   ```json
-   {
-     "Version": "2012-10-17",
-     "Statement": [
-       {
-         "Effect": "Allow",
-         "Action": ["s3:ListBucket"],
-         "Resource": "arn:aws:s3:::YOUR_BUCKET"
-       },
-       {
-         "Effect": "Allow",
-         "Action": ["s3:GetObject","s3:PutObject"],
-         "Resource": "arn:aws:s3:::YOUR_BUCKET/configs/combined.json"
-       }
-     ]
-   }
-   ```
+### AWS IAM Role Setup
 
-   You can widen to a prefix if needed (e.g., `arn:aws:s3:::YOUR_BUCKET/configs/*`).
+Create an IAM role with GitHub OIDC trust policy:
 
-2. **GitHub repo settings**
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        },
+        "StringLike": {
+          "token.actions.githubusercontent.com:sub": "repo:YOUR_ORG/YOUR_REPO:*"
+        }
+      }
+    }
+  ]
+}
+```
 
-   - Set one of:
-     - **Variable** `S3_BUCKET = YOUR_BUCKET`
-     - **Secret**   `S3_BUCKET = YOUR_BUCKET`
-   - Set one of:
-     - **Variable** `AWS_ROLE_ARN = arn:aws:iam::<ACCOUNT_ID>:role/<ROLE_NAME>`
-     - **Secret**   `AWS_ROLE_ARN = arn:aws:iam::<ACCOUNT_ID>:role/<ROLE_NAME>`
-   - (Optional) Variables/Env:
-     - `AWS_REGION` (default `us-east-1`)
-     - `S3_KEY` (default `configs/combined.json`)
-     - `S3_SSE` (`AES256` or `aws:kms`)
-     - `S3_KMS_KEY_ID` (if using `aws:kms`)
-     - `DRY_RUN` (`true` to test without uploading)
+Attach a permissions policy for S3:
 
-3. **Drop in the workflow**
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": "arn:aws:s3:::YOUR_BUCKET"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject"],
+      "Resource": "arn:aws:s3:::YOUR_BUCKET/configs/*"
+    }
+  ]
+}
+```
 
-   Save the YAML below as `.github/workflows/publish-configs-to-s3.yml` and commit it.
+## Running Locally
 
-4. **(Optional) Enable S3 versioning**
+```bash
+# Check online enemies and update trolls.json
+python scripts/check_online_enemies.py
 
-   Versioning is helpful if you ever need to roll back a bad config quickly.
+# Generate world guilds data
+python scripts/gen_worlds_guilds.py
+```
 
-## FAQs
+## API Reference
 
-- **What if the object doesn’t exist yet?** The first run uploads it.
-- **What if I switch to KMS?** Still fine; we don’t rely on ETags/MD5 — we do a byte-comparison after downloading.
-- **Can I publish to multiple keys/buckets?** Yes — duplicate the “Upload to S3” step with different `S3_KEY`/`S3_BUCKET` values.
-- **How do I stop the 10‑minute schedule?** Remove or change the `schedule:` block. Push triggers will still work.
+The scripts use the [TibiaData API v4](https://tibiadata.com/):
+
+- `GET /v4/character/{name}` - Character info, deaths, guild
+- `GET /v4/guild/{name}` - Guild members and online status
+- `GET /v4/guilds/{world}` - List of active guilds for a world
+
+All API calls include:
+- Exponential backoff retry (2s, 4s, 8s, 16s) for transient errors
+- 30-second timeout per request
+- Gzip compression support
 
 ## Troubleshooting
 
-- `AccessDenied` on S3: confirm `AWS_ROLE_ARN` is correct and the policy allows `GetObject/PutObject/ListBucket` on your path.
-- `Unable to locate credentials`: OIDC role not assumed — ensure `permissions: id-token: write` and `role-to-assume` are set.
-- `CONFIG_DIR does not exist`: ensure your `.configs/` folder exists in the repo, even if initially empty.
-- API rate limits or timeouts: add basic backoff/retries inside `gen_worlds_guilds.py` if TibiaData occasionally throttles.
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| `AccessDenied` on S3 | Verify `AWS_ROLE_ARN` and IAM policy permissions |
+| `Unable to locate credentials` | Ensure OIDC is configured correctly |
+| API rate limits | The retry logic handles this automatically |
+| Duplicate entries | The script detects case-insensitive duplicates |
+
+### Checking Logs
+
+View workflow logs in GitHub Actions to see:
+- Which enemies were online
+- Deaths processed
+- New trolls added
+- Names normalized
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test locally with `python scripts/<script>.py`
+5. Submit a pull request
+
+## License
+
+This project is for personal/educational use for Tibia game operations management.
