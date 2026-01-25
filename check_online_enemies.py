@@ -14,8 +14,8 @@ from io import BytesIO
 
 # Guild configurations: guild_name -> world
 ENEMY_GUILDS = {
-    "Bastex": "Tempestera",
-    "Bastex Ruzh": "Firmera"
+    "Bastex": "Firmera",
+    "Bastex Ruzh": "Tempestera"
 }
 
 # Retry configuration
