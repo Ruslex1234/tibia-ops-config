@@ -4722,7 +4722,6 @@
             "Trundlexz",
             "Zixket",
             "Betho Lopez",
-            "Blackkjack",
             "Cabe Zom",
             "Damza Tomigonix",
             "Demencii",
@@ -4782,9 +4781,11 @@
             "Meiyara",
             "Milo Matador",
             "Monje Con Pelo",
+            "Riskeadora Maniak",
             "Saint of Madness",
             "Show Silence",
-            "Stronk Galiix"
+            "Stronk Galiix",
+            "Xapatros"
         ],
         "Rust": [
             "Senior Toxic",
@@ -10791,6 +10792,7 @@
             "Lamuria Slayer",
             "Lanus Perfect",
             "Last Dargon",
+            "Le Cientifiko",
             "Lechuga Asesina",
             "Legendary Artificial",
             "Legolas The Paladin",
@@ -11383,7 +11385,6 @@
             "Tanketa Navy Seal",
             "Tanque Evanss",
             "Tap Water",
-            "Taq Oo",
             "Taqo Cientifiko",
             "Tauke Alcosope",
             "Tearing Bow Eleaneer",
@@ -32726,6 +32727,15 @@
             "Balderas Perron",
             "Chilin Queen",
             "Pinza Destroyer"
+        ],
+        "Elteam dinamita": [
+            "Pieniusek",
+            "Bombinhadois",
+            "Greinosky",
+            "Llanerito",
+            "Matandoando",
+            "Rey Penguin",
+            "Rey Reagar"
         ]
     },
     "Wintera": {
@@ -42531,7 +42541,6 @@
             "Im Buda",
             "Jason Voorhess",
             "Jenny Kord",
-            "Jhokers",
             "Joengt",
             "Karl Style",
             "Karsitov",
