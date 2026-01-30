@@ -16,7 +16,7 @@ import os
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config import ENEMY_GUILDS, TROLLS_FILE
+from config import ENEMY_GUILDS, TROLLS_FILE, BASTEX_FILE
 from tibia_api import (
     get_online_guild_members,
     fetch_character,
@@ -44,16 +44,16 @@ def extract_player_killers(deaths):
     return list(killers)
 
 
-def load_trolls():
-    """Load existing trolls list from file."""
+def load_json_list(filepath):
+    """Load a JSON array from file."""
     try:
-        with open(TROLLS_FILE, 'r') as f:
+        with open(filepath, 'r') as f:
             return json.load(f)
     except FileNotFoundError:
-        print(f"Warning: {TROLLS_FILE} not found. Creating new list.")
+        print(f"Warning: {filepath} not found. Using empty list.")
         return []
     except Exception as e:
-        print(f"Error loading trolls file: {e}")
+        print(f"Error loading {filepath}: {e}")
         return []
 
 
@@ -87,10 +87,15 @@ def main():
     print("=" * 60)
 
     # Load existing trolls
-    trolls = load_trolls()
+    trolls = load_json_list(TROLLS_FILE)
     initial_count = len(trolls)
 
-    # Build case-insensitive lookup map
+    # Load bastex list so we don't add people who are already tracked there
+    bastex = load_json_list(BASTEX_FILE)
+    bastex_set = {name.lower() for name in bastex}
+    print(f"Loaded {len(trolls)} trolls and {len(bastex)} bastex entries")
+
+    # Build case-insensitive lookup map for trolls
     trolls_lookup = build_case_insensitive_map(trolls)
 
     # Track changes
@@ -137,6 +142,11 @@ def main():
             # Check each killer
             for killer_name in killers:
                 killer_lower = killer_name.lower()
+
+                # Skip if already in bastex list (no API call needed)
+                if killer_lower in bastex_set:
+                    print(f"      [{killer_name}] Already in bastex list - skipping")
+                    continue
 
                 # Case-insensitive check if already in trolls list
                 if killer_lower in trolls_lookup:
