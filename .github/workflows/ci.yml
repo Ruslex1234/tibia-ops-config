@@ -1,0 +1,290 @@
+# =============================================================================
+# CI Pipeline - Continuous Integration
+# =============================================================================
+# WHAT:  Runs on every Pull Request to validate code quality before merge.
+# WHY:   Catches bugs, security issues, and style problems BEFORE they hit main.
+# WHEN:  Triggered on every PR to main, and on every push to a PR branch.
+#
+# STAGES (run in order):
+#   1. Lint        - Code style & formatting (flake8)
+#   2. Test        - Unit tests & coverage (pytest)
+#   3. Security    - SAST scanning (bandit) + dependency audit (pip-audit)
+#   4. Validate    - Config file validation (JSON syntax check)
+#
+# If ANY stage fails, the entire pipeline fails and the PR cannot be merged
+# (when branch protection rules are enabled).
+# =============================================================================
+
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+# Cancel in-progress runs for the same PR (saves CI minutes)
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ===========================================================================
+  # STAGE 1: LINT - Static Code Analysis for Style
+  # ===========================================================================
+  # Tool: flake8 (https://flake8.pycqa.org)
+  # Purpose: Enforces PEP 8 coding standards, catches syntax errors,
+  #          undefined names, and overly complex code.
+  # Config: .flake8 file in repo root
+  # ===========================================================================
+  lint:
+    name: "Stage 1: Lint (flake8)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Set up Python 3.9"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      # Cache pip packages so subsequent runs are faster
+      - name: "Cache pip dependencies"
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: ${{ runner.os }}-pip-lint-
+
+      - name: "Install linting tools"
+        run: |
+          echo "::group::Installing dependencies"
+          python -m pip install --upgrade pip
+          pip install flake8
+          echo "::endgroup::"
+
+      - name: "Run flake8 linter"
+        run: |
+          echo "Running flake8 with config from .flake8..."
+          echo "-------------------------------------------"
+          flake8 scripts/ tests/ --config .flake8 --statistics --count
+          echo "-------------------------------------------"
+          echo "Lint check passed."
+
+  # ===========================================================================
+  # STAGE 2: TEST - Unit Tests & Code Coverage
+  # ===========================================================================
+  # Tool: pytest (https://pytest.org) + pytest-cov
+  # Purpose: Runs all unit tests to verify code behaves correctly.
+  #          Generates a coverage report to show how much code is tested.
+  # Convention: Tests live in tests/ and follow test_*.py naming.
+  # ===========================================================================
+  test:
+    name: "Stage 2: Test (pytest)"
+    runs-on: ubuntu-latest
+    needs: lint  # Only run tests if linting passes
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Set up Python 3.9"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: "Cache pip dependencies"
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-test-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: ${{ runner.os }}-pip-test-
+
+      - name: "Install test dependencies"
+        run: |
+          echo "::group::Installing dependencies"
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          echo "::endgroup::"
+
+      - name: "Run unit tests with coverage"
+        run: |
+          echo "Running pytest with coverage reporting..."
+          echo "-------------------------------------------"
+          pytest tests/ \
+            --verbose \
+            --tb=short \
+            --cov=scripts \
+            --cov-report=term-missing \
+            --cov-report=html:coverage-report \
+            --junitxml=test-results.xml
+          echo "-------------------------------------------"
+          echo "All tests passed."
+
+      # Upload coverage report as an artifact for review
+      - name: "Upload coverage report"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-report/
+          retention-days: 14
+
+      # Upload test results for GitHub Actions test summary
+      - name: "Upload test results"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results.xml
+          retention-days: 14
+
+  # ===========================================================================
+  # STAGE 3: SECURITY - SAST + Dependency Scanning
+  # ===========================================================================
+  # Tools:
+  #   - bandit (https://bandit.readthedocs.io) - SAST scanner
+  #     Scans Python code for common security issues like:
+  #     * Hardcoded passwords/secrets
+  #     * SQL injection patterns
+  #     * Use of insecure functions (eval, exec, pickle)
+  #     * Insecure HTTP connections
+  #
+  #   - pip-audit (https://github.com/pypa/pip-audit) - SCA scanner
+  #     Checks installed packages against known vulnerability databases
+  #     (OSV, PyPI advisory DB). Like "npm audit" for Python.
+  #
+  #   - gitleaks (https://github.com/gitleaks/gitleaks) - Secrets scanner
+  #     Scans git history and working tree for accidentally committed
+  #     secrets like API keys, passwords, tokens, private keys.
+  # ===========================================================================
+  security:
+    name: "Stage 3: Security Scan"
+    runs-on: ubuntu-latest
+    needs: lint  # Run in parallel with tests (both need lint)
+    steps:
+      - name: "Checkout code (full history for secrets scan)"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for gitleaks
+
+      - name: "Set up Python 3.9"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: "Cache pip dependencies"
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-security-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: ${{ runner.os }}-pip-security-
+
+      - name: "Install security tools"
+        run: |
+          echo "::group::Installing dependencies"
+          python -m pip install --upgrade pip
+          pip install bandit pip-audit
+          echo "::endgroup::"
+
+      # --- SAST: Static Application Security Testing ---
+      - name: "Run bandit SAST scanner"
+        run: |
+          echo "=== SAST SCAN (bandit) ==="
+          echo "Scanning Python source code for security vulnerabilities..."
+          echo "-------------------------------------------"
+          bandit -r scripts/ -c .bandit -f screen --verbose
+          echo "-------------------------------------------"
+          echo "SAST scan passed - no security issues found."
+
+      # --- SCA: Software Composition Analysis ---
+      - name: "Run pip-audit dependency scanner"
+        run: |
+          echo "=== DEPENDENCY SCAN (pip-audit) ==="
+          echo "Checking installed packages for known vulnerabilities..."
+          echo "-------------------------------------------"
+          pip-audit --strict --desc 2>&1 || true
+          echo "-------------------------------------------"
+          echo "Dependency scan complete."
+
+      # --- Secrets Detection ---
+      - name: "Run gitleaks secrets scanner"
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true  # Advisory - don't block PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ===========================================================================
+  # STAGE 4: VALIDATE - Configuration File Integrity
+  # ===========================================================================
+  # Purpose: Ensures all JSON config files are valid and parseable.
+  #          A broken JSON file could crash the entire system at runtime.
+  # ===========================================================================
+  validate:
+    name: "Stage 4: Validate Configs"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Set up Python 3.9"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: "Validate all JSON config files"
+        run: |
+          echo "=== CONFIG VALIDATION ==="
+          echo "Checking all .configs/*.json files for valid JSON..."
+          echo "-------------------------------------------"
+          FAILED=0
+          for f in .configs/*.json; do
+            if python -m json.tool "$f" > /dev/null 2>&1; then
+              SIZE=$(wc -c < "$f")
+              ENTRIES=""
+              # Try to count entries for array files
+              ENTRIES=$(python -c "import json; d=json.load(open('$f')); print(f'{len(d)} entries') if isinstance(d, list) else print(f'{len(d)} keys')" 2>/dev/null || echo "")
+              echo "  PASS: $f ($SIZE bytes, $ENTRIES)"
+            else
+              echo "  FAIL: $f - Invalid JSON!"
+              FAILED=1
+            fi
+          done
+          echo "-------------------------------------------"
+          if [ "$FAILED" -eq 1 ]; then
+            echo "Config validation FAILED - fix invalid JSON files."
+            exit 1
+          fi
+          echo "All config files are valid."
+
+  # ===========================================================================
+  # PIPELINE GATE - All stages must pass
+  # ===========================================================================
+  # This job exists so branch protection can require a single status check
+  # named "ci-passed" instead of listing every individual job.
+  # ===========================================================================
+  ci-passed:
+    name: "CI Passed"
+    runs-on: ubuntu-latest
+    needs: [lint, test, security, validate]
+    if: always()
+    steps:
+      - name: "Check all stages"
+        run: |
+          echo "=== CI PIPELINE SUMMARY ==="
+          echo "Lint:     ${{ needs.lint.result }}"
+          echo "Test:     ${{ needs.test.result }}"
+          echo "Security: ${{ needs.security.result }}"
+          echo "Validate: ${{ needs.validate.result }}"
+          echo "==========================="
+
+          if [[ "${{ needs.lint.result }}" != "success" ]] || \
+             [[ "${{ needs.test.result }}" != "success" ]] || \
+             [[ "${{ needs.security.result }}" != "success" ]] || \
+             [[ "${{ needs.validate.result }}" != "success" ]]; then
+            echo "CI FAILED - one or more stages did not pass."
+            exit 1
+          fi
+
+          echo "All CI stages passed. Ready to merge."

@@ -1,0 +1,117 @@
+# =============================================================================
+# Scheduled Jobs - Automated Data Collection
+# =============================================================================
+# WHAT:  Runs on a schedule to fetch live data from TibiaData API.
+# WHY:   Keeps player lists and guild data up to date automatically.
+# WHEN:  Every 10 minutes (cron) or manual trigger.
+#
+# These jobs are NOT part of the CI/CD pipeline - they are operational tasks
+# that run independently to collect and update game data.
+#
+# JOB 1: update-guild-data    - Fetches guild member lists for all worlds
+# JOB 2: check-enemies        - Monitors enemy deaths, updates trolls list
+#
+# Both jobs commit directly to main because they update data files,
+# not application code. Code changes should always go through the CI/CD
+# pipeline via Pull Requests.
+# =============================================================================
+
+name: Scheduled Jobs
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # Every 10 minutes
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Which job to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - guild-data
+          - check-enemies
+
+jobs:
+  # ===========================================================================
+  # JOB 1: Update Guild Data
+  # ===========================================================================
+  update-guild-data:
+    name: "Update World Guild Data"
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'schedule' ||
+      github.event.inputs.job == 'all' ||
+      github.event.inputs.job == 'guild-data'
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: "Set up Python 3.9"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: "Run guild data collection"
+        run: |
+          echo "=== GUILD DATA COLLECTION ==="
+          echo "Started at: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo ""
+          python scripts/gen_worlds_guilds.py
+          echo ""
+          echo "Finished at: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
+      - name: "Configure Git"
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: "Commit and push if changes"
+        run: |
+          git add .configs/world_guilds_data.json
+          git diff --staged --quiet || git commit -m "Update world guilds data"
+          git push || echo "No changes to commit"
+
+  # ===========================================================================
+  # JOB 2: Check Online Enemies
+  # ===========================================================================
+  check-enemies:
+    name: "Check Online Enemies"
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'schedule' ||
+      github.event.inputs.job == 'all' ||
+      github.event.inputs.job == 'check-enemies'
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: "Set up Python 3.9"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: "Run enemy death tracker"
+        run: |
+          echo "=== ENEMY DEATH TRACKER ==="
+          echo "Started at: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo ""
+          python scripts/check_online_enemies.py
+          echo ""
+          echo "Finished at: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
+      - name: "Configure Git"
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: "Commit and push if changes"
+        run: |
+          git add .configs/trolls.json
+          git diff --staged --quiet || git commit -m "Add new entries to trolls.json"
+          git push || echo "No changes to commit"

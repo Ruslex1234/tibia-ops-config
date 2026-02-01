@@ -1,0 +1,39 @@
+# =============================================================================
+# Pre-commit hooks - run locally before each commit
+# Install: pip install pre-commit && pre-commit install
+# Manual run: pre-commit run --all-files
+# =============================================================================
+
+repos:
+  # ---- Code Formatting & Style ----
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace         # Remove trailing whitespace
+      - id: end-of-file-fixer           # Ensure files end with newline
+      - id: check-yaml                  # Validate YAML syntax
+      - id: check-json                  # Validate JSON syntax
+      - id: check-added-large-files     # Prevent large files from being committed
+        args: ['--maxkb=500']
+      - id: check-merge-conflict        # Prevent merge conflict markers
+      - id: detect-private-key          # Prevent private keys from being committed
+
+  # ---- Python Linting ----
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args: ['--config=.flake8']
+
+  # ---- Security Scanning (SAST) ----
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.7
+    hooks:
+      - id: bandit
+        args: ['-c', '.bandit']
+
+  # ---- Secrets Detection ----
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.1
+    hooks:
+      - id: gitleaks
