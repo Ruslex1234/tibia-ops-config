@@ -1,0 +1,26 @@
+# =============================================================================
+# CODEOWNERS - Defines who must review changes to specific files
+# =============================================================================
+# When a PR modifies files matching a pattern below, GitHub automatically
+# requests a review from the listed owners. The PR cannot merge until
+# at least one CODEOWNER approves.
+#
+# Syntax: <pattern> <owner1> <owner2> ...
+# Owners can be @username, @org/team-name, or email addresses.
+# =============================================================================
+
+# Default owner for everything
+* @Ruslex1234
+
+# Pipeline changes require owner review (prevents CI/CD tampering)
+.github/workflows/ @Ruslex1234
+
+# Security configs require owner review
+.bandit @Ruslex1234
+.pre-commit-config.yaml @Ruslex1234
+
+# Configuration changes (player lists)
+.configs/ @Ruslex1234
+
+# Core scripts
+scripts/ @Ruslex1234

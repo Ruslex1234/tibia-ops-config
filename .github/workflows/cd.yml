@@ -1,0 +1,357 @@
+# =============================================================================
+# CD Pipeline - Continuous Deployment
+# =============================================================================
+# WHAT:  Runs AFTER code merges to main. Builds, packages, and deploys.
+# WHY:   Automates the release process so deployments are consistent and safe.
+# WHEN:  Triggered on push to main (after PR merge) or manual dispatch.
+#
+# STAGES (run in order):
+#   1. Build       - Install deps, validate environment
+#   2. Package     - Combine configs into deployable artifact
+#   3. Deploy-Stg  - Deploy to staging (dry-run / validation)
+#   4. Deploy-Prod - Deploy to production S3
+#   5. Smoke Test  - Verify the deployment is working
+#
+# ENVIRONMENTS:
+#   - staging:    Dry-run validation, no actual upload
+#   - production: Real S3 upload with change detection
+#
+# This follows the "build once, deploy many" principle.
+# =============================================================================
+
+name: CD Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - '.configs/**'
+      - 'requirements.txt'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  id-token: write   # Required for OIDC authentication with AWS
+  contents: read
+
+concurrency:
+  group: cd-deploy
+  cancel-in-progress: false  # Never cancel a deploy in progress
+
+jobs:
+  # ===========================================================================
+  # STAGE 1: BUILD - Prepare the application
+  # ===========================================================================
+  # Purpose: Verify the code is in a deployable state.
+  #          Install dependencies, run a quick sanity check.
+  # ===========================================================================
+  build:
+    name: "Stage 1: Build"
+    runs-on: ubuntu-latest
+    outputs:
+      commit_sha: ${{ github.sha }}
+      commit_short: ${{ steps.meta.outputs.short_sha }}
+      deploy_time: ${{ steps.meta.outputs.deploy_time }}
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Set up Python 3.9"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: "Install dependencies"
+        run: |
+          echo "::group::Installing dependencies"
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          echo "::endgroup::"
+
+      - name: "Run quick validation"
+        run: |
+          echo "=== BUILD VALIDATION ==="
+          echo "Checking Python syntax..."
+          python -m py_compile scripts/config.py
+          python -m py_compile scripts/tibia_api.py
+          python -m py_compile scripts/check_online_enemies.py
+          python -m py_compile scripts/gen_worlds_guilds.py
+          echo "All scripts compile successfully."
+
+          echo ""
+          echo "Running unit tests..."
+          pytest tests/ --quiet --tb=line
+          echo "All tests pass."
+
+      - name: "Generate build metadata"
+        id: meta
+        run: |
+          echo "short_sha=$(echo $GITHUB_SHA | head -c 7)" >> "$GITHUB_OUTPUT"
+          echo "deploy_time=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+          echo ""
+          echo "=== BUILD METADATA ==="
+          echo "Commit:  $(echo $GITHUB_SHA | head -c 7)"
+          echo "Branch:  $GITHUB_REF_NAME"
+          echo "Actor:   $GITHUB_ACTOR"
+          echo "Time:    $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
+  # ===========================================================================
+  # STAGE 2: PACKAGE - Create deployable artifact
+  # ===========================================================================
+  # Purpose: Combine all config files into a single deployable JSON.
+  #          This artifact is what gets deployed to every environment.
+  #          "Build once, deploy many" - same artifact goes to stg and prod.
+  # ===========================================================================
+  package:
+    name: "Stage 2: Package"
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Set up Python 3.9"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: "Combine configs into deployable artifact"
+        id: combine
+        run: |
+          echo "=== PACKAGING ==="
+          python - << 'PY'
+          import json, os, glob, hashlib
+
+          base = '.configs'
+          paths = sorted(glob.glob(os.path.join(base, '*.json')))
+          if not paths:
+              raise SystemExit(f"No JSON files found in {base}")
+
+          combined = {}
+          for p in paths:
+              name = os.path.basename(p)
+              key = name[:-5] if name.endswith('.json') else name
+              with open(p, 'r', encoding='utf-8') as f:
+                  combined[key] = json.load(f)
+              print(f"  Included: {name} ({key})")
+
+          payload = json.dumps(combined, sort_keys=True, separators=(',', ':')).encode('utf-8')
+
+          with open('combined_config.json', 'wb') as f:
+              f.write(payload)
+
+          sha = hashlib.sha256(payload).hexdigest()
+          with open('artifact.sha256', 'w') as f:
+              f.write(sha)
+
+          print(f"\n  Artifact: combined_config.json")
+          print(f"  SHA256:   {sha}")
+          print(f"  Size:     {len(payload)} bytes")
+          print(f"  Keys:     {', '.join(sorted(combined.keys()))}")
+          PY
+
+      - name: "Upload deployment artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-artifact-${{ needs.build.outputs.commit_short }}
+          path: |
+            combined_config.json
+            artifact.sha256
+          retention-days: 30
+
+  # ===========================================================================
+  # STAGE 3: DEPLOY STAGING - Dry-run validation
+  # ===========================================================================
+  # Purpose: Validate the deployment would succeed WITHOUT actually deploying.
+  #          This catches permission issues, missing secrets, bad configs.
+  #          In a real-world setup, this would deploy to a staging environment.
+  # ===========================================================================
+  deploy-staging:
+    name: "Stage 3: Deploy Staging (dry-run)"
+    runs-on: ubuntu-latest
+    needs: [build, package]
+    environment: staging  # GitHub Environment (optional - for protection rules)
+    steps:
+      - name: "Download deployment artifact"
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-artifact-${{ needs.build.outputs.commit_short }}
+
+      - name: "Validate artifact integrity"
+        run: |
+          echo "=== STAGING VALIDATION ==="
+          echo "Verifying artifact..."
+
+          if [ ! -f combined_config.json ]; then
+            echo "FAIL: Artifact not found!"
+            exit 1
+          fi
+
+          EXPECTED_SHA=$(cat artifact.sha256)
+          ACTUAL_SHA=$(sha256sum combined_config.json | cut -d' ' -f1)
+
+          echo "  Expected SHA: $EXPECTED_SHA"
+          echo "  Actual SHA:   $ACTUAL_SHA"
+
+          if [ "$EXPECTED_SHA" != "$ACTUAL_SHA" ]; then
+            echo "FAIL: Artifact integrity check failed!"
+            exit 1
+          fi
+
+          echo "  Artifact integrity verified."
+
+      - name: "Validate artifact contents"
+        run: |
+          echo "Validating JSON structure..."
+          python3 -c "
+          import json
+          with open('combined_config.json') as f:
+              data = json.load(f)
+          required_keys = ['alerts', 'bastex', 'block', 'trolls']
+          for key in required_keys:
+              assert key in data, f'Missing required key: {key}'
+              print(f'  {key}: {len(data[key])} entries')
+          print('Artifact validation passed.')
+          "
+
+      - name: "Staging deploy result"
+        run: |
+          echo "=== STAGING DEPLOYMENT ==="
+          echo "Status:     SUCCESS (dry-run)"
+          echo "Commit:     ${{ needs.build.outputs.commit_short }}"
+          echo "Time:       ${{ needs.build.outputs.deploy_time }}"
+          echo ""
+          echo "Staging validation passed. Ready for production."
+
+  # ===========================================================================
+  # STAGE 4: DEPLOY PRODUCTION - Real S3 upload
+  # ===========================================================================
+  # Purpose: Deploy the validated artifact to production S3.
+  #          Uses OIDC for authentication (no static AWS keys).
+  #          Includes change detection to skip redundant uploads.
+  # ===========================================================================
+  deploy-production:
+    name: "Stage 4: Deploy Production"
+    runs-on: ubuntu-latest
+    needs: [build, package, deploy-staging]
+    environment: production  # GitHub Environment (for approval gates if configured)
+    steps:
+      - name: "Download deployment artifact"
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-artifact-${{ needs.build.outputs.commit_short }}
+
+      - name: "Configure AWS credentials (OIDC)"
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN || vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: "Verify AWS identity"
+        run: |
+          echo "=== AWS IDENTITY ==="
+          aws sts get-caller-identity
+
+      - name: "Deploy to S3"
+        env:
+          BUCKET: ${{ vars.S3_BUCKET || secrets.S3_BUCKET }}
+          KEY: configs/combined.json
+        run: |
+          echo "=== PRODUCTION DEPLOYMENT ==="
+          echo "Target: s3://${BUCKET}/${KEY}"
+          echo ""
+
+          # Download existing object for comparison
+          echo "Checking for existing deployment..."
+          if aws s3 cp "s3://${BUCKET}/${KEY}" existing.json --only-show-errors 2>/dev/null; then
+            EXISTING_SHA=$(sha256sum existing.json | cut -d' ' -f1)
+            NEW_SHA=$(sha256sum combined_config.json | cut -d' ' -f1)
+
+            echo "  Existing SHA: $EXISTING_SHA"
+            echo "  New SHA:      $NEW_SHA"
+
+            if [ "$EXISTING_SHA" = "$NEW_SHA" ]; then
+              echo ""
+              echo "No changes detected. Skipping upload."
+              echo "deployed=skipped" >> "$GITHUB_ENV"
+              exit 0
+            fi
+            echo "  Changes detected. Proceeding with upload."
+          else
+            echo "  No existing deployment found. First deploy."
+          fi
+
+          echo ""
+          echo "Uploading to S3..."
+          EXTRA_ARGS=()
+          if [ -n "${S3_SSE:-}" ]; then EXTRA_ARGS+=(--sse "${S3_SSE}"); fi
+          if [ -n "${S3_KMS_KEY_ID:-}" ]; then EXTRA_ARGS+=(--sse-kms-key-id "${S3_KMS_KEY_ID}"); fi
+
+          aws s3 cp combined_config.json "s3://${BUCKET}/${KEY}" \
+            --only-show-errors \
+            --content-type application/json \
+            --metadata "commit=${{ needs.build.outputs.commit_short }},deployed_at=${{ needs.build.outputs.deploy_time }}" \
+            "${EXTRA_ARGS[@]}"
+
+          echo ""
+          echo "=== DEPLOYMENT COMPLETE ==="
+          echo "Status:   SUCCESS"
+          echo "Target:   s3://${BUCKET}/${KEY}"
+          echo "Commit:   ${{ needs.build.outputs.commit_short }}"
+          echo "Time:     ${{ needs.build.outputs.deploy_time }}"
+          echo "deployed=success" >> "$GITHUB_ENV"
+
+  # ===========================================================================
+  # STAGE 5: SMOKE TEST - Post-deployment verification
+  # ===========================================================================
+  # Purpose: Verify the deployment is accessible and valid after deploy.
+  #          This is the final safety net before considering the deploy done.
+  # ===========================================================================
+  smoke-test:
+    name: "Stage 5: Smoke Test"
+    runs-on: ubuntu-latest
+    needs: [build, deploy-production]
+    steps:
+      - name: "Configure AWS credentials (OIDC)"
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN || vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: "Verify deployed artifact"
+        env:
+          BUCKET: ${{ vars.S3_BUCKET || secrets.S3_BUCKET }}
+          KEY: configs/combined.json
+        run: |
+          echo "=== SMOKE TEST ==="
+          echo "Verifying deployment at s3://${BUCKET}/${KEY}..."
+          echo ""
+
+          # Download and validate
+          aws s3 cp "s3://${BUCKET}/${KEY}" smoke-test.json --only-show-errors
+
+          python3 -c "
+          import json
+          with open('smoke-test.json') as f:
+              data = json.load(f)
+          print('Deployed config keys:', list(data.keys()))
+          required = ['alerts', 'bastex', 'block', 'trolls']
+          for key in required:
+              assert key in data, f'SMOKE TEST FAIL: Missing key {key}'
+              print(f'  {key}: {len(data[key])} entries - OK')
+          print()
+          print('SMOKE TEST PASSED')
+          "
+
+          echo ""
+          echo "=== DEPLOYMENT VERIFIED ==="
+          echo "The production deployment is healthy."
