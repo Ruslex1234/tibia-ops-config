@@ -7,7 +7,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
 
-from config import (
+from config import (  # noqa: E402
     TIBIADATA_BASE_URL,
     MAX_RETRIES,
     INITIAL_BACKOFF,

@@ -16,8 +16,8 @@ import os
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config import WORLDS, WORLD_GUILDS_FILE
-from tibia_api import fetch_world_guilds, fetch_guild
+from config import WORLDS, WORLD_GUILDS_FILE  # noqa: E402
+from tibia_api import fetch_world_guilds, fetch_guild  # noqa: E402
 
 
 def load_existing_data():

@@ -10,13 +10,11 @@ from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
 
-from tibia_api import (
+from tibia_api import (  # noqa: E402
     fetch_with_retry,
     fetch_character,
     fetch_guild,
-    fetch_world_guilds,
     get_online_guild_members,
-    get_character_deaths,
     get_character_info
 )
 
