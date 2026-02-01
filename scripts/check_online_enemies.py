@@ -16,8 +16,8 @@ import os
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config import ENEMY_GUILDS, TROLLS_FILE, BASTEX_FILE
-from tibia_api import (
+from config import ENEMY_GUILDS, TROLLS_FILE, BASTEX_FILE  # noqa: E402
+from tibia_api import (  # noqa: E402
     get_online_guild_members,
     fetch_character,
     get_character_info
@@ -110,7 +110,7 @@ def main():
         # Get online members
         online_members = get_online_guild_members(guild_name)
         if not online_members:
-            print(f"  No online members found or failed to fetch guild data.")
+            print("  No online members found or failed to fetch guild data.")
             continue
 
         print(f"  Found {len(online_members)} online member(s)")
@@ -121,12 +121,12 @@ def main():
             # Fetch character data to get deaths
             char_data = fetch_character(member_name)
             if char_data is None:
-                print(f"    Failed to fetch character data")
+                print("    Failed to fetch character data")
                 continue
 
             deaths = char_data.get('deaths', [])
             if not deaths:
-                print(f"    No deaths recorded")
+                print("    No deaths recorded")
                 continue
 
             print(f"    Found {len(deaths)} death(s)")
@@ -134,7 +134,7 @@ def main():
             # Extract player killers from deaths
             killers = extract_player_killers(deaths)
             if not killers:
-                print(f"    No player killers found in deaths")
+                print("    No player killers found in deaths")
                 continue
 
             print(f"    Found {len(killers)} unique player killer(s)")
@@ -178,7 +178,7 @@ def main():
                 correct_name, char_world, char_guild = get_character_info(killer_name)
 
                 if correct_name is None:
-                    print(f"Skipped (character not found)")
+                    print("Skipped (character not found)")
                     continue
 
                 # Check if on different world

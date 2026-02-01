@@ -8,7 +8,7 @@ import json
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
 
-from check_online_enemies import (
+from check_online_enemies import (  # noqa: E402
     extract_player_killers,
     build_case_insensitive_map,
     load_json_list,

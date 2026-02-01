@@ -50,7 +50,9 @@ def fetch_with_retry(url, max_retries=MAX_RETRIES):
             if e.code in TRANSIENT_ERROR_CODES:
                 if attempt < max_retries - 1:
                     backoff = INITIAL_BACKOFF * (2 ** attempt)
-                    print(f"  Warning: HTTP {e.code} error (attempt {attempt + 1}/{max_retries}). Retrying in {backoff}s...")
+                    print(f"  Warning: HTTP {e.code} (attempt "
+                          f"{attempt + 1}/{max_retries}). "
+                          f"Retrying in {backoff}s...")
                     time.sleep(backoff)
                     continue
                 else:
@@ -63,7 +65,9 @@ def fetch_with_retry(url, max_retries=MAX_RETRIES):
         except urllib.error.URLError as e:
             if attempt < max_retries - 1:
                 backoff = INITIAL_BACKOFF * (2 ** attempt)
-                print(f"  Warning: Network error: {e.reason} (attempt {attempt + 1}/{max_retries}). Retrying in {backoff}s...")
+                print(f"  Warning: Network error: {e.reason} "
+                      f"(attempt {attempt + 1}/{max_retries}). "
+                      f"Retrying in {backoff}s...")
                 time.sleep(backoff)
                 continue
             else:
