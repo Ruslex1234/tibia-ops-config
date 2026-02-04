@@ -1,0 +1,53 @@
+# =============================================================================
+# Prometheus Configuration
+# =============================================================================
+# Scrape configuration for Tibia Ops monitoring
+# =============================================================================
+
+global:
+  scrape_interval: 15s          # How often to scrape targets
+  evaluation_interval: 15s       # How often to evaluate rules
+  external_labels:
+    monitor: 'tibia-ops-monitor'
+    environment: 'development'
+
+# =============================================================================
+# Alerting Configuration
+# =============================================================================
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []  # Add alertmanager if needed
+
+# =============================================================================
+# Rule Files
+# =============================================================================
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+# =============================================================================
+# Scrape Configurations
+# =============================================================================
+scrape_configs:
+  # ---------------------------------------------------------------------------
+  # Prometheus self-monitoring
+  # ---------------------------------------------------------------------------
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # ---------------------------------------------------------------------------
+  # Tibia Ops Application
+  # ---------------------------------------------------------------------------
+  - job_name: 'tibia-ops-app'
+    scrape_interval: 30s         # Scrape every 30 seconds
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['app:8000']
+        labels:
+          service: 'tibia-ops'
+          component: 'metrics-server'
+    metrics_path: /metrics
+    scheme: http
