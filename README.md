@@ -274,27 +274,27 @@ docker-compose up -d
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      Terraform Managed                           │
+│                      Terraform Managed                          │
 ├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
+│                                                                 │
 │  ┌─────────────────┐     ┌─────────────────┐                    │
 │  │  OIDC Provider  │────▶│   IAM Role      │                    │
 │  │  (GitHub)       │     │  (Trust Policy) │                    │
 │  └─────────────────┘     └────────┬────────┘                    │
-│                                   │                              │
+│                                   │                             │
 │                          ┌────────┴────────┐                    │
-│                          │   IAM Policies   │                    │
-│                          │  • S3 access     │                    │
-│                          │  • CloudWatch    │                    │
+│                          │   IAM Policies  │                    │
+│                          │  • S3 access    │                    │
+│                          │  • CloudWatch   │                    │
 │                          └────────┬────────┘                    │
-│                                   │                              │
+│                                   │                             │
 │  ┌─────────────────┐              │      ┌─────────────────┐    │
 │  │   S3 Bucket     │◀─────────────┘      │  CloudWatch     │    │
 │  │  • Versioning   │                     │  • Alarms       │    │
 │  │  • Encryption   │                     │  • Dashboard    │    │
 │  │  • Lifecycle    │                     │  • SNS Topics   │    │
 │  └─────────────────┘                     └─────────────────┘    │
-│                                                                  │
+│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -347,13 +347,13 @@ terraform output github_actions_config
 │       │               │                    │                │
 │       └───────────────┴────────────────────┘                │
 │                        │                                    │
-│                  ┌──────────┐                                │
-│                  │  STAGE 4 │                                │
-│                  │ VALIDATE │                                │
-│                  │  (JSON)  │                                │
-│                  └──────────┘                                │
+│                  ┌──────────┐                               │
+│                  │  STAGE 4 │                               │
+│                  │ VALIDATE │                               │
+│                  │  (JSON)  │                               │
+│                  └──────────┘                               │
 │                        │                                    │
-│                  ┌──────────┐                                │
+│                  ┌──────────┐                               │
 │                  │CI PASSED │ ← Branch protection checks    │
 │                  └──────────┘   this status                 │
 └─────────────────────────────────────────────────────────────┘
@@ -421,9 +421,9 @@ terraform output github_actions_config
                     ──────────────               ────────────────────
 Pre-commit          CI Pipeline        Staging        Production
 ┌─────────┐        ┌──────────┐       ┌──────┐       ┌──────────┐
-│ gitleaks │        │ bandit   │       │ dry- │       │ smoke    │
-│ flake8   │        │ pip-audit│       │ run  │       │ test     │
-│ bandit   │        │ gitleaks │       │      │       │          │
+│ gitleaks│        │ bandit   │       │ dry- │       │ smoke    │
+│ flake8  │        │ pip-audit│       │ run  │       │ test     │
+│ bandit  │        │ gitleaks │       │      │       │          │
 └─────────┘        └──────────┘       └──────┘       └──────────┘
 ```
 
