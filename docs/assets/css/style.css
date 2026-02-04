@@ -89,11 +89,14 @@ main {
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--border-color);
+    text-align: center;
 }
 
 /* Architecture Diagram */
 .architecture {
     overflow-x: auto;
+    display: flex;
+    justify-content: center;
 }
 
 .diagram {
@@ -104,6 +107,7 @@ main {
     padding: 20px;
     border-radius: 8px;
     overflow-x: auto;
+    display: inline-block;
 }
 
 /* Metrics Grid */
