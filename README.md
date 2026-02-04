@@ -38,12 +38,12 @@ A Tibia game operations management system built with a full **DevSecOps CI/CD pi
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────────┐
-│                           TIBIA OPS CONFIG - FULL ARCHITECTURE                              │
+│                           TIBIA OPS CONFIG - FULL ARCHITECTURE                             │
 ├────────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                             │
-│   DEVELOPER WORKFLOW                           GITHUB ACTIONS                               │
-│   ─────────────────                           ──────────────                                │
-│                                                                                             │
+│                                                                                            │
+│   DEVELOPER WORKFLOW                           GITHUB ACTIONS                              │
+│   ─────────────────                            ──────────────                              │
+│                                                                                            │
 │   ┌──────────────┐                    ┌─────────────────────────────────┐                  │
 │   │   Developer  │────commit────────▶ │         CI PIPELINE             │                  │
 │   │   (local)    │                    │  ┌─────┐ ┌─────┐ ┌──────────┐   │                  │
@@ -62,28 +62,28 @@ A Tibia game operations management system built with a full **DevSecOps CI/CD pi
 │                                       └─────────────────────────────────┘      │           │
 │                                                                                │           │
 │   OBSERVABILITY STACK                                                          ▼           │
-│   ───────────────────                                           ┌─────────────────────┐   │
-│                                                                 │       AWS           │   │
-│   ┌─────────────┐     ┌─────────────┐     ┌─────────────┐      │  ┌───────────────┐  │   │
-│   │    App      │────▶│ Prometheus  │────▶│   Grafana   │      │  │   S3 Bucket   │  │   │
-│   │  (metrics)  │     │ (collect)   │     │ (visualize) │      │  │   (configs)   │  │   │
-│   └─────────────┘     └─────────────┘     └─────────────┘      │  └───────────────┘  │   │
-│         │                                                       │         ▲          │   │
-│   ┌─────┴─────┐                                                 │  ┌──────┴──────┐   │   │
-│   │  Docker   │                                                 │  │ IAM + OIDC  │   │   │
-│   │ Compose   │                                                 │  │ (no creds)  │   │   │
-│   └───────────┘                                                 │  └─────────────┘   │   │
-│                                                                 └─────────────────────┘   │
+│   ───────────────────                                           ┌─────────────────────┐    │
+│                                                                 │       AWS           │    │
+│   ┌─────────────┐     ┌─────────────┐     ┌─────────────┐       │  ┌───────────────┐  │    │
+│   │    App      │────▶│ Prometheus  │────▶│   Grafana   │       │  │   S3 Bucket   │  │    │
+│   │  (metrics)  │     │ (collect)   │     │ (visualize) │       │  │   (configs)   │  │    │
+│   └─────────────┘     └─────────────┘     └─────────────┘       │  └───────────────┘  │    │
+│         │                                                       │          ▲          │    │
+│   ┌─────┴─────┐                                                 │   ┌──────┴──────┐   │    │
+│   │  Docker   │                                                 │   │ IAM + OIDC  │   │    │
+│   │ Compose   │                                                 │   │ (no creds)  │   │    │
+│   └───────────┘                                                 │   └─────────────┘   │    │
+│                                                                 └─────────────────────┘    │
 │                                                                                            │
 │   INFRASTRUCTURE AS CODE                           GITHUB PAGES                            │
 │   ──────────────────────                          ─────────────                            │
 │                                                                                            │
-│   ┌─────────────┐     ┌─────────────┐            ┌─────────────────────┐                  │
-│   │  Terraform  │────▶│  AWS IAM    │            │  DevSecOps Dashboard│                  │
-│   │  Modules    │     │  S3, OIDC   │            │  • Pipeline metrics │                  │
-│   │  • s3       │     │  CloudWatch │            │  • Security scans   │                  │
-│   │  • iam      │     └─────────────┘            │  • Test coverage    │                  │
-│   │  • monitor  │                                 └─────────────────────┘                  │
+│   ┌─────────────┐     ┌─────────────┐            ┌─────────────────────┐                   │
+│   │  Terraform  │────▶│  AWS IAM    │            │  DevSecOps Dashboard│                   │
+│   │  Modules    │     │  S3, OIDC   │            │  • Pipeline metrics │                   │
+│   │  • s3       │     │  CloudWatch │            │  • Security scans   │                   │
+│   │  • iam      │     └─────────────┘            │  • Test coverage    │                   │
+│   │  • monitor  │                                └─────────────────────┘                   │
 │   └─────────────┘                                                                          │
 │                                                                                            │
 └────────────────────────────────────────────────────────────────────────────────────────────┘
