@@ -1,0 +1,121 @@
+# =============================================================================
+# Docker Compose - Full Observability Stack
+# =============================================================================
+# Services:
+#   - app: Tibia Ops Config metrics server
+#   - prometheus: Metrics collection and storage
+#   - grafana: Visualization dashboards
+#
+# Usage:
+#   docker-compose up -d        # Start all services
+#   docker-compose logs -f      # View logs
+#   docker-compose down         # Stop all services
+#
+# Access:
+#   Grafana:    http://localhost:3000 (admin/admin)
+#   Prometheus: http://localhost:9090
+#   App:        http://localhost:8000/metrics
+# =============================================================================
+
+version: '3.8'
+
+services:
+  # ===========================================================================
+  # Application - Tibia Ops Metrics Server
+  # ===========================================================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: tibia-ops-app
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount configs for live updates
+      - ./.configs:/app/.configs:ro
+    environment:
+      - METRICS_PORT=8000
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  # ===========================================================================
+  # Prometheus - Metrics Collection
+  # ===========================================================================
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: tibia-ops-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  # ===========================================================================
+  # Grafana - Visualization
+  # ===========================================================================
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: tibia-ops-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  monitoring:
+    driver: bridge
+    name: tibia-ops-network
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  prometheus_data:
+    name: tibia-ops-prometheus-data
+  grafana_data:
+    name: tibia-ops-grafana-data

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tibia Ops Config - DevSecOps Dashboard</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Tibia Ops Config</h1>
+            <p class="subtitle">DevSecOps Dashboard</p>
+            <div class="badges">
+                <img src="https://github.com/Ruslex1234/tibia-ops-config/actions/workflows/ci.yml/badge.svg" alt="CI Status">
+                <img src="https://github.com/Ruslex1234/tibia-ops-config/actions/workflows/cd.yml/badge.svg" alt="CD Status">
+                <img src="https://github.com/Ruslex1234/tibia-ops-config/actions/workflows/scheduled-jobs.yml/badge.svg" alt="Scheduled Jobs">
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Architecture Overview -->
+        <section class="card">
+            <h2>Architecture Overview</h2>
+            <div class="architecture">
+                <pre class="diagram">
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              CI/CD Pipeline Flow                                 │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│   ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐ │
+│   │  Commit  │───▶│   Lint   │───▶│   Test   │───▶│ Security │───▶│ Validate │ │
+│   └──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘ │
+│        │              flake8        pytest         bandit           JSON        │
+│        │                                           pip-audit                    │
+│        │                                           gitleaks                     │
+│        │                                                                        │
+│        ▼ (merge to main)                                                        │
+│   ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐ │
+│   │  Build   │───▶│ Package  │───▶│ Staging  │───▶│Production│───▶│  Smoke   │ │
+│   │ Artifact │    │  + Hash  │    │  Deploy  │    │  Deploy  │    │   Test   │ │
+│   └──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘ │
+│                                        │               │                        │
+│                                        ▼               ▼                        │
+│                                   ┌─────────────────────────┐                   │
+│                                   │      AWS S3 Bucket      │                   │
+│                                   │    (Config Storage)     │                   │
+│                                   └─────────────────────────┘                   │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                </pre>
+            </div>
+        </section>
+
+        <!-- Pipeline Status -->
+        <section class="card">
+            <h2>Pipeline Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="ci-success-rate">--</div>
+                    <div class="metric-label">CI Success Rate</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="cd-success-rate">--</div>
+                    <div class="metric-label">CD Success Rate</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="avg-build-time">--</div>
+                    <div class="metric-label">Avg Build Time</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="total-deployments">--</div>
+                    <div class="metric-label">Total Deployments</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts -->
+        <section class="card">
+            <h2>Historical Data</h2>
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <canvas id="pipelineChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="securityChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- DevSecOps Practices -->
+        <section class="card">
+            <h2>DevSecOps Practices Implemented</h2>
+            <div class="practices-grid">
+                <div class="practice">
+                    <div class="practice-icon">🔍</div>
+                    <h3>Static Analysis</h3>
+                    <ul>
+                        <li>Flake8 - Code linting</li>
+                        <li>Bandit - Security scanning</li>
+                        <li>Pre-commit hooks</li>
+                    </ul>
+                </div>
+                <div class="practice">
+                    <div class="practice-icon">🧪</div>
+                    <h3>Testing</h3>
+                    <ul>
+                        <li>44 Unit tests (pytest)</li>
+                        <li>Coverage reporting</li>
+                        <li>Integration tests</li>
+                    </ul>
+                </div>
+                <div class="practice">
+                    <div class="practice-icon">🔒</div>
+                    <h3>Security</h3>
+                    <ul>
+                        <li>SAST (Bandit)</li>
+                        <li>SCA (pip-audit)</li>
+                        <li>Secrets scanning (gitleaks)</li>
+                    </ul>
+                </div>
+                <div class="practice">
+                    <div class="practice-icon">🚀</div>
+                    <h3>Deployment</h3>
+                    <ul>
+                        <li>OIDC authentication</li>
+                        <li>Staged deployments</li>
+                        <li>Smoke tests</li>
+                    </ul>
+                </div>
+                <div class="practice">
+                    <div class="practice-icon">📊</div>
+                    <h3>Observability</h3>
+                    <ul>
+                        <li>Prometheus metrics</li>
+                        <li>Grafana dashboards</li>
+                        <li>Alerting rules</li>
+                    </ul>
+                </div>
+                <div class="practice">
+                    <div class="practice-icon">🏗️</div>
+                    <h3>Infrastructure</h3>
+                    <ul>
+                        <li>Terraform IaC</li>
+                        <li>Docker containers</li>
+                        <li>Docker Compose</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Data -->
+        <section class="card">
+            <h2>Application Metrics</h2>
+            <div class="app-metrics" id="app-metrics">
+                <p>Loading metrics from data file...</p>
+            </div>
+        </section>
+
+        <!-- Tech Stack -->
+        <section class="card">
+            <h2>Technology Stack</h2>
+            <div class="tech-stack">
+                <div class="tech-category">
+                    <h3>Languages & Frameworks</h3>
+                    <div class="tech-items">
+                        <span class="tech-badge python">Python 3.11</span>
+                        <span class="tech-badge">Bash</span>
+                        <span class="tech-badge">YAML</span>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h3>CI/CD</h3>
+                    <div class="tech-items">
+                        <span class="tech-badge github">GitHub Actions</span>
+                        <span class="tech-badge">Pre-commit</span>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h3>Containers</h3>
+                    <div class="tech-items">
+                        <span class="tech-badge docker">Docker</span>
+                        <span class="tech-badge">Docker Compose</span>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h3>Cloud & IaC</h3>
+                    <div class="tech-items">
+                        <span class="tech-badge aws">AWS S3</span>
+                        <span class="tech-badge aws">AWS IAM</span>
+                        <span class="tech-badge terraform">Terraform</span>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h3>Monitoring</h3>
+                    <div class="tech-items">
+                        <span class="tech-badge prometheus">Prometheus</span>
+                        <span class="tech-badge grafana">Grafana</span>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h3>Security</h3>
+                    <div class="tech-items">
+                        <span class="tech-badge">Bandit</span>
+                        <span class="tech-badge">pip-audit</span>
+                        <span class="tech-badge">Gitleaks</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start -->
+        <section class="card">
+            <h2>Quick Start</h2>
+            <div class="quickstart">
+                <div class="code-block">
+                    <div class="code-header">Clone & Run Locally</div>
+                    <pre><code># Clone the repository
+git clone https://github.com/Ruslex1234/tibia-ops-config.git
+cd tibia-ops-config
+
+# Start the monitoring stack
+docker-compose up -d
+
+# Access dashboards
+# Grafana:    http://localhost:3000 (admin/admin)
+# Prometheus: http://localhost:9090
+# App:        http://localhost:8000/metrics</code></pre>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">Run Tests</div>
+                    <pre><code># Install dev dependencies
+pip install -r requirements-dev.txt
+
+# Run tests with coverage
+pytest tests/ -v --cov=scripts
+
+# Run security scans
+bandit -r scripts/
+pip-audit</code></pre>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Built with DevSecOps best practices | <a href="https://github.com/Ruslex1234/tibia-ops-config">View on GitHub</a></p>
+        </div>
+    </footer>
+
+    <script src="assets/js/dashboard.js"></script>
+</body>
+</html>

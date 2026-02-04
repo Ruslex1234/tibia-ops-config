@@ -1,0 +1,96 @@
+# =============================================================================
+# Prometheus Alert Rules
+# =============================================================================
+# Alert rules for Tibia Ops monitoring
+# Demonstrates: SRE practices, alerting strategies, SLO monitoring
+# =============================================================================
+
+groups:
+  # ---------------------------------------------------------------------------
+  # Application Health Alerts
+  # ---------------------------------------------------------------------------
+  - name: tibia_ops_health
+    interval: 30s
+    rules:
+      - alert: TibiaOpsAppDown
+        expr: up{job="tibia-ops-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: devops
+        annotations:
+          summary: "Tibia Ops application is down"
+          description: "The Tibia Ops metrics server has been down for more than 1 minute."
+          runbook_url: "https://wiki.example.com/runbooks/tibia-ops-down"
+
+      - alert: HighAPIErrorRate
+        expr: rate(tibia_api_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          team: devops
+        annotations:
+          summary: "High API error rate detected"
+          description: "API error rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+
+  # ---------------------------------------------------------------------------
+  # Business Metrics Alerts
+  # ---------------------------------------------------------------------------
+  - name: tibia_ops_business
+    interval: 1m
+    rules:
+      - alert: NoEnemiesOnline
+        expr: tibia_enemies_online == 0
+        for: 30m
+        labels:
+          severity: info
+          team: devops
+        annotations:
+          summary: "No enemies online for 30 minutes"
+          description: "No enemy guild members have been online for the past 30 minutes."
+
+      - alert: TrollListGrowing
+        expr: increase(tibia_trolls_total[1h]) > 10
+        for: 0m
+        labels:
+          severity: info
+          team: devops
+        annotations:
+          summary: "Troll list growing rapidly"
+          description: "{{ $value }} new trolls added in the last hour."
+
+      - alert: StaleMetrics
+        expr: time() - tibia_last_check_timestamp > 1800
+        for: 5m
+        labels:
+          severity: warning
+          team: devops
+        annotations:
+          summary: "Metrics are stale"
+          description: "Last metrics update was {{ $value | humanizeDuration }} ago."
+
+  # ---------------------------------------------------------------------------
+  # Infrastructure Alerts
+  # ---------------------------------------------------------------------------
+  - name: infrastructure
+    interval: 30s
+    rules:
+      - alert: PrometheusTargetMissing
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: devops
+        annotations:
+          summary: "Prometheus target missing (instance {{ $labels.instance }})"
+          description: "A Prometheus target is down for more than 1 minute."
+
+      - alert: SlowAPIResponse
+        expr: tibia_last_check_duration_seconds > 30
+        for: 5m
+        labels:
+          severity: warning
+          team: devops
+        annotations:
+          summary: "Slow API response times"
+          description: "API check duration is {{ $value }}s, which exceeds the 30s threshold."
