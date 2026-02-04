@@ -15,7 +15,6 @@ import json
 import os
 import sys
 import time
-import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Add scripts directory to path for imports
@@ -27,7 +26,7 @@ from config import (  # noqa: E402
     BASTEX_FILE,
     WORLDS
 )
-from tibia_api import get_online_guild_members, fetch_character  # noqa: E402
+from tibia_api import get_online_guild_members  # noqa: E402
 
 # =============================================================================
 # Prometheus Metrics (manual implementation for zero dependencies)
@@ -63,8 +62,6 @@ def load_list_count(filepath):
 
 def update_metrics():
     """Update all metrics by checking current state."""
-    global METRICS, GUILD_METRICS
-
     start_time = time.time()
 
     # Update list counts
