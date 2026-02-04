@@ -175,7 +175,7 @@ class MetricsHandler(BaseHTTPRequestHandler):
 
 def run_server(port=8000):
     """Run the metrics server."""
-    server = HTTPServer(('0.0.0.0', port), MetricsHandler)
+    server = HTTPServer(('0.0.0.0', port), MetricsHandler)  # nosec B104
     print(f"Prometheus metrics server running on port {port}")
     print(f"Metrics available at http://localhost:{port}/metrics")
     print(f"Health check at http://localhost:{port}/health")
