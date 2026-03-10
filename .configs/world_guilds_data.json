@@ -22885,6 +22885,7 @@
             "Ziara the Mage"
         ],
         "Friends Forfun": [
+            "Khanzor",
             "Boss do Celebro",
             "Camila Samarton",
             "Ice Revant",
@@ -22908,8 +22909,7 @@
             "Knight Abuzado",
             "Mim Kna",
             "Traky nas",
-            "Khanzinha",
-            "Khanzor"
+            "Khanzinha"
         ],
         "Friends to Boss": [
             "Thatay Mello",
@@ -33783,7 +33783,7 @@
         ],
         "Nightwatch": [
             "Caleon Xelrich",
-            "Bowi",
+            "Azuh",
             "Famous Vitz",
             "Fighttera",
             "Naniv",
@@ -33794,8 +33794,11 @@
             "Yasmin Amorzinho",
             "Elder Pein",
             "Ticho Delta",
+            "Bowi",
+            "Leoon Idas",
             "Sara Dash",
             "Zenkato",
+            "Azeruth Mendrit",
             "Donju Gozzo",
             "Juank Bron Chileno",
             "Polonka",
@@ -33803,9 +33806,7 @@
             "Anirak Teran",
             "El Rodrigo",
             "Sir Ceej",
-            "Strikecl",
-            "Azeruth Mendrit",
-            "Leoon Idas"
+            "Strikecl"
         ],
         "Uniao Brasil": [
             "Lorddante",
@@ -44300,7 +44301,6 @@
             "Canewave",
             "Canto Phan",
             "Castelan Hero",
-            "Char Max",
             "Ckaetano",
             "Cynthiaa Walker",
             "Daikoh",
@@ -44460,6 +44460,7 @@
             "Ethernhoak",
             "Fhinkss",
             "Foka Archer",
+            "Hambre de Poder",
             "Heebuz",
             "Hidden Ax Fury",
             "Jason Voorhess",
