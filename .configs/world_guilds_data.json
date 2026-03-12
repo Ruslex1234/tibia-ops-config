@@ -17664,7 +17664,8 @@
             "Calfafopulus",
             "Firewomann",
             "Korpser Balzaretti",
-            "Maknon Modo Agresivo"
+            "Maknon Modo Agresivo",
+            "Nora Veritheash"
         ],
         "Latinos Oscuros": [
             "Don Mickey",
@@ -17817,16 +17818,16 @@
         ],
         "Andale Andale": [
             "House Decostoreitems",
-            "Aleister Krowleey",
             "Anubis Street",
-            "Bfore",
-            "Caropope",
-            "Ealee",
             "Nalgadas Duras",
             "Ninn Sayerss Druid",
             "Ouzil",
             "Sofiwa",
             "Tossam",
+            "Aleister Krowleey",
+            "Bfore",
+            "Caropope",
+            "Ealee",
             "La Monjaa"
         ],
         "Army Airdrop": [
@@ -27824,7 +27825,6 @@
             "Artemyza",
             "Higor Gyn",
             "Kratos Blood",
-            "Lermonk",
             "Arqueritho",
             "Athena of Inferno",
             "Ayzcen",
@@ -27834,13 +27834,18 @@
             "Frozen Dante",
             "Hashiba",
             "Kratos Perez",
+            "Lagnkiks",
+            "Nane Impix",
             "Pandora of Inferno",
+            "Rayn Best Cask",
             "Ryor Thas",
             "Shaka of inferno",
             "Shun of cozumel",
+            "Sir Viciony",
             "Sukysho",
             "Tlacuachazo",
-            "Verz Charlovinho"
+            "Verz Charlovinho",
+            "Zetz Ryper"
         ],
         "Trollmiezters": [
             "Back Seat Gamer",
@@ -28670,6 +28675,13 @@
             "Zano Astfael",
             "Monk Flagg",
             "Strong Skainer"
+        ],
+        "Pa la casa": [
+            "Lermonk",
+            "Bokee",
+            "Flaxrow",
+            "Lupitha princesa Guerrera",
+            "Skykiver"
         ]
     },
     "Quintera": {
@@ -35313,7 +35325,6 @@
             "Kunkkar",
             "Kurzyto Diktador Nofear",
             "Kylly",
-            "Kymax",
             "Kyraizer",
             "La Teniente Rradaa",
             "Laa Monja",
@@ -38477,6 +38488,7 @@
             "Alexitto",
             "Aline Voldemort Druid",
             "Almighty Testo",
+            "Almighty kazoll",
             "Almn",
             "Alpraaam",
             "Ama del Vattos",
