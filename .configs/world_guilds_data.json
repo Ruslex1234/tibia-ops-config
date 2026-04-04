@@ -15737,6 +15737,7 @@
             "Faat boy",
             "Fair Child",
             "Falcon Insano",
+            "Fanhaavi",
             "Fantasma Druid",
             "Faylens Bombados",
             "Fearless Pesadillax",
@@ -20065,12 +20066,12 @@
             "Rohan Lothbrok",
             "Ryan From Hell",
             "Silah Leon",
+            "Striker Roox",
             "Veruzk",
             "Att Assasin",
             "Cabeza de jovito",
             "Dark Monu",
             "Linyera",
-            "Striker Roox",
             "Arepapower",
             "Brujita del barrio",
             "Chorizon Macabro",
@@ -21619,6 +21620,7 @@
             "Berserker Joe",
             "Biicholo",
             "Bliekz",
+            "Bobby Brownn",
             "Burn Dead",
             "Chica Geneal",
             "Chika Geneal",
@@ -21687,7 +21689,6 @@
             "Wickyd Death",
             "Xynergy",
             "Zentensor",
-            "Bobby Brownn",
             "Adopp",
             "Adrastos Bala",
             "Chaparro Cevichero",
@@ -22091,6 +22092,7 @@
             "The Dutch Monk",
             "The Olins",
             "Tignus Gomis",
+            "Tioo Will",
             "Too Hard",
             "Turf",
             "Tusus The Second",
@@ -22130,7 +22132,6 @@
             "Sushi Almighty",
             "Tall Degen",
             "The Bearded Degenerate",
-            "Tioo Will",
             "Tohm Soyer",
             "Voken",
             "Vujiux",
@@ -23398,7 +23399,6 @@
             "Zorek Lux Occulta",
             "Zorelius Lux Occulta",
             "Zuko Sheehan",
-            "Zurth mage",
             "Aeron Axter",
             "Ak Komando",
             "Alfredo Impaciente",
@@ -23416,7 +23416,6 @@
             "Gerz Insane",
             "Gottzz",
             "Heala Ae",
-            "Hector Gold",
             "Infernosz",
             "John Wickz",
             "Kanon Erre Joeru",
@@ -29030,6 +29029,7 @@
         "Goddead": [
             "Chackettin",
             "Dragon Kain",
+            "Idiana",
             "Jacques Hunley",
             "Lalithrox",
             "Patito Ed",
@@ -29039,7 +29039,6 @@
             "Ziggs sin",
             "Aliekz",
             "David Parker",
-            "Idiana",
             "Ire",
             "Leopardo da Morte",
             "Lord Duran",
@@ -29218,7 +29217,8 @@
             "Oroner",
             "Rea",
             "Vengace",
-            "Zen Mage"
+            "Zen Mage",
+            "Zurth mage"
         ],
         "Mwalls In Paris": [
             "Darketzita",
@@ -33766,10 +33766,11 @@
             "Little Xy"
         ],
         "Los Carreados": [
-            "Mazi Mazi",
+            "Vanillah Antica",
             "Ailane",
             "Alannysx",
             "Chango Knight",
+            "Mazi Mazi",
             "Monk Golito",
             "Tata Druid",
             "Artor Enis",
@@ -33783,8 +33784,7 @@
             "Sonkin",
             "Thibruvic",
             "Tronky Colegiala",
-            "Tronky Reprobado",
-            "Vanillah Antica"
+            "Tronky Reprobado"
         ],
         "Los Mancos": [
             "Almighty Valodia",
@@ -34495,7 +34495,8 @@
             "Leon goliat",
             "Leon pekkaa",
             "Machete el federale",
-            "Vitharea Chrian"
+            "Vitharea Chrian",
+            "Zhaddie"
         ],
         "Nightwatch": [
             "Caleon Xelrich",
@@ -40597,7 +40598,6 @@
             "Neo'Aldrin",
             "Rofekz Full",
             "Rosmar",
-            "Royal Cers",
             "Sampalo",
             "Skull Death School",
             "Slinta",
@@ -41129,6 +41129,7 @@
             "Catateiaa",
             "Choleus pie",
             "Cookies the Dog",
+            "Corantia",
             "Culixx",
             "Curco Veinx",
             "Cute Noob Camuu",
@@ -41183,6 +41184,7 @@
             "Legendary Pretzel",
             "Liberty bay parrot",
             "Lil Crazy king",
+            "Lumisin",
             "Mago Chafita",
             "Magz Biggie Smalls",
             "Magz Masenko Ha",
@@ -41277,6 +41279,7 @@
             "Shogo Makishima",
             "Skollzinho Oz",
             "Taco al Pastor",
+            "Thais Chess Player",
             "Thra Kryus",
             "Tired Sugar Cube",
             "Vieze Vingertjes",
@@ -41289,6 +41292,7 @@
             "Henry Horndog",
             "Humantorch Masflam Man",
             "Infernalist druida",
+            "Jedi Samurai Farlon",
             "Mike Sykes",
             "Mystic Gohan Magz",
             "Noctyrix",
@@ -41361,7 +41365,6 @@
             "Vybzz",
             "You What Mate",
             "Athena Of Julera",
-            "Corantia",
             "Crazzite",
             "Dark Warlock",
             "Doctor Sito",
@@ -41370,13 +41373,10 @@
             "Flamingoro",
             "Goros Ownlee Fahns",
             "Hito Mage",
-            "Jedi Samurai Farlon",
-            "Lumisin",
             "Mwallina Parisian",
             "Nose Forpackets",
             "Serjao das Boh",
             "Slume",
-            "Thais Chess Player",
             "Tly",
             "Vangoros Lapdog"
         ],
@@ -46755,6 +46755,16 @@
             "Xyvxno",
             "Yuyis",
             "Caxpersito"
+        ],
+        "Los Errantes": [
+            "Spicy Keychain",
+            "Arcanom",
+            "Avadakedavraaa",
+            "Druid Novishock",
+            "Misiles",
+            "Sszszszsus",
+            "Donald Europeu",
+            "Jack Valos"
         ]
     },
     "Tempestera": {
@@ -47927,6 +47937,7 @@
             "Alexander Phoenix",
             "Aliade",
             "Ayormabo",
+            "Blender Bender",
             "Capitana danvers",
             "Crosswarrior the second",
             "Danii Razield",
@@ -47959,8 +47970,7 @@
             "Temeran",
             "Tenoman",
             "Udyr Yaqui",
-            "Vanguard Sid",
-            "Blender Bender"
+            "Vanguard Sid"
         ],
         "Kriptidoz": [
             "Goticaa",
