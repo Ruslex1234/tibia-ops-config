@@ -1592,6 +1592,7 @@
             "Case Patriot Sprayer",
             "Dominus Elementum",
             "Drivebyking",
+            "Eon Seb",
             "Hades Storm",
             "Jypsea",
             "Legolas From Blackforest",
@@ -1604,7 +1605,6 @@
             "Breaking Phobia",
             "Discipled",
             "Disgore",
-            "Eon Seb",
             "Exurana",
             "Flame Wave",
             "Galadriel The Wizard",
@@ -5108,7 +5108,6 @@
             "Vnzla Javier",
             "Wiiilz",
             "Aaron facineroso",
-            "Abaty Royal",
             "Aby Monk",
             "Aerion Gevinos",
             "Aidios Kiel",
@@ -7792,7 +7791,6 @@
             "King Pipo",
             "Kisho Maniaco",
             "La Sheinbaum",
-            "Loliitax",
             "Lord Lead",
             "Loth Colarie",
             "Miss Trece",
@@ -8715,7 +8713,6 @@
             "Kenjissacre",
             "Kenstek Sire",
             "Kerogold Monstera",
-            "Kiiwi Med",
             "Kill Ahim",
             "King Ceola",
             "Kivaruk",
@@ -8922,7 +8919,6 @@
             "Pilpreben",
             "Pinkster",
             "Pipiripow",
-            "Pippi Langstrompe",
             "Pitoco Weon",
             "Pitoko",
             "Polizei Zster",
@@ -29432,7 +29428,6 @@
             "Serenity Abrahel",
             "Sheikha Bianca",
             "Shooterzan",
-            "Slugz",
             "Sonjay",
             "The Cream Blob",
             "The Gingerbread Man",
@@ -37562,6 +37557,7 @@
             "Herr der Holle",
             "Magister Sylvan",
             "Rhyddon",
+            "Yo En Solera",
             "Assassin Cross",
             "Astral Thorus",
             "Baby Dealer",
@@ -37573,8 +37569,7 @@
             "Mycenaae",
             "Ruthless Sword",
             "Schroeder",
-            "Soldado Anthony Carmine",
-            "Yo En Solera"
+            "Soldado Anthony Carmine"
         ],
         "Gravekeeper": [
             "Sire Skar",
@@ -39583,7 +39578,6 @@
             "Kenk Seleri",
             "Kerst Kayuk",
             "Kevin Spacey",
-            "Kevolord",
             "Kevrian Gonvilz",
             "Keyvans",
             "Kid Rod",
@@ -45622,7 +45616,6 @@
             "The Grand Pastore",
             "Tiki Bandido",
             "Tio Mister",
-            "Truena Kraneos",
             "Tucak",
             "Vendrick",
             "Wil Beast Binder",
@@ -46979,8 +46972,6 @@
         "Artillery": [
             "Elde Chapy",
             "Efren sinutito",
-            "Magkilez",
-            "Rohanry Miv",
             "Daniel Mytossz"
         ],
         "Soulless": [
@@ -46992,7 +46983,6 @@
             "Lalo Miv",
             "Fersho poker",
             "Sir Vagetz",
-            "Akilez",
             "Buzter Famosao",
             "Dark Storm Monk",
             "Vxlcrus",
@@ -47063,6 +47053,16 @@
             "Rudeus Grayrat",
             "Taco Barrigas",
             "Unaese Demas"
+        ],
+        "Eternal Legends": [
+            "Rhidersk Storm",
+            "Akilez",
+            "Dragniav",
+            "El Sabueso",
+            "Lamimossza",
+            "Rohan Miv",
+            "Truena Kraneos",
+            "Amonrak"
         ]
     },
     "Tempestera": {
