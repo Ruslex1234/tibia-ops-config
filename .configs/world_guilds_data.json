@@ -180,6 +180,7 @@
             "Dhaelow",
             "Dilica Mage",
             "Djavan Modesto",
+            "Doctor Sabotage",
             "Doctor Union",
             "Doglinha da Sul",
             "Doidera Marolado",
@@ -334,6 +335,7 @@
             "Sacerdotisa de Drefia",
             "Sacerdotisa do Orshabaal",
             "San Logun",
+            "Sanca The Boss",
             "Sapeca Laia",
             "Sathler Assassin",
             "Scard Pally",
@@ -408,8 +410,6 @@
             "Zzally",
             "Amazing Luiis",
             "Dalay llama",
-            "Doctor Sabotage",
-            "Sanca The Boss",
             "Valery Shoow"
         ],
         "Ascendancy": [
@@ -5495,6 +5495,15 @@
             "Sir Roxis Krazy",
             "Sukuna Kill",
             "Vitona Tornado"
+        ],
+        "Los Entenaos": [
+            "Que Entenao",
+            "Dark Rumble",
+            "Onefour",
+            "Qle menol",
+            "Titeritho",
+            "Jonh Wikc",
+            "Tris Leto"
         ]
     },
     "Firmera": {
