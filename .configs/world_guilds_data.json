@@ -16562,7 +16562,6 @@
             "Princess Jad Selley",
             "Principe'Gerber",
             "Proyecto Dpain",
-            "Punisher'pro",
             "Pupito das Trevas",
             "Pushale",
             "Pyrodrak Famj",
@@ -26606,6 +26605,7 @@
             "Tara Tizran",
             "Tarlo Afk Man",
             "Tarlo Darkesthalf",
+            "Tarlo Dorkhalf",
             "Tarlo Lighterhalf",
             "Tata Cayn",
             "Tear of ashan",
@@ -42547,9 +42547,22 @@
         ],
         "Reconquista": [
             "Cidane",
+            "Antares Gryffindor",
             "Dannamyu",
             "Leox Aque",
             "Top Loba"
+        ],
+        "Baby Family": [
+            "Monkleno",
+            "Bekna",
+            "Drantz root",
+            "Kakhoofd",
+            "Sir Morvian",
+            "Baby Apolo",
+            "Elmon Alchian",
+            "Senxo Kevine",
+            "Sunzcake",
+            "Zemmek warrior"
         ]
     },
     "Eclipta": {
@@ -45148,7 +45161,6 @@
         "Tungagrabbar": [
             "Ramon The Pyromancer",
             "Holked",
-            "Junibror",
             "Junne Skinksson",
             "Numlk",
             "Outofbounds",
