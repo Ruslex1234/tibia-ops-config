@@ -13199,13 +13199,13 @@
         ],
         "Maga": [
             "Rixaari",
+            "Atwa",
+            "Baked Magi",
             "Cavaleiro das Ondas",
             "Gee Viz",
             "Godly Rage",
             "Nota Monk",
-            "Tillt",
             "Aguxss",
-            "Atwa",
             "Charlie Kirkk",
             "Daem Hown",
             "Deathrow",
@@ -13223,7 +13223,7 @@
             "Ruffles Ox",
             "Sanssaum",
             "Sio Soulja",
-            "Baked Magi"
+            "Tillt"
         ],
         "Maruchan": [
             "Ghost Maru",
@@ -22330,7 +22330,6 @@
             "Edy Znow",
             "Elee Bae",
             "Emberwinq",
-            "Ezio Shion",
             "Favorr",
             "Fullboxed",
             "Futsunushi",
@@ -22350,6 +22349,7 @@
             "Sannd One",
             "Seeya Beb",
             "Shinata",
+            "Shionhausen",
             "Sinister Boltz",
             "Slee",
             "Smokey Pally",
@@ -45692,7 +45692,6 @@
         "Tungagrabbar": [
             "Ramon The Pyromancer",
             "Holked",
-            "Junne Skinksson",
             "Numlk",
             "Outofbounds",
             "Perigrim",
@@ -45967,6 +45966,14 @@
             "Sorpanius",
             "Di Deko",
             "Dlack Bude"
+        ],
+        "Dedicated": [
+            "Finalgod",
+            "Mysua",
+            "Poland Mage",
+            "Reivajll",
+            "Zordan Storm",
+            "Don Aquaza"
         ]
     },
     "Zunera": {
