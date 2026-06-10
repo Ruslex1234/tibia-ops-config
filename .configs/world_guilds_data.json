@@ -3627,6 +3627,7 @@
             "Aniversario Dos",
             "Aniversario Uno",
             "Aria Wina",
+            "Arka diz",
             "Assassin Panda",
             "Beagle Knight",
             "Bebelechee",
@@ -3667,6 +3668,7 @@
             "Komi Shuuko",
             "Labrador Sorcerer",
             "Lady Tzots",
+            "Lama Masita",
             "Lapi Ruja",
             "Laso Rota",
             "Lavadichi de Fresa",
@@ -3699,6 +3701,7 @@
             "Sumerian Magic",
             "Ta Trinkao",
             "Tekax",
+            "The Strongbow Beleg",
             "Tolok",
             "Tragat Mirrielesotl",
             "Troako Duu",
@@ -6904,7 +6907,6 @@
             "Puntera Con Mortalika",
             "Racso Infernal",
             "Rqtszzzza",
-            "Saint Hazard",
             "Wevin Stanex",
             "Zigurth"
         ],
@@ -18826,7 +18828,6 @@
             "Hayley Kiyoko",
             "Heavy Weight Core",
             "Hegel Black",
-            "Heitor Representa",
             "Helio Gracie Jiujitsu",
             "Hell Zide",
             "Hellfury",
@@ -19366,7 +19367,6 @@
             "Phaleta",
             "Phat Sans",
             "Phattnug",
-            "Phia Kengo",
             "Pho King Siome",
             "Phril Yarthamil",
             "Phsab",
@@ -42623,6 +42623,13 @@
             "So nic",
             "Vato sensillo",
             "Grilled"
+        ],
+        "Sword": [
+            "Almighty goat",
+            "Amigo Pulpo",
+            "El taqueroo",
+            "Frida Klo",
+            "Kaldul Edwearyo"
         ]
     },
     "Eclipta": {
@@ -46203,7 +46210,8 @@
             "Tree Flip",
             "Venan Sio",
             "Venancio Tempo",
-            "Veronet Retro"
+            "Veronet Retro",
+            "Baby Momma"
         ]
     },
     "Xymera": {
