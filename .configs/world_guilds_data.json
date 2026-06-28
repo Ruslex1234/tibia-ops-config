@@ -29993,6 +29993,7 @@
             "Azumys",
             "Bakizilla",
             "Bambor",
+            "Burallosh",
             "Catrina Lunia",
             "Ciri of Xintrea",
             "Dano Nyno",
@@ -30218,6 +30219,21 @@
             "Mysonne",
             "Corend Zuva",
             "Goddess Skadi"
+        ],
+        "Los Plebes": [
+            "Beran Fersek",
+            "King Snipe",
+            "Tharok",
+            "Ulycz",
+            "Xalyn Litan",
+            "Adithaa",
+            "Berania",
+            "Cinusita",
+            "Kazador de Emos",
+            "Luna Dev",
+            "Queen Adii",
+            "Sofiwa",
+            "Wisin Redeyes"
         ]
     },
     "Quintera": {
@@ -32852,6 +32868,7 @@
             "Newgatesor",
             "Newmare",
             "Nexus Oblivion",
+            "Neyluz",
             "Neyre",
             "Nhasty",
             "Nicoo Toys",
@@ -33480,6 +33497,7 @@
             "Savage Donut",
             "Sawk Arron",
             "Sazikyel Arhan",
+            "Schlaux",
             "Schweppes Palla",
             "Scon Vara",
             "Scratf Monk",
@@ -36461,7 +36479,6 @@
             "Detallado",
             "Detha Staraldin",
             "Deunmadrasito",
-            "Deus Richie",
             "Devid Wetha",
             "Devils Reincarnation",
             "Devils Rook",
@@ -37055,6 +37072,7 @@
             "Mini Antrakz",
             "Mini Compadre",
             "Mini Deztroyer",
+            "Mini Macklain Paksepa",
             "Mini Marlen",
             "Mini Mausz",
             "Mini Rotgex",
@@ -43261,6 +43279,7 @@
             "Genethlius",
             "Puddless",
             "Sivs",
+            "Cositas Especiales",
             "Tortugazo"
         ]
     },
@@ -45022,7 +45041,6 @@
             "Jouko Jousi Ampuja",
             "Jubi Sorc",
             "Judas",
-            "Judikas",
             "Jugoboss",
             "Ka an",
             "Ka ca",
@@ -48477,6 +48495,16 @@
             "Kelvin Ed",
             "Onicham",
             "Papyperro"
+        ],
+        "Sabbat": [
+            "Chief Nonstop",
+            "Camz House",
+            "Kara Kivus",
+            "Opille Nohands",
+            "Sarge Fury",
+            "Zerk Nonstop",
+            "Crunk on Runera",
+            "Thuglife Bomba"
         ]
     },
     "Tempestera": {
