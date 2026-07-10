@@ -9,7 +9,6 @@ import urllib.parse
 import urllib.error
 import gzip
 import time
-from io import BytesIO
 
 from config import (
     TIBIADATA_BASE_URL,
@@ -31,52 +30,40 @@ def fetch_with_retry(url, max_retries=MAX_RETRIES):
     Returns:
         tuple: (data, success) where data is the parsed JSON or None
     """
-    request = urllib.request.Request(url)
-    request.add_header('Accept-Encoding', 'gzip')
-    request.add_header('User-Agent', 'TibiaOpsConfig/1.0')
+    request = urllib.request.Request(url, headers={
+        'Accept-Encoding': 'gzip',
+        'User-Agent': 'TibiaOpsConfig/1.0',
+    })
 
     for attempt in range(max_retries):
         try:
             with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT) as response:
+                raw = response.read()
                 if response.info().get('Content-Encoding') == 'gzip':
-                    buffer = BytesIO(response.read())
-                    with gzip.open(buffer, 'rb') as f:
-                        data = json.loads(f.read().decode('utf-8'))
-                else:
-                    data = json.loads(response.read().decode('utf-8'))
-                return data, True
+                    raw = gzip.decompress(raw)
+                return json.loads(raw), True
 
         except urllib.error.HTTPError as e:
-            if e.code in TRANSIENT_ERROR_CODES:
-                if attempt < max_retries - 1:
-                    backoff = INITIAL_BACKOFF * (2 ** attempt)
-                    print(f"  Warning: HTTP {e.code} (attempt "
-                          f"{attempt + 1}/{max_retries}). "
-                          f"Retrying in {backoff}s...")
-                    time.sleep(backoff)
-                    continue
-                else:
-                    print(f"  Error: HTTP {e.code} error persisted after {max_retries} attempts. Skipping.")
-                    return None, False
-            else:
+            if e.code not in TRANSIENT_ERROR_CODES:
                 print(f"  Error: HTTP {e.code} error (non-retryable). Skipping.")
                 return None, False
+            transient_reason = f"HTTP {e.code}"
 
         except urllib.error.URLError as e:
-            if attempt < max_retries - 1:
-                backoff = INITIAL_BACKOFF * (2 ** attempt)
-                print(f"  Warning: Network error: {e.reason} "
-                      f"(attempt {attempt + 1}/{max_retries}). "
-                      f"Retrying in {backoff}s...")
-                time.sleep(backoff)
-                continue
-            else:
-                print(f"  Error: Network error persisted after {max_retries} attempts: {e.reason}")
-                return None, False
+            transient_reason = f"Network error: {e.reason}"
 
         except Exception as e:
             print(f"  Error: Unexpected error: {e}")
             return None, False
+
+        if attempt < max_retries - 1:
+            backoff = INITIAL_BACKOFF * (2 ** attempt)
+            print(f"  Warning: {transient_reason} (attempt "
+                  f"{attempt + 1}/{max_retries}). "
+                  f"Retrying in {backoff}s...")
+            time.sleep(backoff)
+        else:
+            print(f"  Error: {transient_reason} persisted after {max_retries} attempts. Skipping.")
 
     return None, False
 

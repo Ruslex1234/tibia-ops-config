@@ -24,6 +24,10 @@ on:
   push:
     branches: [main]
 
+# Least-privilege default for all jobs
+permissions:
+  contents: read
+
 # Cancel in-progress runs for the same PR (saves CI minutes)
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
@@ -43,20 +47,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: "Set up Python 3.9"
-        uses: actions/setup-python@v5
+      # setup-python's built-in cache replaces the separate actions/cache step
+      - name: "Set up Python 3.13"
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.9"
-
-      # Cache pip packages so subsequent runs are faster
-      - name: "Cache pip dependencies"
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements-dev.txt') }}
-          restore-keys: ${{ runner.os }}-pip-lint-
+          python-version: "3.13"
+          cache: "pip"
+          cache-dependency-path: requirements-dev.txt
 
       - name: "Install linting tools"
         run: |
@@ -87,19 +86,14 @@ jobs:
     needs: lint  # Only run tests if linting passes
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: "Set up Python 3.9"
-        uses: actions/setup-python@v5
+      - name: "Set up Python 3.13"
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.9"
-
-      - name: "Cache pip dependencies"
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-test-${{ hashFiles('requirements-dev.txt') }}
-          restore-keys: ${{ runner.os }}-pip-test-
+          python-version: "3.13"
+          cache: "pip"
+          cache-dependency-path: requirements-dev.txt
 
       - name: "Install test dependencies"
         run: |
@@ -125,7 +119,7 @@ jobs:
       # Upload coverage report as an artifact for review
       - name: "Upload coverage report"
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage-report/
@@ -134,7 +128,7 @@ jobs:
       # Upload test results for GitHub Actions test summary
       - name: "Upload test results"
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-results
           path: test-results.xml
@@ -165,21 +159,16 @@ jobs:
     needs: lint  # Run in parallel with tests (both need lint)
     steps:
       - name: "Checkout code (full history for secrets scan)"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0  # Full history needed for gitleaks
 
-      - name: "Set up Python 3.9"
-        uses: actions/setup-python@v5
+      - name: "Set up Python 3.13"
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.9"
-
-      - name: "Cache pip dependencies"
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-security-${{ hashFiles('requirements-dev.txt') }}
-          restore-keys: ${{ runner.os }}-pip-security-
+          python-version: "3.13"
+          cache: "pip"
+          cache-dependency-path: requirements-dev.txt
 
       - name: "Install security tools"
         run: |
@@ -210,7 +199,7 @@ jobs:
 
       # --- Secrets Detection ---
       - name: "Run gitleaks secrets scanner"
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         continue-on-error: true  # Advisory - don't block PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -226,12 +215,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: "Set up Python 3.9"
-        uses: actions/setup-python@v5
+      - name: "Set up Python 3.13"
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.9"
+          python-version: "3.13"
 
       - name: "Validate all JSON config files"
         run: |

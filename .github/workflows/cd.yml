@@ -63,12 +63,14 @@ jobs:
       deploy_time: ${{ steps.meta.outputs.deploy_time }}
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: "Set up Python 3.9"
-        uses: actions/setup-python@v5
+      - name: "Set up Python 3.13"
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.9"
+          python-version: "3.13"
+          cache: "pip"
+          cache-dependency-path: requirements-dev.txt
 
       - name: "Install dependencies"
         run: |
@@ -81,10 +83,7 @@ jobs:
         run: |
           echo "=== BUILD VALIDATION ==="
           echo "Checking Python syntax..."
-          python -m py_compile scripts/config.py
-          python -m py_compile scripts/tibia_api.py
-          python -m py_compile scripts/check_online_enemies.py
-          python -m py_compile scripts/gen_worlds_guilds.py
+          python -m py_compile scripts/*.py
           echo "All scripts compile successfully."
 
           echo ""
@@ -117,12 +116,12 @@ jobs:
     needs: build
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: "Set up Python 3.9"
-        uses: actions/setup-python@v5
+      - name: "Set up Python 3.13"
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.9"
+          python-version: "3.13"
 
       - name: "Combine configs into deployable artifact"
         id: combine
@@ -160,7 +159,7 @@ jobs:
           PY
 
       - name: "Upload deployment artifact"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: deploy-artifact-${{ needs.build.outputs.commit_short }}
           path: |
@@ -182,7 +181,7 @@ jobs:
     environment: staging  # GitHub Environment (optional - for protection rules)
     steps:
       - name: "Download deployment artifact"
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: deploy-artifact-${{ needs.build.outputs.commit_short }}
 
@@ -246,12 +245,12 @@ jobs:
     environment: production  # GitHub Environment (for approval gates if configured)
     steps:
       - name: "Download deployment artifact"
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: deploy-artifact-${{ needs.build.outputs.commit_short }}
 
       - name: "Configure AWS credentials (OIDC)"
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN || vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
@@ -322,7 +321,7 @@ jobs:
     needs: [build, deploy-production]
     steps:
       - name: "Configure AWS credentials (OIDC)"
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN || vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}

@@ -89,8 +89,9 @@ def main():
             print(f"  - {guild_name}...", end=" ")
             guild_data = fetch_guild(guild_name)
 
-            if guild_data and 'members' in guild_data and guild_data['members']:
-                member_names = [m['name'] for m in guild_data.get('members', [])]
+            members = guild_data.get('members') if guild_data else None
+            if members:
+                member_names = [m['name'] for m in members]
                 worlds_data[world][guild_name] = member_names
                 print(f"OK ({len(member_names)} members)")
                 total_guilds_processed += 1

@@ -15,7 +15,7 @@ import json
 import os
 import sys
 import time
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -48,6 +48,19 @@ METRICS = {
 
 # Per-guild metrics
 GUILD_METRICS = {}
+
+# (metric key, prometheus type, help text) - drives the exposition format
+METRIC_DEFINITIONS = [
+    ('trolls_total', 'gauge', 'Total number of players in trolls list'),
+    ('bastex_total', 'gauge', 'Total number of players in bastex list'),
+    ('enemies_online', 'gauge', 'Current number of enemies online'),
+    ('api_calls_total', 'counter', 'Total API calls made'),
+    ('api_errors_total', 'counter', 'Total API errors'),
+    ('last_check_timestamp', 'gauge', 'Unix timestamp of last check'),
+    ('last_check_duration_seconds', 'gauge', 'Duration of last check'),
+    ('worlds_monitored', 'gauge', 'Number of worlds being monitored'),
+    ('guilds_monitored', 'gauge', 'Number of enemy guilds being monitored'),
+]
 
 
 def load_list_count(filepath):
@@ -96,42 +109,13 @@ def format_prometheus_metrics():
     """Format metrics in Prometheus exposition format."""
     lines = []
 
-    # Help and type declarations
-    lines.append('# HELP tibia_trolls_total Total number of players in trolls list')
-    lines.append('# TYPE tibia_trolls_total gauge')
-    lines.append(f'tibia_trolls_total {METRICS["trolls_total"]}')
-
-    lines.append('# HELP tibia_bastex_total Total number of players in bastex list')
-    lines.append('# TYPE tibia_bastex_total gauge')
-    lines.append(f'tibia_bastex_total {METRICS["bastex_total"]}')
-
-    lines.append('# HELP tibia_enemies_online Current number of enemies online')
-    lines.append('# TYPE tibia_enemies_online gauge')
-    lines.append(f'tibia_enemies_online {METRICS["enemies_online"]}')
-
-    lines.append('# HELP tibia_api_calls_total Total API calls made')
-    lines.append('# TYPE tibia_api_calls_total counter')
-    lines.append(f'tibia_api_calls_total {METRICS["api_calls_total"]}')
-
-    lines.append('# HELP tibia_api_errors_total Total API errors')
-    lines.append('# TYPE tibia_api_errors_total counter')
-    lines.append(f'tibia_api_errors_total {METRICS["api_errors_total"]}')
-
-    lines.append('# HELP tibia_last_check_timestamp Unix timestamp of last check')
-    lines.append('# TYPE tibia_last_check_timestamp gauge')
-    lines.append(f'tibia_last_check_timestamp {METRICS["last_check_timestamp"]}')
-
-    lines.append('# HELP tibia_last_check_duration_seconds Duration of last check')
-    lines.append('# TYPE tibia_last_check_duration_seconds gauge')
-    lines.append(f'tibia_last_check_duration_seconds {METRICS["last_check_duration_seconds"]:.3f}')
-
-    lines.append('# HELP tibia_worlds_monitored Number of worlds being monitored')
-    lines.append('# TYPE tibia_worlds_monitored gauge')
-    lines.append(f'tibia_worlds_monitored {METRICS["worlds_monitored"]}')
-
-    lines.append('# HELP tibia_guilds_monitored Number of enemy guilds being monitored')
-    lines.append('# TYPE tibia_guilds_monitored gauge')
-    lines.append(f'tibia_guilds_monitored {METRICS["guilds_monitored"]}')
+    for key, metric_type, help_text in METRIC_DEFINITIONS:
+        value = METRICS[key]
+        if key == 'last_check_duration_seconds':
+            value = f'{value:.3f}'
+        lines.append(f'# HELP tibia_{key} {help_text}')
+        lines.append(f'# TYPE tibia_{key} {metric_type}')
+        lines.append(f'tibia_{key} {value}')
 
     # Per-guild metrics
     lines.append('# HELP tibia_guild_online_members Online members per enemy guild')
@@ -153,15 +137,16 @@ class MetricsHandler(BaseHTTPRequestHandler):
         if self.path == '/metrics':
             # Update metrics on each scrape
             update_metrics()
-            content = format_prometheus_metrics()
+            body = format_prometheus_metrics().encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'text/plain; charset=utf-8')
-            self.send_header('Content-Length', len(content))
+            self.send_header('Content-Length', str(len(body)))
             self.end_headers()
-            self.wfile.write(content.encode('utf-8'))
+            self.wfile.write(body)
         elif self.path == '/health':
             self.send_response(200)
             self.send_header('Content-Type', 'text/plain')
+            self.send_header('Content-Length', '2')
             self.end_headers()
             self.wfile.write(b'OK')
         else:
@@ -174,8 +159,8 @@ class MetricsHandler(BaseHTTPRequestHandler):
 
 
 def run_server(port=8000):
-    """Run the metrics server."""
-    server = HTTPServer(('0.0.0.0', port), MetricsHandler)  # nosec B104
+    """Run the metrics server (threaded so /health stays responsive during scrapes)."""
+    server = ThreadingHTTPServer(('0.0.0.0', port), MetricsHandler)  # nosec B104
     print(f"Prometheus metrics server running on port {port}")
     print(f"Metrics available at http://localhost:{port}/metrics")
     print(f"Health check at http://localhost:{port}/health")
