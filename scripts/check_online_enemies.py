@@ -7,6 +7,7 @@ Features:
 - Case-insensitive duplicate detection
 - Automatic name normalization to proper Tibia capitalization
 - Exponential backoff retry logic for API calls
+- Per-run caching so the same killer is only looked up once
 """
 
 import json
@@ -103,6 +104,19 @@ def main():
     names_normalized = []
     list_modified = False
 
+    # Per-run caches: a killer often appears in several deaths (and across
+    # members/guilds), so remember lookups and verdicts to avoid duplicate
+    # API calls within a single run. Skip verdicts are keyed per world since
+    # a "different world" rejection only applies to that guild's world.
+    char_info_cache = {}
+    skipped_killers = set()
+
+    def get_character_info_cached(name):
+        key = name.lower()
+        if key not in char_info_cache:
+            char_info_cache[key] = get_character_info(name)
+        return char_info_cache[key]
+
     for guild_name, world in ENEMY_GUILDS.items():
         print(f"\n[{guild_name}] ({world})")
         print("-" * 40)
@@ -148,6 +162,11 @@ def main():
                     print(f"      [{killer_name}] Already in bastex list - skipping")
                     continue
 
+                # Skip if already evaluated and rejected earlier this run
+                if (killer_lower, world) in skipped_killers:
+                    print(f"      [{killer_name}] Already checked this run - skipping")
+                    continue
+
                 # Case-insensitive check if already in trolls list
                 if killer_lower in trolls_lookup:
                     idx, existing_name = trolls_lookup[killer_lower]
@@ -160,7 +179,7 @@ def main():
                         print(f"      [{killer_name}] Found with different case: '{existing_name}'")
 
                         # Fetch correct name from TibiaData
-                        correct_name, char_world, char_guild = get_character_info(killer_name)
+                        correct_name, char_world, char_guild = get_character_info_cached(killer_name)
 
                         if correct_name and correct_name != existing_name:
                             print(f"        [NORMALIZED] '{existing_name}' -> '{correct_name}'")
@@ -175,20 +194,23 @@ def main():
                 print(f"      Checking [{killer_name}]...", end=" ")
 
                 # Get character info to check world and guild
-                correct_name, char_world, char_guild = get_character_info(killer_name)
+                correct_name, char_world, char_guild = get_character_info_cached(killer_name)
 
                 if correct_name is None:
                     print("Skipped (character not found)")
+                    skipped_killers.add((killer_lower, world))
                     continue
 
                 # Check if on different world
                 if char_world and char_world.lower() != world.lower():
                     print(f"Skipped (different world: {char_world})")
+                    skipped_killers.add((killer_lower, world))
                     continue
 
                 # Check if has guild
                 if char_guild:
                     print(f"Skipped (has guild: {char_guild})")
+                    skipped_killers.add((killer_lower, world))
                     continue
 
                 # Valid troll - add with correct name

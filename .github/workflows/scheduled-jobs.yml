@@ -18,6 +18,11 @@
 
 name: Scheduled Jobs
 
+# Don't let a slow run overlap with the next scheduled one
+concurrency:
+  group: scheduled-jobs
+  cancel-in-progress: false
+
 on:
   schedule:
     - cron: '*/10 * * * *'  # Every 10 minutes
@@ -46,14 +51,14 @@ jobs:
       github.event.inputs.job == 'guild-data'
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.GH_PAT }}
 
-      - name: "Set up Python 3.9"
-        uses: actions/setup-python@v5
+      - name: "Set up Python 3.13"
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.9"
+          python-version: "3.13"
 
       - name: "Run guild data collection"
         run: |
@@ -72,8 +77,20 @@ jobs:
       - name: "Commit and push if changes"
         run: |
           git add .configs/world_guilds_data.json
-          git diff --staged --quiet || git commit -m "Update world guilds data"
-          git push || echo "No changes to commit"
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Update world guilds data"
+          # Both scheduled jobs push to main; rebase-and-retry handles the race
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push failed (attempt $attempt), rebasing onto latest main..."
+            git pull --rebase origin main
+          done
+          git push
 
   # ===========================================================================
   # JOB 2: Check Online Enemies
@@ -87,14 +104,14 @@ jobs:
       github.event.inputs.job == 'check-enemies'
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.GH_PAT }}
 
-      - name: "Set up Python 3.9"
-        uses: actions/setup-python@v5
+      - name: "Set up Python 3.13"
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.9"
+          python-version: "3.13"
 
       - name: "Run enemy death tracker"
         run: |
@@ -113,5 +130,17 @@ jobs:
       - name: "Commit and push if changes"
         run: |
           git add .configs/trolls.json
-          git diff --staged --quiet || git commit -m "Add new entries to trolls.json"
-          git push || echo "No changes to commit"
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Add new entries to trolls.json"
+          # Both scheduled jobs push to main; rebase-and-retry handles the race
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push failed (attempt $attempt), rebasing onto latest main..."
+            git pull --rebase origin main
+          done
+          git push

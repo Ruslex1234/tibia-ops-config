@@ -32,14 +32,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.GH_PAT }}
 
       - name: "Set up Python"
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: "3.13"
 
       - name: "Collect Pipeline Metrics"
         env:
@@ -104,7 +104,7 @@ jobs:
           python3 << 'EOF'
           import json
           import os
-          from datetime import datetime, timedelta
+          from datetime import datetime, timedelta, timezone
 
           # Get environment variables
           ci_rate = os.environ.get('CI_RATE', '0')
@@ -149,7 +149,7 @@ jobs:
                   "worldsMonitored": 14,
                   "guildsMonitored": 2
               },
-              "lastUpdated": datetime.utcnow().isoformat() + "Z"
+              "lastUpdated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
           }
 
           with open('docs/data/metrics.json', 'w') as f:
@@ -166,8 +166,20 @@ jobs:
       - name: "Commit and Push"
         run: |
           git add docs/data/metrics.json
-          git diff --staged --quiet || git commit -m "Update dashboard metrics [skip ci]"
-          git push || echo "No changes to push"
+          if git diff --staged --quiet; then
+            echo "No changes to push"
+            exit 0
+          fi
+          git commit -m "Update dashboard metrics [skip ci]"
+          # Scheduled jobs also push to main; rebase-and-retry handles the race
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push failed (attempt $attempt), rebasing onto latest main..."
+            git pull --rebase origin main
+          done
+          git push
 
   deploy-pages:
     name: "Deploy to GitHub Pages"
@@ -178,18 +190,18 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
 
       - name: "Setup Pages"
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v6
 
       - name: "Upload artifact"
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: 'docs'
 
       - name: "Deploy to GitHub Pages"
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

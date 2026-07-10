@@ -17,7 +17,7 @@
 #   App:        http://localhost:8000/metrics
 # =============================================================================
 
-version: '3.8'
+# NOTE: the top-level `version` key is obsolete in Compose v2 and intentionally omitted.
 
 services:
   # ===========================================================================
