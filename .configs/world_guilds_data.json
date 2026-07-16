@@ -2866,7 +2866,6 @@
             "Lilisen",
             "Lith Breth",
             "Lord Cardrian Hero",
-            "Lord Di Hero",
             "Lord Monks Hero",
             "Momo Mortter",
             "Naen Magar",
@@ -4402,6 +4401,16 @@
             "Im Aztek",
             "Mary Montana",
             "Natta Montana"
+        ],
+        "Jot Dawgs": [
+            "Reginald",
+            "Lord Adrian Hero",
+            "Nigo Zaraki",
+            "Sanwish De Atun",
+            "Steel Archer",
+            "Gengar Ex",
+            "Lord Di Hero",
+            "Win Condittion"
         ]
     },
     "Firmera": {
@@ -8490,6 +8499,7 @@
             "Mijanotai",
             "Avacyns Pilgrim",
             "Bugo Taballo",
+            "El Exotico",
             "El Vaitor",
             "Gud Red",
             "Gungs",
@@ -8776,7 +8786,6 @@
             "Deathlicious",
             "Destruidor Demente",
             "Deus In",
-            "Diabolic Wendy",
             "Dimensity",
             "Dispirockation",
             "Doble Dee",
@@ -8914,7 +8923,6 @@
             "Spyron Rith",
             "Stars Galaxy",
             "Suge Knnight",
-            "Sweeth Tooth",
             "Taroxzera",
             "Tashaz el manco",
             "Ted Labre",
@@ -9650,8 +9658,6 @@
             "Assasins Shir",
             "Assassin Stylexx",
             "Assessin juck",
-            "Astro Primero",
-            "Astro Segundo",
             "Asunta",
             "Atomic Penguin",
             "August Goodlike",
@@ -42926,6 +42932,7 @@
             "Senhor De Oz",
             "Shaolin Jet Li",
             "Sterllingg",
+            "Viny Woviz",
             "Voldemort da Shopee",
             "Yoda Kenobi",
             "Zath Jual"
@@ -46452,7 +46459,6 @@
             "Red Hand Mazrik",
             "Retro Eric",
             "Roma Lannister",
-            "Scrub Mage",
             "Shinolin Shinolas",
             "Sir Lord Archers",
             "Udyr Aaorka Rukas",
@@ -46463,12 +46469,19 @@
             "Cadenas Druid Max",
             "Devastion Max",
             "Mago Max",
-            "Mazri Flam",
             "Neo Kyrox",
             "Orochi Max",
             "Raigekimax",
             "Royalti Darkness",
             "Tekate Azzul"
+        ],
+        "Itty Bitty Committee": [
+            "Sulphur Blade",
+            "Cruel Section Eightwo",
+            "Mazri Flam",
+            "Scrub Mage",
+            "Sir Maceon",
+            "Scrub Sage"
         ]
     },
     "Xymera": {
