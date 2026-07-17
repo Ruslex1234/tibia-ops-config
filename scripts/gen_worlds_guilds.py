@@ -5,6 +5,7 @@ Processes all configured worlds and saves the data to world_guilds_data.json.
 
 Features:
 - Preserves old data if API fetches fail
+- Removes guilds that no longer exist in the world's active guild list
 - Exponential backoff retry logic for transient errors
 - Continues processing even if individual requests fail
 """
@@ -47,6 +48,52 @@ def save_data(data):
         return False
 
 
+def build_world_data(guilds, old_world_data):
+    """
+    Build the guild -> members mapping for a world from its current guild list.
+
+    Only guilds present in the current API guild list are included, so guilds
+    that were disbanded since the last run are dropped. If fetching an
+    individual guild's member list fails, the old data for that guild is kept
+    (the guild still exists, we just couldn't refresh it).
+
+    Args:
+        guilds: List of guild dicts from fetch_world_guilds
+        old_world_data: Previous guild -> members mapping for this world
+
+    Returns:
+        tuple: (world_data, processed_count, failed_count)
+    """
+    world_data = {}
+    processed = 0
+    failed = 0
+
+    for guild in guilds:
+        guild_name = guild.get('name')
+        if not guild_name:
+            continue
+
+        print(f"  - {guild_name}...", end=" ")
+        guild_data = fetch_guild(guild_name)
+
+        members = guild_data.get('members') if guild_data else None
+        if members:
+            member_names = [m['name'] for m in members]
+            world_data[guild_name] = member_names
+            print(f"OK ({len(member_names)} members)")
+            processed += 1
+        else:
+            # Keep old data if we had it
+            if guild_name in old_world_data:
+                world_data[guild_name] = old_world_data[guild_name]
+                print(f"Failed - keeping old data ({len(old_world_data[guild_name])} members)")
+            else:
+                print("Failed or no members")
+            failed += 1
+
+    return world_data, processed, failed
+
+
 def main():
     """Main handler that fetches guild data for all worlds."""
     print("=" * 60)
@@ -74,34 +121,28 @@ def main():
             failed_worlds += 1
             continue
 
-        # Start with old data for this world, then update what we can fetch
+        # Rebuild this world's data from the current guild list so that
+        # guilds that no longer exist are removed
         old_world_data = existing_data.get(world, {})
-        worlds_data[world] = old_world_data.copy()
 
         successful_worlds += 1
         print(f"  Found {len(guilds)} guilds")
 
-        for guild in guilds:
-            guild_name = guild.get('name')
-            if not guild_name:
-                continue
+        world_data, processed, failed = build_world_data(guilds, old_world_data)
+        worlds_data[world] = world_data
+        total_guilds_processed += processed
+        total_guilds_failed += failed
 
-            print(f"  - {guild_name}...", end=" ")
-            guild_data = fetch_guild(guild_name)
+        removed_guilds = sorted(set(old_world_data) - set(world_data))
+        if removed_guilds:
+            print(f"  Removed {len(removed_guilds)} guild(s) no longer active: "
+                  f"{', '.join(removed_guilds)}")
 
-            members = guild_data.get('members') if guild_data else None
-            if members:
-                member_names = [m['name'] for m in members]
-                worlds_data[world][guild_name] = member_names
-                print(f"OK ({len(member_names)} members)")
-                total_guilds_processed += 1
-            else:
-                # Keep old data if we had it
-                if guild_name in old_world_data:
-                    print(f"Failed - keeping old data ({len(old_world_data[guild_name])} members)")
-                else:
-                    print("Failed or no members")
-                total_guilds_failed += 1
+    # Drop worlds that are no longer configured so their data doesn't linger
+    stale_worlds = [w for w in worlds_data if w not in WORLDS]
+    for world in stale_worlds:
+        del worlds_data[world]
+        print(f"\nRemoved unconfigured world from data: {world}")
 
     # Summary
     print(f"\n{'=' * 60}")
