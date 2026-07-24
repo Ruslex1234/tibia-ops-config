@@ -3246,6 +3246,7 @@
             "Dieeho",
             "Diva Guerrera",
             "Draksller",
+            "Dreiiks",
             "Druid Guzman",
             "Ed jonera",
             "El Ing Acelerado",
@@ -10508,7 +10509,6 @@
             "Tholfok Mitear",
             "Toda Zatur",
             "Tugor Dito Favorito",
-            "Vampiire",
             "Voodey Rager"
         ],
         "Lead": [
@@ -31765,6 +31765,7 @@
             "Calvo Sin",
             "Cocoa Puffz",
             "Fullbi",
+            "Huzzart",
             "Lowan",
             "Mighty Memo",
             "Zolaxy",
@@ -40250,23 +40251,6 @@
             "Vodicus",
             "Don Aquaza"
         ],
-        "Hollywood": [
-            "Brokeback Goku",
-            "Addarios Mo",
-            "Alaric Frostbane",
-            "Punchlynn",
-            "Reivajll",
-            "Headhuntair",
-            "The Aged Druid",
-            "Di Deko",
-            "Dlack Bude",
-            "Addarios So",
-            "Aris Zamux",
-            "Gomedron Fear",
-            "Mordo dawaj Siatki",
-            "Sorpanius",
-            "Trzepienkny Knajt"
-        ],
         "Moonshine Manor": [
             "Lilly Lightleaf",
             "Bling Halastra",
@@ -40335,7 +40319,6 @@
             "Magic Lucky",
             "Neckro der kisser",
             "Zagmardode Weniderron",
-            "Calwarom",
             "Denux",
             "Elder Bada",
             "Ha Gadaran",
@@ -40559,15 +40542,19 @@
         ],
         "Windmill Fellas": [
             "Magic Guthi",
+            "Brokeback Goku",
             "Mysua",
             "Osmoo",
             "Per Cham",
-            "Zordan Storm",
+            "Aifares",
             "Bombelito Bomb",
             "Imperator Zeref",
             "Kungenick",
+            "Reivajll",
             "Werber",
-            "Xadamm"
+            "Xadamm",
+            "Zordan Storm",
+            "Calwarom"
         ]
     },
     "Zunera": {
