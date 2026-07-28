@@ -54,6 +54,9 @@ override.tf.json
 # Docker
 *.log
 
+# GitHub Pages build artifacts (copied from .configs/ at deploy time)
+docs/data/world_guilds_data.json
+
 # Pytest
 .pytest_cache/
 .coverage

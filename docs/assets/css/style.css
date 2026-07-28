@@ -294,6 +294,148 @@ main {
     color: var(--accent-green);
 }
 
+/* Guild Explorer */
+.page-nav {
+    margin-top: 20px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.page-nav a {
+    color: var(--accent-blue);
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.page-nav a:hover {
+    text-decoration: underline;
+}
+
+.explorer-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-group label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.control-group select,
+.control-group input {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    width: 100%;
+}
+
+.control-group select:focus,
+.control-group input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.control-group select:disabled,
+.control-group input:disabled {
+    color: var(--text-secondary);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.explorer-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.stat-chip {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 18px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.stat-chip-value {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--accent-blue);
+}
+
+.stat-chip-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.explorer-status {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.explorer-status.is-error {
+    color: var(--accent-red);
+}
+
+.member-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+}
+
+.member-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--accent-green);
+    border-radius: 6px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: border-color 0.2s;
+}
+
+.member-card:hover {
+    border-color: var(--accent-blue);
+}
+
+.member-name {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.member-guild {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+footer code {
+    font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: var(--accent-green);
+}
+
 /* Footer */
 footer {
     background-color: var(--bg-secondary);
