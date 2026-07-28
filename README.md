@@ -313,6 +313,17 @@ terraform output github_actions_config
 └─────────────────────────────────────────────────────────────┘
 ```
 
+> **Note - two workflows publish to S3.** `cd.yml` and
+> `publish-configs-to-s3.yml` both trigger on pushes to `main` under
+> `.configs/**`, both combine `.configs/*.json` with identical logic, and both
+> upload to the same key (`s3://$S3_BUCKET/configs/combined.json`). They run in
+> separate concurrency groups, so each config change triggers both. The payload
+> is identical either way, so the deployed object is the same - the cost is
+> duplicate runs. Differences: `cd.yml` skips the upload when the remote SHA
+> already matches and gates on tests, a staging dry-run and a smoke test;
+> `publish-configs-to-s3.yml` is a single job that always uploads. Consolidating
+> onto one of them is a known cleanup.
+
 ### Scheduled Jobs
 
 **File:** `.github/workflows/scheduled-jobs.yml`
