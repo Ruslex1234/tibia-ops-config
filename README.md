@@ -161,20 +161,24 @@ tibia-ops-config/
 │       ├── dev/                         #   Dev environment vars
 │       └── prod/                        #   Prod environment vars
 │
-├── docs/                                # GitHub Pages site (Guild Explorer)
-│   ├── index.html                       #   Guild Explorer page
+├── docs/                                # GitHub Pages site
+│   ├── index.html                       #   Guild Explorer (landing page)
+│   ├── dashboard.html                   #   DevSecOps dashboard
 │   ├── assets/
-│   │   ├── css/style.css                #   Styles
-│   │   └── js/guilds.js                 #   World/guild/member lookup logic
+│   │   ├── css/style.css                #   Shared styles
+│   │   ├── js/guilds.js                 #   World/guild/member lookup logic
+│   │   └── js/dashboard.js              #   Dashboard charts and metrics
 │   └── data/
-│       └── world_guilds_data.json       #   Minified mirror of .configs/ copy
+│       ├── world_guilds_data.json       #   Minified mirror of .configs/ copy
+│       └── metrics.json                 #   Dashboard metrics data
 │
 ├── .github/
 │   ├── workflows/
 │   │   ├── ci.yml                       #   CI Pipeline (PRs)
 │   │   ├── cd.yml                       #   CD Pipeline (deploy)
 │   │   ├── publish-configs-to-s3.yml    #   Config publishing to S3
-│   │   └── scheduled-jobs.yml           #   Scheduled data collection
+│   │   ├── scheduled-jobs.yml           #   Scheduled data collection
+│   │   └── update-dashboard.yml         #   Dashboard metrics updater
 │   ├── pull_request_template.md         #   PR template
 │   └── CODEOWNERS                       #   Required reviewers
 │
@@ -387,6 +391,16 @@ A static page for looking up guild members by world.
 `.configs/world_guilds_data.json` refreshed by the `update-guild-data`
 scheduled job. Pages publishes `main:/docs`, so the site cannot read
 `.configs/` directly.
+
+### DevSecOps Dashboard
+
+A second page at `dashboard.html`, linked from the Guild Explorer header,
+showing CI/CD success rates, security scan results and application counts.
+Its data comes from `docs/data/metrics.json`, refreshed by
+`.github/workflows/update-dashboard.yml` (daily, after a CD run, or on
+manual dispatch). Note that the workflow synthesises the per-day chart
+series from run totals - the daily bars are illustrative, while the success
+rates and totals are real.
 
 ---
 

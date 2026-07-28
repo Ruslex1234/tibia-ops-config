@@ -1,5 +1,5 @@
 /* =============================================================================
-   Tibia Ops Config - Guild Explorer Styles
+   Tibia Ops Config - DevSecOps Dashboard Styles
    ============================================================================= */
 
 :root {
@@ -57,22 +57,16 @@ header h1 {
     margin-top: 10px;
 }
 
-.page-nav {
+.badges {
     margin-top: 20px;
     display: flex;
-    gap: 20px;
+    gap: 10px;
     justify-content: center;
     flex-wrap: wrap;
 }
 
-.page-nav a {
-    color: var(--accent-blue);
-    text-decoration: none;
-    font-size: 0.95rem;
-}
-
-.page-nav a:hover {
-    text-decoration: underline;
+.badges img {
+    height: 24px;
 }
 
 /* Main Content */
@@ -98,7 +92,237 @@ main {
     text-align: center;
 }
 
-/* Selection Controls */
+/* Architecture Diagram */
+.architecture {
+    overflow-x: auto;
+    display: flex;
+    justify-content: center;
+}
+
+.diagram {
+    color: var(--accent-green);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    background-color: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    display: inline-block;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.metric-card {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--accent-blue);
+}
+
+.metric-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 8px;
+}
+
+/* Charts */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+.chart-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 300px;
+}
+
+/* Practices Grid */
+.practices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.practice {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.practice:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-blue);
+}
+
+.practice-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.practice h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+}
+
+.practice ul {
+    list-style: none;
+    padding: 0;
+}
+
+.practice li {
+    color: var(--text-secondary);
+    padding: 4px 0;
+    font-size: 0.9rem;
+}
+
+.practice li::before {
+    content: "✓ ";
+    color: var(--accent-green);
+}
+
+/* Tech Stack */
+.tech-stack {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.tech-category h3 {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tech-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tech-badge {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.tech-badge.python { border-color: #3776ab; color: #3776ab; }
+.tech-badge.github { border-color: #6e5494; color: #6e5494; }
+.tech-badge.aws { border-color: #ff9900; color: #ff9900; }
+.tech-badge.terraform { border-color: #7b42bc; color: #7b42bc; }
+
+/* App Metrics */
+.app-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.app-metric {
+    background-color: var(--bg-secondary);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.app-metric-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--accent-green);
+}
+
+.app-metric-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+
+/* Quick Start */
+.quickstart {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+.code-block {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.code-header {
+    background-color: var(--bg-primary);
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.code-block pre {
+    padding: 15px;
+    overflow-x: auto;
+}
+
+.code-block code {
+    font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: var(--accent-green);
+}
+
+/* Guild Explorer */
+.page-nav {
+    margin-top: 20px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.page-nav a {
+    color: var(--accent-blue);
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.page-nav a:hover {
+    text-decoration: underline;
+}
+
+.page-nav a.nav-button {
+    background-color: var(--bg-card);
+    border: 1px solid var(--accent-blue);
+    border-radius: 20px;
+    padding: 8px 18px;
+    transition: background-color 0.2s;
+}
+
+.page-nav a.nav-button:hover {
+    background-color: var(--bg-secondary);
+    text-decoration: none;
+}
+
 .explorer-controls {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -143,7 +367,6 @@ main {
     opacity: 0.6;
 }
 
-/* Stats */
 .explorer-stats {
     display: flex;
     flex-wrap: wrap;
@@ -185,7 +408,6 @@ main {
     color: var(--accent-red);
 }
 
-/* Member Results */
 .member-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -218,6 +440,12 @@ main {
     font-size: 0.75rem;
 }
 
+footer code {
+    font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: var(--accent-green);
+}
+
 /* Footer */
 footer {
     background-color: var(--bg-secondary);
@@ -236,15 +464,21 @@ footer a:hover {
     text-decoration: underline;
 }
 
-footer code {
-    font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-    font-size: 0.8rem;
-    color: var(--accent-green);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     header h1 {
         font-size: 1.8rem;
+    }
+
+    .quickstart {
+        grid-template-columns: 1fr;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .diagram {
+        font-size: 0.7rem;
     }
 }
