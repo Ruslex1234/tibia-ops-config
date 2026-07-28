@@ -21,7 +21,7 @@ REQUEST_TIMEOUT = 30  # seconds
 WORLDS = [
     'Quidera', 'Firmera', 'Aethera', 'Monstera', 'Talera',
     'Lobera', 'Quintera', 'Wintera', 'Eclipta', 'Epoca',
-    'Zunera', 'Mystera', 'Xymera', 'Tempestera'
+    'Zunera', 'Mystera', 'Xymera', 'Tempestera', 'Havera
 ]
 
 # =============================================================================
