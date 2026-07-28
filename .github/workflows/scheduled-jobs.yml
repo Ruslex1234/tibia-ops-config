@@ -69,6 +69,20 @@ jobs:
           echo ""
           echo "Finished at: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
+      # GitHub Pages publishes the docs/ folder from main, so it cannot read
+      # .configs/. Mirror the data into docs/data/ (minified - the site only
+      # reads it programmatically) so the Guild Explorer page stays in sync.
+      - name: "Sync guild data to Pages folder"
+        run: |
+          python -c "
+          import json
+          with open('.configs/world_guilds_data.json') as f:
+              data = json.load(f)
+          with open('docs/data/world_guilds_data.json', 'w') as f:
+              json.dump(data, f, separators=(',', ':'))
+          print(f'Synced {len(data)} worlds, {sum(len(g) for g in data.values())} guilds')
+          "
+
       - name: "Configure Git"
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -76,7 +90,7 @@ jobs:
 
       - name: "Commit and push if changes"
         run: |
-          git add .configs/world_guilds_data.json
+          git add .configs/world_guilds_data.json docs/data/world_guilds_data.json
           if git diff --staged --quiet; then
             echo "No changes to commit"
             exit 0

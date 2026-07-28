@@ -197,18 +197,6 @@ jobs:
       - name: "Setup Pages"
         uses: actions/configure-pages@v6
 
-      # The Guild Explorer page reads this file. It lives in .configs/ (outside
-      # the published docs/ root), so copy it into the artifact at deploy time
-      # rather than committing a second copy to the repository.
-      - name: "Stage guild data for Pages"
-        run: |
-          cp .configs/world_guilds_data.json docs/data/world_guilds_data.json
-          python -c "
-          import json
-          d = json.load(open('docs/data/world_guilds_data.json'))
-          print(f'Staged {len(d)} worlds, {sum(len(g) for g in d.values())} guilds')
-          "
-
       - name: "Upload artifact"
         uses: actions/upload-pages-artifact@v5
         with:
