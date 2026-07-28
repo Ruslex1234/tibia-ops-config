@@ -6,7 +6,6 @@
 # This configuration provisions:
 # - S3 bucket for config storage
 # - IAM roles and policies for GitHub Actions OIDC
-# - CloudWatch for monitoring and alerting
 #
 # Demonstrates:
 # - Terraform best practices
@@ -83,15 +82,4 @@ module "github_oidc" {
   github_repo         = var.github_repo
   config_bucket_arn   = module.s3_config_bucket.bucket_arn
   environment         = var.environment
-}
-
-# CloudWatch Monitoring (optional)
-module "monitoring" {
-  source = "./modules/monitoring"
-
-  count = var.enable_monitoring ? 1 : 0
-
-  environment         = var.environment
-  config_bucket_name  = module.s3_config_bucket.bucket_name
-  alert_email         = var.alert_email
 }

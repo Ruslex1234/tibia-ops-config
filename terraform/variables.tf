@@ -50,19 +50,3 @@ variable "github_repo" {
   type        = string
   default     = "tibia-ops-config"
 }
-
-# -----------------------------------------------------------------------------
-# Monitoring Configuration
-# -----------------------------------------------------------------------------
-
-variable "enable_monitoring" {
-  description = "Enable CloudWatch monitoring and alerting"
-  type        = bool
-  default     = false
-}
-
-variable "alert_email" {
-  description = "Email address for alerts"
-  type        = string
-  default     = ""
-}

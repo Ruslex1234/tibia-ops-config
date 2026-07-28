@@ -15,6 +15,8 @@ repos:
       - id: check-json                  # Validate JSON syntax
       - id: check-added-large-files     # Prevent large files from being committed
         args: ['--maxkb=500']
+        # Generated guild data legitimately exceeds the limit
+        exclude: '^(\.configs|docs/data)/world_guilds_data\.json$'
       - id: check-merge-conflict        # Prevent merge conflict markers
       - id: detect-private-key          # Prevent private keys from being committed
 

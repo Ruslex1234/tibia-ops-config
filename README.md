@@ -1,6 +1,6 @@
 # Tibia Ops Config
 
-A Tibia game operations management system built with a full **DevSecOps CI/CD pipeline**. Monitors enemy guilds, tracks player deaths, maintains configuration lists, and deploys to AWS S3 -- all with automated testing, security scanning, staged deployments, **Prometheus/Grafana monitoring**, and **Infrastructure as Code with Terraform**.
+A Tibia game operations management system built with a **DevSecOps CI/CD pipeline**. Monitors enemy guilds, tracks player deaths, maintains configuration lists, and deploys to AWS S3 -- all with automated testing, security scanning, staged deployments, and **Infrastructure as Code with Terraform**.
 
 [![CI Status](https://github.com/Ruslex1234/tibia-ops-config/actions/workflows/ci.yml/badge.svg)](https://github.com/Ruslex1234/tibia-ops-config/actions/workflows/ci.yml)
 [![CD Status](https://github.com/Ruslex1234/tibia-ops-config/actions/workflows/cd.yml/badge.svg)](https://github.com/Ruslex1234/tibia-ops-config/actions/workflows/cd.yml)
@@ -13,10 +13,6 @@ A Tibia game operations management system built with a full **DevSecOps CI/CD pi
 - [Architecture Overview](#architecture-overview)
 - [Quick Start](#quick-start)
 - [Repository Structure](#repository-structure)
-- [Observability Stack](#observability-stack)
-  - [Prometheus Metrics](#prometheus-metrics)
-  - [Grafana Dashboards](#grafana-dashboards)
-  - [Docker Compose](#docker-compose)
 - [Infrastructure as Code](#infrastructure-as-code)
   - [Terraform Modules](#terraform-modules)
   - [AWS Resources](#aws-resources)
@@ -26,7 +22,7 @@ A Tibia game operations management system built with a full **DevSecOps CI/CD pi
   - [CD Pipeline - Continuous Deployment](#cd-pipeline---continuous-deployment)
   - [Scheduled Jobs](#scheduled-jobs)
 - [DevSecOps Practices](#devsecops-practices)
-- [GitHub Pages Dashboard](#github-pages-dashboard)
+- [Guild Explorer (GitHub Pages)](#guild-explorer-github-pages)
 - [Branch Protection & Git Flow](#branch-protection--git-flow)
 - [Tools Reference](#tools-reference)
 - [Setup Guide](#setup-guide)
@@ -60,30 +56,27 @@ A Tibia game operations management system built with a full **DevSecOps CI/CD pi
 │                                       │  └─────┘ └───────┘ │ to S3   │  │      │           │
 │                                       │                    └─────────┘  │      │           │
 │                                       └─────────────────────────────────┘      │           │
-│                                                                                │           │
-│   OBSERVABILITY STACK                                                          ▼           │
-│   ───────────────────                                           ┌─────────────────────┐    │
-│                                                                 │       AWS           │    │
-│   ┌─────────────┐     ┌─────────────┐     ┌─────────────┐       │  ┌───────────────┐  │    │
-│   │    App      │────▶│ Prometheus  │────▶│   Grafana   │       │  │   S3 Bucket   │  │    │
-│   │  (metrics)  │     │ (collect)   │     │ (visualize) │       │  │   (configs)   │  │    │
-│   └─────────────┘     └─────────────┘     └─────────────┘       │  └───────────────┘  │    │
-│         │                                                       │          ▲          │    │
-│   ┌─────┴─────┐                                                 │   ┌──────┴──────┐   │    │
-│   │  Docker   │                                                 │   │ IAM + OIDC  │   │    │
-│   │ Compose   │                                                 │   │ (no creds)  │   │    │
-│   └───────────┘                                                 │   └─────────────┘   │    │
-│                                                                 └─────────────────────┘    │
-│                                                                                            │
-│   INFRASTRUCTURE AS CODE                           GITHUB PAGES                            │
-│   ──────────────────────                          ─────────────                            │
-│                                                                                            │
-│   ┌─────────────┐     ┌─────────────┐            ┌─────────────────────┐                   │
-│   │  Terraform  │────▶│  AWS IAM    │            │  DevSecOps Dashboard│                   │
-│   │  Modules    │     │  S3, OIDC   │            │  • Pipeline metrics │                   │
-│   │  • s3       │     │  CloudWatch │            │  • Security scans   │                   │
-│   │  • iam      │     └─────────────┘            │  • Test coverage    │                   │
-│   │  • monitor  │                                └─────────────────────┘                   │
+│                                                                                ▼           │
+│   SCHEDULED JOBS                                                ┌─────────────────────┐    │
+│   ──────────────                                                │       AWS           │    │
+│                                                                 │  ┌───────────────┐  │    │
+│   ┌─────────────┐     ┌─────────────┐                           │  │   S3 Bucket   │  │    │
+│   │ TibiaData   │────▶│  .configs/  │                           │  │   (configs)   │  │    │
+│   │    API      │     │  JSON data  │                           │  └───────────────┘  │    │
+│   └─────────────┘     └──────┬──────┘                           │          ▲          │    │
+│                              │                                  │   ┌──────┴──────┐   │    │
+│                              │                                  │   │ IAM + OIDC  │   │    │
+│                              │                                  │   │ (no creds)  │   │    │
+│                              │                                  │   └─────────────┘   │    │
+│                              │                                  └─────────────────────┘    │
+│   INFRASTRUCTURE AS CODE     │                     GITHUB PAGES                            │
+│   ──────────────────────     │                    ─────────────                            │
+│                              │                                                             │
+│   ┌─────────────┐     ┌──────┴──────┐            ┌─────────────────────┐                   │
+│   │  Terraform  │────▶│  AWS IAM    │            │   Guild Explorer    │                   │
+│   │  Modules    │     │  S3, OIDC   │            │  • World → Guild    │                   │
+│   │  • s3       │     └─────────────┘            │  • Member lookup    │                   │
+│   │  • iam      │                                └─────────────────────┘                   │
 │   └─────────────┘                                                                          │
 │                                                                                            │
 └────────────────────────────────────────────────────────────────────────────────────────────┘
@@ -93,28 +86,26 @@ A Tibia game operations management system built with a full **DevSecOps CI/CD pi
 
 ## Quick Start
 
-### Run the Full Stack Locally
+### Run Locally
 
 ```bash
 # Clone the repository
 git clone https://github.com/Ruslex1234/tibia-ops-config.git
 cd tibia-ops-config
 
-# Start the monitoring stack (App + Prometheus + Grafana)
-docker-compose up -d
+# Install dev dependencies (the scripts themselves need only the stdlib)
+pip install -r requirements-dev.txt
 
-# Access the dashboards:
-# Grafana:    http://localhost:3000 (admin/admin)
-# Prometheus: http://localhost:9090
-# App:        http://localhost:8000/metrics
+# Refresh guild data for all configured worlds
+python scripts/gen_worlds_guilds.py
+
+# Run the enemy death tracker
+python scripts/check_online_enemies.py
 ```
 
 ### Run Tests
 
 ```bash
-# Install dev dependencies
-pip install -r requirements-dev.txt
-
 # Run tests with coverage
 pytest tests/ -v --cov=scripts
 
@@ -143,14 +134,14 @@ tibia-ops-config/
 │   ├── config.py                        #   Centralized configuration
 │   ├── tibia_api.py                     #   Shared API client (DRY principle)
 │   ├── check_online_enemies.py          #   Enemy death tracker
-│   ├── gen_worlds_guilds.py             #   World guild data generator
-│   └── metrics_server.py                #   Prometheus metrics endpoint
+│   └── gen_worlds_guilds.py             #   World guild data generator
 │
 ├── tests/                               # Unit tests (pytest)
 │   ├── conftest.py                      #   Shared test fixtures
 │   ├── test_config.py                   #   Config validation tests
 │   ├── test_tibia_api.py                #   API client tests (mocked)
-│   └── test_check_online_enemies.py     #   Enemy tracker tests
+│   ├── test_check_online_enemies.py     #   Enemy tracker tests
+│   └── test_gen_worlds_guilds.py        #   Guild data generator tests
 │
 ├── .configs/                            # Data files (deployed to S3)
 │   ├── trolls.json                      #   Auto-updated troll list
@@ -159,44 +150,34 @@ tibia-ops-config/
 │   ├── alerts.json                      #   Alert players
 │   └── world_guilds_data.json           #   Auto-generated guild data
 │
-├── monitoring/                          # Observability stack
-│   ├── prometheus/
-│   │   ├── prometheus.yml               #   Prometheus configuration
-│   │   └── alerts.yml                   #   Alerting rules
-│   └── grafana/
-│       ├── provisioning/                #   Auto-provisioning configs
-│       └── dashboards/                  #   Pre-built dashboards
-│
 ├── terraform/                           # Infrastructure as Code
 │   ├── main.tf                          #   Root module
 │   ├── variables.tf                     #   Input variables
 │   ├── outputs.tf                       #   Output values
 │   ├── modules/
 │   │   ├── s3/                          #   S3 bucket module
-│   │   ├── iam/                         #   IAM + OIDC module
-│   │   └── monitoring/                  #   CloudWatch module
+│   │   └── iam/                         #   IAM + OIDC module
 │   └── environments/
 │       ├── dev/                         #   Dev environment vars
 │       └── prod/                        #   Prod environment vars
 │
-├── docs/                                # GitHub Pages dashboard
-│   ├── index.html                       #   Dashboard HTML
+├── docs/                                # GitHub Pages site (Guild Explorer)
+│   ├── index.html                       #   Guild Explorer page
 │   ├── assets/
-│   │   ├── css/style.css                #   Dashboard styles
-│   │   └── js/dashboard.js              #   Dashboard logic
-│   └── data/metrics.json                #   Dashboard metrics data
+│   │   ├── css/style.css                #   Styles
+│   │   └── js/guilds.js                 #   World/guild/member lookup logic
+│   └── data/
+│       └── world_guilds_data.json       #   Minified mirror of .configs/ copy
 │
 ├── .github/
 │   ├── workflows/
 │   │   ├── ci.yml                       #   CI Pipeline (PRs)
 │   │   ├── cd.yml                       #   CD Pipeline (deploy)
-│   │   ├── scheduled-jobs.yml           #   Scheduled data collection
-│   │   └── update-dashboard.yml         #   Dashboard metrics updater
+│   │   ├── publish-configs-to-s3.yml    #   Config publishing to S3
+│   │   └── scheduled-jobs.yml           #   Scheduled data collection
 │   ├── pull_request_template.md         #   PR template
 │   └── CODEOWNERS                       #   Required reviewers
 │
-├── Dockerfile                           # Container image
-├── docker-compose.yml                   # Full observability stack
 ├── .pre-commit-config.yaml              # Pre-commit hooks
 ├── .flake8                              # Linter configuration
 ├── .bandit                              # Security scanner config
@@ -204,59 +185,6 @@ tibia-ops-config/
 ├── requirements-dev.txt                 # Dev/test dependencies
 └── README.md                            # This file
 ```
-
----
-
-## Observability Stack
-
-### Prometheus Metrics
-
-The application exposes Prometheus metrics at `http://localhost:8000/metrics`:
-
-| Metric | Type | Description |
-|--------|------|-------------|
-| `tibia_trolls_total` | Gauge | Total players in trolls list |
-| `tibia_bastex_total` | Gauge | Total players in bastex list |
-| `tibia_enemies_online` | Gauge | Currently online enemies |
-| `tibia_api_calls_total` | Counter | Total API calls made |
-| `tibia_api_errors_total` | Counter | Total API errors |
-| `tibia_guild_online_members` | Gauge | Online members per guild |
-| `tibia_last_check_duration_seconds` | Gauge | Duration of last check |
-
-### Grafana Dashboards
-
-Pre-built dashboards are automatically provisioned:
-
-- **Tibia Ops Overview** - Main operational dashboard
-  - Troll list growth over time
-  - Enemy online counts
-  - API health metrics
-  - Per-guild statistics
-
-### Docker Compose
-
-```bash
-# Start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop all services
-docker-compose down
-
-# Rebuild after code changes
-docker-compose build --no-cache
-docker-compose up -d
-```
-
-**Services:**
-
-| Service | Port | Description |
-|---------|------|-------------|
-| `app` | 8000 | Metrics server |
-| `prometheus` | 9090 | Metrics collection |
-| `grafana` | 3000 | Visualization (admin/admin) |
 
 ---
 
@@ -268,7 +196,6 @@ docker-compose up -d
 |--------|---------|-------------------|
 | `s3` | Config storage | S3 bucket with versioning, encryption, lifecycle |
 | `iam` | GitHub OIDC auth | OIDC provider, IAM role, policies |
-| `monitoring` | AWS monitoring | CloudWatch alarms, SNS topics, dashboard |
 
 ### AWS Resources
 
@@ -285,15 +212,14 @@ docker-compose up -d
 │                          ┌────────┴────────┐                    │
 │                          │   IAM Policies  │                    │
 │                          │  • S3 access    │                    │
-│                          │  • CloudWatch   │                    │
 │                          └────────┬────────┘                    │
 │                                   │                             │
-│  ┌─────────────────┐              │      ┌─────────────────┐    │
-│  │   S3 Bucket     │◀─────────────┘      │  CloudWatch     │    │
-│  │  • Versioning   │                     │  • Alarms       │    │
-│  │  • Encryption   │                     │  • Dashboard    │    │
-│  │  • Lifecycle    │                     │  • SNS Topics   │    │
-│  └─────────────────┘                     └─────────────────┘    │
+│  ┌─────────────────┐              │                             │
+│  │   S3 Bucket     │◀─────────────┘                             │
+│  │  • Versioning   │                                            │
+│  │  • Encryption   │                                            │
+│  │  • Lifecycle    │                                            │
+│  └─────────────────┘                                            │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -396,6 +322,10 @@ terraform output github_actions_config
 | `update-guild-data` | Fetches guild lists for 14 worlds | `world_guilds_data.json` | Every 10 min |
 | `check-enemies` | Monitors deaths, adds unguilded killers | `trolls.json` | Every 10 min |
 
+`update-guild-data` also writes a minified mirror of the guild data to
+`docs/data/world_guilds_data.json` in the same commit, since GitHub Pages
+serves `docs/` and cannot read `.configs/`.
+
 ---
 
 ## DevSecOps Practices
@@ -429,18 +359,23 @@ Pre-commit          CI Pipeline        Staging        Production
 
 ---
 
-## GitHub Pages Dashboard
+## Guild Explorer (GitHub Pages)
 
-A live dashboard displaying pipeline metrics, security scan results, and application statistics.
+A static page for looking up guild members by world.
 
 **Features:**
-- CI/CD pipeline success rates
-- Security scan visualizations
-- Application metrics (trolls, bastex, enemies online)
-- Architecture diagrams
-- Quick start guides
+- Pick a world, then a guild, to list that guild's members
+- "All guilds" option lists every member in a world, labelled by guild
+- Live text filter over member names
+- Selection is mirrored into the query string, so views are shareable
+  (e.g. `?world=Firmera&guild=Amerans`)
 
 **Access:** `https://ruslex1234.github.io/tibia-ops-config/`
+
+**Data source:** `docs/data/world_guilds_data.json`, a minified mirror of
+`.configs/world_guilds_data.json` refreshed by the `update-guild-data`
+scheduled job. Pages publishes `main:/docs`, so the site cannot read
+`.configs/` directly.
 
 ---
 
@@ -472,9 +407,6 @@ main (protected)
 | **pip-audit** | SCA | Dependency scanner |
 | **gitleaks** | Secrets | Git secrets scanner |
 | **pre-commit** | Local CI | Git hook manager |
-| **Docker** | Containers | Application packaging |
-| **Prometheus** | Monitoring | Metrics collection |
-| **Grafana** | Monitoring | Visualization |
 | **Terraform** | IaC | Infrastructure provisioning |
 | **GitHub Actions** | CI/CD | Pipeline orchestration |
 
@@ -485,7 +417,6 @@ main (protected)
 ### Prerequisites
 
 - Python 3.9+
-- Docker & Docker Compose
 - Terraform >= 1.5.0
 - AWS CLI (for deployment)
 
@@ -511,9 +442,6 @@ pre-commit install
 ### 3. Run Locally
 
 ```bash
-# Start monitoring stack
-docker-compose up -d
-
 # Run tests
 pytest tests/ -v
 
@@ -531,6 +459,5 @@ python scripts/check_online_enemies.py
 | CI tests fail | Run `pytest tests/ -v` locally |
 | Security scan flags | Check bandit output, add to `.bandit` skips if false positive |
 | S3 AccessDenied | Verify `AWS_ROLE_ARN` and IAM policy |
-| Docker build fails | Run `docker-compose build --no-cache` |
-| Grafana no data | Wait 30s for first scrape, check Prometheus targets |
+| Guild Explorer shows stale data | Wait for the next `update-guild-data` run, or trigger it manually |
 | Terraform error | Run `terraform init` and check AWS credentials |
