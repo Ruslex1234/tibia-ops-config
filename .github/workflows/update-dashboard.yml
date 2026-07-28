@@ -5,10 +5,8 @@
 # WHY:   Provides real-time visibility into CI/CD performance and app metrics
 # WHEN:  Daily at midnight, after CD pipeline, or manual trigger
 #
-# This workflow demonstrates:
-# - GitHub API integration
-# - Automated metric collection
-# - GitHub Pages deployment
+# This workflow only refreshes docs/data/metrics.json and commits it. Pages
+# publishes main:/docs directly, so the commit is the deploy.
 # =============================================================================
 
 name: Update Dashboard
@@ -23,8 +21,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   update-metrics:
@@ -180,28 +176,3 @@ jobs:
             git pull --rebase origin main
           done
           git push
-
-  deploy-pages:
-    name: "Deploy to GitHub Pages"
-    needs: update-metrics
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v7
-        with:
-          ref: main
-
-      - name: "Setup Pages"
-        uses: actions/configure-pages@v6
-
-      - name: "Upload artifact"
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: 'docs'
-
-      - name: "Deploy to GitHub Pages"
-        id: deployment
-        uses: actions/deploy-pages@v5

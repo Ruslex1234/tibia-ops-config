@@ -15,11 +15,11 @@ This directory contains Infrastructure as Code (IaC) for the Tibia Ops Config pr
 │  └─────────────────┘     └─────────────────┘     └───────────────┘ │
 │          │                       │                       │          │
 │          │                       │                       │          │
-│          ▼                       ▼                       ▼          │
-│  ┌─────────────────┐     ┌─────────────────┐     ┌───────────────┐ │
-│  │  OIDC Provider  │     │  IAM Policies   │     │  CloudWatch   │ │
-│  │   (Trust)       │     │  (S3 Access)    │     │  (Monitoring) │ │
-│  └─────────────────┘     └─────────────────┘     └───────────────┘ │
+│          ▼                       ▼                                   │
+│  ┌─────────────────┐     ┌─────────────────┐                        │
+│  │  OIDC Provider  │     │  IAM Policies   │                        │
+│  │   (Trust)       │     │  (S3 Access)    │                        │
+│  └─────────────────┘     └─────────────────┘                        │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -36,11 +36,7 @@ terraform/
 │   │   ├── main.tf
 │   │   ├── variables.tf
 │   │   └── outputs.tf
-│   ├── iam/                # IAM roles and policies for GitHub OIDC
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   └── monitoring/         # CloudWatch alarms and dashboards
+│   └── iam/                # IAM roles and policies for GitHub OIDC
 │       ├── main.tf
 │       ├── variables.tf
 │       └── outputs.tf
