@@ -20325,7 +20325,6 @@
             "Alco Anch",
             "Don Balta",
             "Hef Blanco",
-            "Kila Corvinus",
             "Muv Delas",
             "Peeh Cakey",
             "Peeh Knight",
@@ -35872,6 +35871,17 @@
             "Pale Seer",
             "Zyzeda"
         ],
+        "Owns": [
+            "Rey Miguel",
+            "Dafydd Goch",
+            "Efren Archero",
+            "Sir Leopoldo",
+            "Skas Winterbringer",
+            "Ekzori Gran",
+            "Headstrike",
+            "Laskana",
+            "Rey Efren"
+        ],
         "Parallax": [
             "Lord Adeseus",
             "Etcha Mano",
@@ -40671,6 +40681,7 @@
             "Sonny Morningstar",
             "Tavaki Tavali",
             "Teknyk",
+            "Toxic Gago",
             "Varnex Erpe",
             "Werefuxo Zunera Defender",
             "Aiam Cargax",
@@ -40858,7 +40869,8 @@
             "Tekate Azzul",
             "Valthyra",
             "Yeiixzi",
-            "Zlowx"
+            "Zlowx",
+            "Monk Fullmetal"
         ]
     },
     "Xymera": {
@@ -40866,6 +40878,7 @@
             "Jireana Return",
             "Don Kazan",
             "El gocho",
+            "Gandalillo",
             "Jozsep",
             "Knight Taerry",
             "Roeee",
@@ -40885,7 +40898,6 @@
             "Enxoh",
             "Eowuz",
             "Feerni",
-            "Gandalillo",
             "Gandalito",
             "Golyax",
             "Koovek",
