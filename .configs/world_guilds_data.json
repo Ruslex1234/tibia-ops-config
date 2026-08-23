@@ -5989,7 +5989,6 @@
             "Gonzalo On Helera",
             "Monstera Holder",
             "Monstera Trader",
-            "Szantii",
             "Trogo Holder",
             "Ailton Bebylleite",
             "Banhaoo",
@@ -8728,6 +8727,7 @@
             "Ak Kheos",
             "Ak Whis",
             "Ak Xlvii",
+            "Ak Zalama",
             "Al lan",
             "Ale Kiret",
             "Alei Fallassion",
@@ -9381,7 +9381,6 @@
             "Hare On Ferumbrasss",
             "Hare On Ferumbrras",
             "Hare On Feruumbras",
-            "Hare Ozkr",
             "Hare obatalazz",
             "Haren Inori",
             "Hasken Depotrunner",
@@ -26914,6 +26913,7 @@
             "Almighty Ghost",
             "Almighty Jorge",
             "Almighty Kholy",
+            "Almighty Kingrose",
             "Almighty Kucta",
             "Almighty Messi",
             "Almighty Potter",
@@ -30041,7 +30041,9 @@
             "Rumildosaa",
             "Rusbed",
             "Ruso Haze",
+            "Ruthless Baby",
             "Ruthless Kiing",
+            "Ruthless Legacy",
             "Ruzler Messi",
             "Ryazzen",
             "Ryderzinho",
@@ -35678,6 +35680,7 @@
         ],
         "Noblemen": [
             "Thais Sewer Rat",
+            "Kobee Tha Goatt",
             "Mwallina Parisian",
             "Secret Agent Flamingo",
             "Simple Doods Broccoli",
@@ -35834,7 +35837,6 @@
             "Jaggerbomba",
             "Jubileu Blackheart",
             "Just Because",
-            "Kobee Tha Goatt",
             "Legendary Croissant",
             "Morenito Bombs",
             "Oscarovo",
@@ -36036,12 +36038,14 @@
             "Dotdrop Unwrap Chimney",
             "Flamingoro",
             "Hito Mage",
+            "Humbleman",
             "Lutyf Mage",
             "Memmmmmmmmmmm mmmmmmmmmmgojo",
             "Nose Forpackets",
             "Piccolo Lottatore",
             "Serjao das Boh",
-            "Tly"
+            "Tly",
+            "Void Vibes"
         ],
         "Oil Boys Gym": [
             "Dewfus",
@@ -52163,8 +52167,7 @@
             "Zuleyha",
             "Zumba Aplicador Desd",
             "Zuszhi Caraota",
-            "Zwagolex",
-            "Zyra Deco"
+            "Zwagolex"
         ],
         "Winterhell": [
             "Thol Aeph",
