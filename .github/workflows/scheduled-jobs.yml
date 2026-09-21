@@ -3,7 +3,7 @@
 # =============================================================================
 # WHAT:  Runs on a schedule to fetch live data from TibiaData API.
 # WHY:   Keeps player lists and guild data up to date automatically.
-# WHEN:  Every 10 minutes (cron) or manual trigger.
+# WHEN:  Up to 3x/hour (~23 min apart, best effort) or manual trigger.
 #
 # These jobs are NOT part of the CI/CD pipeline - they are operational tasks
 # that run independently to collect and update game data.
@@ -25,7 +25,15 @@ concurrency:
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Every 10 minutes
+    # Cron's minute field resets every hour, so a true 23-minute interval is
+    # not expressible. This fires 3x/hour: 23 min apart inside the hour, 14 min
+    # across the boundary. Offset minutes (not :00/:10/:20) keep these runs out
+    # of GitHub's most congested scheduler buckets.
+    #
+    # NOTE: GitHub delivers `schedule` events best-effort and silently drops
+    # them under load. Measured delivery on this repo was ~7 runs/day against a
+    # */10 cron (95% dropped). Treat this cadence as a ceiling, not a guarantee.
+    - cron: '3,26,49 * * * *'
   workflow_dispatch:
     inputs:
       job:
