@@ -3,6 +3,11 @@ Centralized configuration for Tibia Ops Config.
 All hardcoded values are maintained here for easy updates.
 """
 
+import json
+import os
+
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # =============================================================================
 # API Configuration
 # =============================================================================
@@ -17,13 +22,10 @@ REQUEST_TIMEOUT = 30  # seconds
 # =============================================================================
 # World Configuration
 # =============================================================================
-# All Tibia worlds we monitor for guild data
-WORLDS = [
-    'Quidera', 'Firmera', 'Aethera', 'Monstera', 'Talera',
-    'Lobera', 'Quintera', 'Wintera', 'Eclipta', 'Epoca',
-    'Zunera', 'Mystera', 'Xymera', 'Tempestera', 'Havera',
-    'Wickera'
-]
+# All Tibia worlds we monitor. Single source of truth shared with the
+# bastex_online Lambda: edit .configs/settings.json, not this file.
+with open(os.path.join(_REPO_ROOT, '.configs', 'settings.json'), encoding='utf-8') as _f:
+    WORLDS = json.load(_f)['worlds']
 
 # =============================================================================
 # Enemy Guild Configuration

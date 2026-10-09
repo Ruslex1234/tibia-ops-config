@@ -7,9 +7,10 @@ import time
 from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
 
+import config
 from config import (
     BUCKET_NAME, OUTPUT_FILE_NAME, PREMIUM_VOCATIONS, CHAT_ID_MYKERA,
-    WORLDS, MAX_FAILURE_RATE, ABORT_ON_SERVER_ERROR
+    WORLDS
 )
 from utils import (
     load_combined_config, put_html_if_changed,
@@ -30,14 +31,14 @@ def lambda_handler(event, context):
     t0 = time.time()
     print("Starting lambda_handler")
 
-    # ========== Load Config + Fetch Worlds Concurrently ==========
-    # The S3 config read and the API fan-out are independent; overlapping them
-    # shaves the S3 round-trip off the critical path.
-    with ThreadPoolExecutor(max_workers=2) as ex:
-        cfg_future = ex.submit(load_combined_config)
-        fetch_future = ex.submit(fetch_all_worlds)
-        cfg = cfg_future.result()
-        worlds_data, errors = fetch_future.result()
+    # ========== Load Config, Then Fetch Worlds ==========
+    # Config goes first: the worlds list and other settings live in GitHub
+    # (.configs/settings.json -> combined.json "settings") and must be applied
+    # before the API fan-out. Costs one S3 GET on the critical path.
+    cfg = load_combined_config()
+    applied = config.apply_settings(cfg.get('settings'))
+    print(f"Applied settings from config: {', '.join(applied) or 'none (using env/defaults)'}")
+    worlds_data, errors = fetch_all_worlds()
 
     t1 = time.time()
     print(f"Fetched config + all worlds in {t1-t0:.2f}s")
@@ -76,7 +77,7 @@ def lambda_handler(event, context):
 
         # Check for 5xx server errors (API is down)
         server_errors = [w for w, e in errors.items() if e.get('status_code', 0) >= 500]
-        if server_errors and ABORT_ON_SERVER_ERROR:
+        if server_errors and config.ABORT_ON_SERVER_ERROR:
             error_msg = f"ABORTED: API server errors detected for {len(server_errors)} worlds: {', '.join(server_errors)}"
             print(f"❌ {error_msg}")
             print("Keeping existing HTML to preserve last known good state")
@@ -88,8 +89,8 @@ def lambda_handler(event, context):
             }
 
         # Check if failure rate exceeds threshold
-        if failure_rate > MAX_FAILURE_RATE:
-            error_msg = f"ABORTED: Failure rate {failure_rate:.1f}% exceeds threshold {MAX_FAILURE_RATE}%"
+        if failure_rate > config.MAX_FAILURE_RATE:
+            error_msg = f"ABORTED: Failure rate {failure_rate:.1f}% exceeds threshold {config.MAX_FAILURE_RATE}%"
             print(f"❌ {error_msg}")
             print("Keeping existing HTML to preserve last known good state")
             return {

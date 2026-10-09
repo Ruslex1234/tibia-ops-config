@@ -188,7 +188,7 @@ def put_html_if_changed(bucket, key, html_str):
     for identical HTML, and the skip-upload optimization never fires.
     """
     gz = gzip.compress(html_str.encode("utf-8"), mtime=0)
-    md5hex = hashlib.md5(gz).hexdigest()
+    md5hex = hashlib.md5(gz, usedforsecurity=False).hexdigest()
 
     try:
         head = S3_CLIENT.head_object(Bucket=bucket, Key=key)

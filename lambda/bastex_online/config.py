@@ -43,7 +43,8 @@ CHAT_ID_CARLOS = os.environ.get("CHAT_ID_CARLOS", "")
 CHAT_ID_DANNY = os.environ.get("CHAT_ID_DANNY", "")
 
 # ========== Performance Configuration ==========
-MAX_WORKERS = int(os.environ.get("MAX_WORKERS", len(WORLDS)))
+# 0 = one worker per world, so the pool tracks the worlds list from settings
+MAX_WORKERS = int(os.environ.get("MAX_WORKERS", "0"))
 HTTP_POOL_NUM = int(os.environ.get("HTTP_POOL_NUM", "8"))
 HTTP_POOL_MAXSIZE = int(os.environ.get("HTTP_POOL_MAXSIZE", "64"))
 HTTP_CONNECT_TIMEOUT = float(os.environ.get("HTTP_CONNECT_TIMEOUT", "3.0"))
@@ -96,7 +97,78 @@ GREEN_CATEGORIES = [
     "Final Frontier", "Retaliation", "Maskeikos Killers", "Winter Brigade", "Watch Os"
 ]
 
-# Pre-computed frozensets for O(1) membership checks in hot render paths
-SPECIAL_GUILDS_SET = frozenset(SPECIAL_GUILDS)
-DAN_GUILDS_SET = frozenset(DAN_GUILDS)
-GREEN_CATEGORIES_SET = frozenset(GREEN_CATEGORIES)
+# Pre-computed sets for O(1) membership checks in hot render paths.
+# Plain sets (not frozensets) so apply_settings() can refresh them in place.
+SPECIAL_GUILDS_SET = set(SPECIAL_GUILDS)
+DAN_GUILDS_SET = set(DAN_GUILDS)
+GREEN_CATEGORIES_SET = set(GREEN_CATEGORIES)
+
+
+# ========== Runtime Settings (from GitHub .configs/settings.json) ==========
+# The "settings" key of combined.json overrides the env/default values above.
+# Lists, sets and dicts are updated IN PLACE because other modules hold
+# references to them via `from config import X`. Scalars are rebound, so
+# callers read them as `config.X`. Invalid or missing keys keep the current
+# value, so a bad commit degrades to env/defaults instead of breaking the run.
+_LIST_SETTINGS = {
+    "worlds": (WORLDS, None),
+    "premium_vocations": (PREMIUM_VOCATIONS, None),
+    "special_guilds": (SPECIAL_GUILDS, SPECIAL_GUILDS_SET),
+    "dan_guilds": (DAN_GUILDS, DAN_GUILDS_SET),
+    "priority_categories": (PRIORITY_CATEGORIES, None),
+    "green_categories": (GREEN_CATEGORIES, GREEN_CATEGORIES_SET),
+}
+_SCALAR_SETTINGS = {
+    "min_level_filter": ("MIN_LEVEL_FILTER", int),
+    "alert_hours_threshold": ("ALERT_HOURS_THRESHOLD", int),
+    "max_failure_rate": ("MAX_FAILURE_RATE", int),
+    "abort_on_server_error": ("ABORT_ON_SERVER_ERROR", bool),
+}
+
+
+def _is_str_list(v):
+    return isinstance(v, list) and all(isinstance(x, str) and x.strip() for x in v)
+
+
+def apply_settings(settings):
+    """Apply the 'settings' block from combined.json. Returns keys applied."""
+    if not isinstance(settings, dict):
+        if settings is not None:
+            print("Ignoring settings: expected an object")
+        return []
+
+    applied = []
+    for key, (target, target_set) in _LIST_SETTINGS.items():
+        if key not in settings:
+            continue
+        value = settings[key]
+        if not _is_str_list(value) or (key == "worlds" and not value):
+            print(f"Ignoring settings.{key}: expected a non-empty list of names")
+            continue
+        target[:] = [x.strip() for x in value]
+        if target_set is not None:
+            target_set.clear()
+            target_set.update(target)
+        applied.append(key)
+
+    if "color_map" in settings:
+        value = settings["color_map"]
+        if isinstance(value, dict) and all(isinstance(v, str) for v in value.values()):
+            COLOR_MAP.clear()
+            COLOR_MAP.update(value)
+            applied.append("color_map")
+        else:
+            print("Ignoring settings.color_map: expected an object of name -> color")
+
+    for key, (name, typ) in _SCALAR_SETTINGS.items():
+        if key not in settings:
+            continue
+        value = settings[key]
+        # bool is a subclass of int; don't accept true/false for numeric knobs
+        if type(value) is not typ:
+            print(f"Ignoring settings.{key}: expected {typ.__name__}")
+            continue
+        globals()[name] = value
+        applied.append(key)
+
+    return applied

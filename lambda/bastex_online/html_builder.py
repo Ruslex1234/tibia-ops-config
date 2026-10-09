@@ -6,9 +6,10 @@ import json
 import html as html_mod
 import urllib.parse
 
+import config
 from config import (
     WORLDS, COLOR_MAP, SPECIAL_GUILDS_SET, DAN_GUILDS_SET,
-    GREEN_CATEGORIES_SET, ALERT_HOURS_THRESHOLD
+    GREEN_CATEGORIES_SET
 )
 from utils import format_timedelta_from_epoch, extract_world_meta
 from data_processing import categorize_players, sort_categories
@@ -436,7 +437,7 @@ def render_player_row(world, player, category, online_tracker, now_ts,
     display_color = color
 
     # Gray out tracked players online > threshold hours
-    if hours_online > ALERT_HOURS_THRESHOLD and (
+    if hours_online > config.ALERT_HOURS_THRESHOLD and (
         (player.get("guild") in SPECIAL_GUILDS_SET) or
         (category in SPECIAL_GUILDS_SET) or
         (lname in enemy_block_set) or

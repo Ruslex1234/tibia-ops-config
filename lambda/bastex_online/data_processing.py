@@ -5,8 +5,9 @@ data_processing.py
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+import config
 from config import (
-    BASE_API_URL, WORLDS, MAX_WORKERS, MIN_LEVEL_FILTER,
+    BASE_API_URL, WORLDS,
     SPECIAL_GUILDS, PRIORITY_CATEGORIES, GREEN_CATEGORIES
 )
 from utils import (
@@ -18,14 +19,14 @@ from utils import (
 
 # ========== API Fetching Functions ==========
 def fetch_world_online_players(world_name):
-    """Fetch online players for a specific world, filtered to level > MIN_LEVEL_FILTER"""
+    """Fetch online players for a specific world, filtered to level > config.MIN_LEVEL_FILTER"""
     url = BASE_API_URL.format(world_name=world_name)
     data = http_get_json(url)
 
     players = data['world'].get('online_players')
     if players is not None:
         data['world']['online_players'] = [
-            p for p in players if p.get('level', 0) > MIN_LEVEL_FILTER
+            p for p in players if p.get('level', 0) > config.MIN_LEVEL_FILTER
         ]
 
     return data
@@ -40,7 +41,7 @@ def fetch_all_worlds(world_list=WORLDS):
     """
     results = {}
     errors = {}
-    workers = min(len(world_list), MAX_WORKERS)
+    workers = min(len(world_list), config.MAX_WORKERS or len(world_list))
 
     with ThreadPoolExecutor(max_workers=workers) as ex:
         fut = {ex.submit(fetch_world_online_players, w): w for w in world_list}

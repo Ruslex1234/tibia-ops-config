@@ -1,0 +1,93 @@
+# =============================================================================
+# Deploy bastex_online Lambda
+# =============================================================================
+# WHAT:  Packages lambda/bastex_online/ and updates the function's code.
+# WHEN:  Push to main touching lambda/bastex_online/**, or manual dispatch.
+#
+# Config changes do NOT need this: edit .configs/*.json (settings.json for
+# worlds, guilds, colors, thresholds) and publish-configs-to-s3 ships them.
+# The Lambda reads combined.json on every run.
+#
+# Secrets (Telegram token, chat IDs, bucket names) stay in the function's
+# environment variables. This workflow only replaces code, never config.
+#
+# Required: the OIDC role in AWS_ROLE_ARN needs lambda:GetFunction,
+# lambda:UpdateFunctionCode and lambda:PublishVersion on the function.
+# =============================================================================
+
+name: Deploy Lambda
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lambda/bastex_online/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-lambda
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME || 'bastex_online_v5' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: "pip"
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Test
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          python -m py_compile lambda/bastex_online/*.py
+          pytest tests/test_lambda_settings.py --quiet --tb=short
+
+      - name: Package
+        run: |
+          cd lambda/bastex_online
+          zip -X -q ../../function.zip *.py
+          cd ../..
+          unzip -l function.zip
+          sha256sum function.zip
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN || vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy
+        run: |
+          set -euo pipefail
+          aws lambda update-function-code \
+            --function-name "$FUNCTION_NAME" \
+            --zip-file fileb://function.zip \
+            --publish \
+            --query '{Version:Version,CodeSha256:CodeSha256}' \
+            --output table
+          aws lambda wait function-updated-v2 --function-name "$FUNCTION_NAME"
+
+      - name: Verify
+        run: |
+          set -euo pipefail
+          STATUS=$(aws lambda get-function-configuration \
+            --function-name "$FUNCTION_NAME" \
+            --query 'LastUpdateStatus' --output text)
+          echo "LastUpdateStatus: $STATUS"
+          [ "$STATUS" = "Successful" ]
+          echo "Deployed commit ${GITHUB_SHA::7}. The next scheduled run picks it up."
