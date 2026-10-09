@@ -1,0 +1,123 @@
+# =============================================================================
+# Deploy bastex_online Lambda
+# =============================================================================
+# WHAT:  Ships the code in lambda/bastex_online/ to the function.
+# WHEN:  Push to main touching the Lambda, or manual dispatch.
+#
+# Config changes do NOT need this: edit .configs/*.json (settings.json for
+# guilds, worlds, colors, thresholds) and the config publish workflows ship
+# them. The Lambda reads combined.json on every run.
+#
+# Code only: the function's environment variables (bucket names, Telegram
+# token, CHAT_ID_*) stay in the Lambda console and are never touched here.
+#
+# Uses the existing AWS_ROLE_ARN and S3_BUCKET secrets. The OIDC role needs
+# lambda:GetFunction, lambda:GetFunctionConfiguration,
+# lambda:UpdateFunctionCode and lambda:PublishVersion on the function.
+# =============================================================================
+
+name: Deploy Lambda
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lambda/bastex_online/**'
+      - '.github/workflows/deploy-lambda.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-lambda
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  CONFIG_S3_KEY: configs/combined.json
+  FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME || 'bastex_online_v5' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: "pip"
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Test
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          python -m py_compile lambda/bastex_online/*.py
+          pytest tests/test_lambda_settings.py --quiet --tb=short
+
+      - name: Package
+        run: |
+          cd lambda/bastex_online
+          zip -X -q ../../function.zip *.py
+          cd ../..
+          unzip -l function.zip
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN || vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # The new code refuses to run without valid settings, so make sure the
+      # config publish for this same commit has landed before switching code.
+      - name: Wait for this commit's settings in S3
+        env:
+          S3_BUCKET: ${{ secrets.S3_BUCKET || vars.S3_BUCKET }}
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 20); do
+            aws s3 cp "s3://${S3_BUCKET}/${CONFIG_S3_KEY}" "$RUNNER_TEMP/live.json" --only-show-errors
+            if python - "$RUNNER_TEMP/live.json" <<'PY'
+          import json, sys
+          sys.path.insert(0, "lambda/bastex_online")
+          import config
+          live = json.load(open(sys.argv[1])).get("settings")
+          repo = json.load(open(".configs/settings.json"))
+          config.parse_settings(live)
+          sys.exit(0 if live == repo else 1)
+          PY
+            then
+              echo "Live settings match this commit."
+              exit 0
+            fi
+            echo "Live settings not updated yet ($i/20), waiting 30s..."
+            sleep 30
+          done
+          echo "Live settings never matched .configs/settings.json; not deploying."
+          exit 1
+
+      - name: Deploy code
+        run: |
+          set -euo pipefail
+          aws lambda update-function-code \
+            --function-name "$FUNCTION_NAME" \
+            --zip-file fileb://function.zip \
+            --publish \
+            --query '{Version:Version,CodeSha256:CodeSha256}' \
+            --output table
+          aws lambda wait function-updated-v2 --function-name "$FUNCTION_NAME"
+
+      - name: Verify
+        run: |
+          set -euo pipefail
+          STATUS=$(aws lambda get-function-configuration \
+            --function-name "$FUNCTION_NAME" \
+            --query 'LastUpdateStatus' --output text)
+          echo "LastUpdateStatus: $STATUS"
+          [ "$STATUS" = "Successful" ]
+          echo "Deployed commit ${GITHUB_SHA::7}. The next scheduled run picks it up."
