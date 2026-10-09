@@ -8,10 +8,7 @@ from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
 
 import config
-from config import (
-    BUCKET_NAME, OUTPUT_FILE_NAME, PREMIUM_VOCATIONS, CHAT_ID_MYKERA,
-    WORLDS
-)
+from config import BUCKET_NAME, OUTPUT_FILE_NAME
 from utils import (
     load_combined_config, put_html_if_changed,
     load_last_known_worlds_data, save_last_known_worlds_data,
@@ -22,6 +19,36 @@ from data_processing import (
 )
 from html_builder import build_html
 
+# Last config that loaded and validated, reused by warm containers when S3
+# or a bad settings commit fails, so one bad push doesn't freeze the page.
+_last_good_cfg = None
+
+
+def _abort(status, msg, **extra):
+    print(f"❌ {msg}")
+    print("Keeping existing HTML to preserve last known good state")
+    return {'statusCode': status, 'body': msg, **extra}
+
+
+def _load_config():
+    """Load and validate combined.json, falling back to the last good copy.
+    Returns the config dict, or None if there is nothing usable."""
+    global _last_good_cfg
+    try:
+        cfg = load_combined_config()
+        config.settings = config.parse_settings(cfg.get('settings'))
+        _last_good_cfg = cfg
+        return cfg
+    except config.SettingsError as e:
+        print(f"Invalid settings: {e}")
+    except Exception as e:
+        print(f"Failed to load combined config: {type(e).__name__}: {e}")
+    if _last_good_cfg is not None:
+        print("Using last good config from this container")
+        config.settings = config.parse_settings(_last_good_cfg['settings'])
+        return _last_good_cfg
+    return None
+
 
 def lambda_handler(event, context):
     """
@@ -31,35 +58,31 @@ def lambda_handler(event, context):
     t0 = time.time()
     print("Starting lambda_handler")
 
+    missing = config.missing_env()
+    if missing:
+        return _abort(500, f"ABORTED: missing environment variables: {', '.join(missing)}")
+
     # ========== Load Config, Then Fetch Worlds ==========
-    # Config goes first: the worlds list and other settings live in GitHub
-    # (.configs/settings.json -> combined.json "settings") and must be applied
-    # before the API fan-out. Costs one S3 GET on the critical path.
-    cfg = load_combined_config()
-    applied = config.apply_settings(cfg.get('settings'))
-    print(f"Applied settings from config: {', '.join(applied) or 'none (using env/defaults)'}")
+    # Everything configurable comes from GitHub via combined.json "settings",
+    # including the worlds list, so it must be loaded before the API fan-out.
+    cfg = _load_config()
+    if cfg is None:
+        return _abort(503, "ABORTED: no valid config available")
+    s = config.settings
+
     worlds_data, errors = fetch_all_worlds()
 
     t1 = time.time()
     print(f"Fetched config + all worlds in {t1-t0:.2f}s")
 
-    alerts = cfg.get('alerts', [])
-    trolls = cfg.get('trolls', [])
-    enemy_block = cfg.get('block', [])
-    bastex_no_guild = cfg.get('bastex', [])
-    enemy_guilds = cfg.get('world_guilds_data', {})
-
     # ========== Pre-process Sets for O(1) Lookups ==========
-    trolls_set = set(x.lower() for x in trolls)
-    alert_set = set(x.lower() for x in alerts)
-    enemy_block_set = set(x.lower() for x in enemy_block)
-    bastex_no_guild_set = set(x.lower() for x in bastex_no_guild)
-    dan_troll_set = set()  # Empty as per original code
-    nontelegram_set = set()  # Empty as per original code
-    premmy_voc_set = set(PREMIUM_VOCATIONS)
+    trolls_set = set(x.lower() for x in cfg.get('trolls', []))
+    alert_set = set(x.lower() for x in cfg.get('alerts', []))
+    enemy_block_set = set(x.lower() for x in cfg.get('block', []))
+    bastex_no_guild_set = set(x.lower() for x in cfg.get('bastex', []))
 
     # ========== Build Member Index for Guild Lookups ==========
-    member_index = build_member_index(enemy_guilds)
+    member_index = build_member_index(cfg.get('world_guilds_data', {}))
 
     # Track which worlds we have FRESH data for this run.
     # Merged cache fills display gaps, but online timers must only be
@@ -67,7 +90,7 @@ def lambda_handler(event, context):
     fresh_worlds = set(worlds_data.keys())
 
     # ========== Check for Critical Errors ==========
-    total_worlds = len(WORLDS)
+    total_worlds = len(s.worlds)
     failed_worlds = len(errors)
     successful_worlds = len(worlds_data)
 
@@ -77,31 +100,21 @@ def lambda_handler(event, context):
 
         # Check for 5xx server errors (API is down)
         server_errors = [w for w, e in errors.items() if e.get('status_code', 0) >= 500]
-        if server_errors and config.ABORT_ON_SERVER_ERROR:
-            error_msg = f"ABORTED: API server errors detected for {len(server_errors)} worlds: {', '.join(server_errors)}"
-            print(f"❌ {error_msg}")
-            print("Keeping existing HTML to preserve last known good state")
-            return {
-                'statusCode': 503,
-                'body': error_msg,
-                'errorCount': failed_worlds,
-                'failedWorlds': list(errors.keys())
-            }
+        if server_errors and s.abort_on_server_error:
+            return _abort(
+                503,
+                f"ABORTED: API server errors detected for {len(server_errors)} worlds: {', '.join(server_errors)}",
+                errorCount=failed_worlds, failedWorlds=list(errors.keys()))
 
         # Check if failure rate exceeds threshold
-        if failure_rate > config.MAX_FAILURE_RATE:
-            error_msg = f"ABORTED: Failure rate {failure_rate:.1f}% exceeds threshold {config.MAX_FAILURE_RATE}%"
-            print(f"❌ {error_msg}")
-            print("Keeping existing HTML to preserve last known good state")
-            return {
-                'statusCode': 500,
-                'body': error_msg,
-                'errorCount': failed_worlds,
-                'failedWorlds': list(errors.keys())
-            }
+        if failure_rate > s.max_failed_worlds_percent:
+            return _abort(
+                500,
+                f"ABORTED: Failure rate {failure_rate:.1f}% exceeds threshold {s.max_failed_worlds_percent}%",
+                errorCount=failed_worlds, failedWorlds=list(errors.keys()))
 
         # Continue with partial data - merge with last known good data
-        print(f"⚠️  Partial failure - merging with cached data")
+        print("⚠️  Partial failure - merging with cached data")
         print(f"   New data from {successful_worlds} worlds, using cached data for {failed_worlds} failed worlds")
 
         # Load last known good data
@@ -119,8 +132,13 @@ def lambda_handler(event, context):
 
     # ========== Update Online Status Tracker ==========
     # fresh_worlds prevents timer wipes for worlds served from cache or missing.
+    chat_ids = config.telegram_chat_ids()
+    recipients = [chat_ids[r] for r in s.alert_recipients if r in chat_ids]
+    unknown = [r for r in s.alert_recipients if r not in chat_ids]
+    if unknown:
+        print(f"⚠️  No chat ID in TELEGRAM_CHAT_IDS for: {', '.join(unknown)}")
     online_tracker = update_player_online_status(
-        worlds_data, alert_set, premmy_voc_set, CHAT_ID_MYKERA,
+        worlds_data, alert_set, recipients,
         fetched_worlds=fresh_worlds
     )
     t2 = time.time()
@@ -139,9 +157,6 @@ def lambda_handler(event, context):
         alert_set=alert_set,
         enemy_block_set=enemy_block_set,
         bastex_no_guild_set=bastex_no_guild_set,
-        dan_troll_set=dan_troll_set,
-        nontelegram_set=nontelegram_set,
-        premmy_voc_set=premmy_voc_set,
         now_ts=now_ts
     )
     t3 = time.time()

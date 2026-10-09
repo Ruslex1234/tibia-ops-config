@@ -7,10 +7,6 @@ import html as html_mod
 import urllib.parse
 
 import config
-from config import (
-    WORLDS, COLOR_MAP, SPECIAL_GUILDS_SET, DAN_GUILDS_SET,
-    GREEN_CATEGORIES_SET
-)
 from utils import format_timedelta_from_epoch, extract_world_meta
 from data_processing import categorize_players, sort_categories
 
@@ -19,7 +15,7 @@ from data_processing import categorize_players, sort_categories
 HTML_HEAD = """<!DOCTYPE html><html><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-<title>Online Tracker</title>
+<title>__TITLE__</title>
 <style>
   /* Base styles */
   * {box-sizing: border-box;}
@@ -210,7 +206,7 @@ HTML_HEAD = """<!DOCTYPE html><html><head>
 </style>
 <script>
   // --- Auto-refresh using current URL (preserves active filters) ---
-  const REFRESH_MS = 30000;
+  const REFRESH_MS = __REFRESH_MS__;
   let refreshTimer = null;
   function startAutoRefresh(){
     if (refreshTimer) clearInterval(refreshTimer);
@@ -360,8 +356,8 @@ HTML_HEAD = """<!DOCTYPE html><html><head>
     const now = new Date();
     const diffMin = Math.floor((now - t)/60000);
     el.textContent = "Last Updated: " + diffMin + " minutes ago";
-    if (diffMin <= 5) el.style.color = "green";
-    else if (diffMin <= 10) el.style.color = "orange";
+    if (diffMin <= __FRESH_MIN__) el.style.color = "green";
+    else if (diffMin <= __STALE_MIN__) el.style.color = "orange";
     else el.style.color = "red";
 
     wireToolbar();
@@ -374,26 +370,30 @@ HTML_HEAD = """<!DOCTYPE html><html><head>
 """
 
 
+def render_head():
+    """HTML_HEAD with page settings filled in"""
+    s = config.settings
+    return (HTML_HEAD
+            .replace("__TITLE__", html_mod.escape(s.page_title))
+            .replace("__REFRESH_MS__", str(s.refresh_seconds * 1000))
+            .replace("__FRESH_MIN__", str(s.fresh_minutes))
+            .replace("__STALE_MIN__", str(s.stale_minutes)))
+
+
 def build_toolbar():
     """Build the filter toolbar HTML"""
+    s = config.settings
     parts = ['<div class="toolbar">']
     parts.append('<div class="row"><span class="label">Server type:</span>')
 
-    pvp_chips = [
-        ("", "All"),
-        ("retroopen", "Retro Open"),
-        ("open", "Open PvP"),
-        ("optional", "Optional"),
-        ("hardcore", "Hardcore"),
-        ("retrohardcore", "Retro Hardcore"),
-    ]
-    for val, label in pvp_chips:
-        parts.append(f'<a href="#" class="chip st" data-val="{val}">{label}</a>')
+    for val, label in s.server_types:
+        parts.append(f'<a href="#" class="chip st" data-val="{val}">{html_mod.escape(label)}</a>')
     parts.append('</div>')
 
     parts.append('<div class="row"><span class="label">Worlds:</span>')
-    for w in WORLDS:
-        parts.append(f'<a href="#" class="chip world" data-world="{w.lower()}">{w}</a>')
+    for w in s.worlds:
+        w_html = html_mod.escape(w)
+        parts.append(f'<a href="#" class="chip world" data-world="{w_html.lower()}">{w_html}</a>')
     parts.append('</div>')
 
     parts.append('''
@@ -409,8 +409,9 @@ def build_toolbar():
 
 
 def render_player_row(world, player, category, online_tracker, now_ts,
-                      alert_set, enemy_block_set, nontelegram_set):
+                      alert_set, enemy_block_set):
     """Render a single player row"""
+    s = config.settings
     name = player.get("name", "")
     if not name:
         return ""
@@ -425,26 +426,26 @@ def render_player_row(world, player, category, online_tracker, now_ts,
     hours_online = max(0, now_ts - start_ts) // 3600
 
     # Determine color
-    if category in SPECIAL_GUILDS_SET:
-        color = "#FF8C00" if level >= 300 else "#F3FF00"
-    elif category in DAN_GUILDS_SET:
-        color = "#AA336A"
-    elif category in GREEN_CATEGORIES_SET:
-        color = "#1D8102"
+    is_enemy = category in s.enemies_set or category == s.unguilded_enemy_label
+    if is_enemy:
+        color = s.enemy_color if level >= s.enemy_low_level_below else s.enemy_low_level_color
+    elif category in s.dan_set:
+        color = s.dan_color
+    elif category in s.friends_set:
+        color = s.friend_color
     else:
-        color = COLOR_MAP.get(category, "#1DAAE5")
+        color = s.label_colors.get(category, s.label_colors[s.labels['others']])
 
     display_color = color
 
     # Gray out tracked players online > threshold hours
-    if hours_online > config.ALERT_HOURS_THRESHOLD and (
-        (player.get("guild") in SPECIAL_GUILDS_SET) or
-        (category in SPECIAL_GUILDS_SET) or
+    if hours_online > s.gray_after_hours and (
+        is_enemy or
+        (player.get("guild") in s.enemies_set) or
         (lname in enemy_block_set) or
-        (lname in alert_set) or
-        (lname in nontelegram_set)
+        (lname in alert_set)
     ):
-        display_color = "#D3D3D3"
+        display_color = s.gray_color
 
     # Vocation initials
     initials = "".join([v[0] for v in vocation.split()]) if vocation else ""
@@ -455,6 +456,15 @@ def render_player_row(world, player, category, online_tracker, now_ts,
     js_name_literal = html_mod.escape(json.dumps(name), quote=True)
     exiva_literal = html_mod.escape(json.dumps(f'exiva "{name}"'), quote=True)
 
+    profile_url = html_mod.escape(s.profile_url.replace("{name}", name_url))
+    extra_links = "".join(
+        f"""
+    <a href="{html_mod.escape(url.replace('{name}', name_url))}"
+       target="_blank" rel="noopener noreferrer"
+       style="color: {s.link_color};">[{html_mod.escape(label)}]</a>"""
+        for label, url in s.character_links
+    )
+
     return f"""
 <tr data-player-row="1">
   <td>[{level}]</td>
@@ -462,15 +472,9 @@ def render_player_row(world, player, category, online_tracker, now_ts,
     <span style="cursor: pointer;" onclick='copyToClipboard({js_name_literal})'>{initials}</span>
   </td>
   <td>
-    <a href="https://www.tibia.com/community/?name={name_url}"
+    <a href="{profile_url}"
        target="_blank" rel="noopener noreferrer"
-       style="color: {display_color};">{name_html}</a>
-    <a href="https://www.tibiaring.com/char.php?c={name_url}"
-       target="_blank" rel="noopener noreferrer"
-       style="color: #87CEEB;">[R]</a>
-    <a href="https://guildstats.eu/character?nick={name_url}&tab=9#experience"
-       target="_blank" rel="noopener noreferrer"
-       style="color: #87CEEB;">[E]</a>
+       style="color: {display_color};">{name_html}</a>{extra_links}
     (<span style="cursor: pointer;" onclick='copyToClipboard({exiva_literal})'>{online_since}</span>)
   </td>
 </tr>
@@ -479,8 +483,7 @@ def render_player_row(world, player, category, online_tracker, now_ts,
 
 def render_world_section(world, data, member_idx, online_tracker, now_ts,
                          trolls_set, alert_set, enemy_block_set,
-                         bastex_no_guild_set, dan_troll_set, nontelegram_set,
-                         premmy_voc_set):
+                         bastex_no_guild_set):
     """Render a complete world section"""
     parts = []
 
@@ -494,8 +497,7 @@ def render_world_section(world, data, member_idx, online_tracker, now_ts,
     categorized_players = categorize_players(
         online_players_sorted, member_idx,
         trolls_set, alert_set, enemy_block_set,
-        bastex_no_guild_set, dan_troll_set,
-        nontelegram_set, premmy_voc_set
+        bastex_no_guild_set
     )
 
     total_in_cat = sum(len(v) for v in categorized_players.values())
@@ -519,7 +521,7 @@ def render_world_section(world, data, member_idx, online_tracker, now_ts,
         for p in players:
             parts.append(render_player_row(
                 world, p, category, online_tracker, now_ts,
-                alert_set, enemy_block_set, nontelegram_set
+                alert_set, enemy_block_set
             ))
 
     parts.append("</table>")
@@ -530,15 +532,14 @@ def render_world_section(world, data, member_idx, online_tracker, now_ts,
 
 # ========== Main HTML Builder ==========
 def build_html(worlds_data, member_index, last_updated_iso, online_tracker,
-               trolls_set, alert_set, enemy_block_set, bastex_no_guild_set,
-               dan_troll_set, nontelegram_set, premmy_voc_set, now_ts):
+               trolls_set, alert_set, enemy_block_set, bastex_no_guild_set, now_ts):
     """Build the complete HTML page"""
     parts = []
 
     # Head and body start
-    parts.append(HTML_HEAD)
+    parts.append(render_head())
     parts.append(f'<body data-last-updated="{last_updated_iso}">')
-    parts.append("<center><h1>Online Tracker</h1></center>")
+    parts.append(f"<center><h1>{html_mod.escape(config.settings.page_title)}</h1></center>")
 
     # Toolbar
     parts.append(build_toolbar())
@@ -551,7 +552,7 @@ def build_html(worlds_data, member_index, last_updated_iso, online_tracker,
     # World grid table (desktop shows side-by-side, mobile stacks)
     parts.append('<table class="world-grid-table"><tr>')
 
-    for world in WORLDS:
+    for world in config.settings.worlds:
         if world not in worlds_data:
             continue
         data = worlds_data[world]
@@ -563,8 +564,7 @@ def build_html(worlds_data, member_index, last_updated_iso, online_tracker,
             world, data, member_index.get(world, {}),
             online_tracker, now_ts,
             trolls_set, alert_set, enemy_block_set,
-            bastex_no_guild_set, dan_troll_set, nontelegram_set,
-            premmy_voc_set
+            bastex_no_guild_set
         ))
         parts.append('</td>')
 

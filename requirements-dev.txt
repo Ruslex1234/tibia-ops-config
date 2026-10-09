@@ -17,3 +17,7 @@ bandit==1.9.4
 # Dependency Vulnerability Scanning (SCA)
 pip-audit==2.10.1
 safety==3.8.1
+
+# AWS SDK, so tests can import and run the bastex_online Lambda
+# (the Lambda runtime provides its own copy)
+boto3==1.43.110

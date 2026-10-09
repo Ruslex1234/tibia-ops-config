@@ -22,20 +22,20 @@ REQUEST_TIMEOUT = 30  # seconds
 # =============================================================================
 # World Configuration
 # =============================================================================
-# All Tibia worlds we monitor. Single source of truth shared with the
-# bastex_online Lambda: edit .configs/settings.json, not this file.
+# Worlds and enemy guilds come from .configs/settings.json, the single source
+# of truth shared with the bastex_online Lambda. Edit that file, not this one.
 with open(os.path.join(_REPO_ROOT, '.configs', 'settings.json'), encoding='utf-8') as _f:
-    WORLDS = json.load(_f)['worlds']
+    _SETTINGS = json.load(_f)
+
+# All Tibia worlds we monitor
+WORLDS = _SETTINGS['worlds']
 
 # =============================================================================
 # Enemy Guild Configuration
 # =============================================================================
 # Guild name -> World mapping for enemy tracking
 # These guilds' online members will have their death lists checked
-ENEMY_GUILDS = {
-    "Bastex": "Firmera",
-    "Bastex Ruzh": "Tempestera"
-}
+ENEMY_GUILDS = _SETTINGS['death_watch']
 
 # =============================================================================
 # File Paths (relative to repository root)

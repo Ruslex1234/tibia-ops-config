@@ -6,12 +6,8 @@ from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import config
-from config import (
-    BASE_API_URL, WORLDS,
-    SPECIAL_GUILDS, PRIORITY_CATEGORIES, GREEN_CATEGORIES
-)
 from utils import (
-    http_get_json, load_online_status, save_online_status,
+    http_get_json, http_pool, load_online_status, save_online_status,
     send_alert, _escape_markdown, utcnow_ts, APIError,
     format_timedelta_from_epoch, ALERTED_REGISTRY_KEY
 )
@@ -19,29 +15,33 @@ from utils import (
 
 # ========== API Fetching Functions ==========
 def fetch_world_online_players(world_name):
-    """Fetch online players for a specific world, filtered to level > config.MIN_LEVEL_FILTER"""
-    url = BASE_API_URL.format(world_name=world_name)
+    """Fetch online players for a specific world, filtered to level > settings min_level"""
+    url = config.settings.world_url.replace("{world_name}", world_name)
     data = http_get_json(url)
 
     players = data['world'].get('online_players')
     if players is not None:
+        min_level = config.settings.min_level
         data['world']['online_players'] = [
-            p for p in players if p.get('level', 0) > config.MIN_LEVEL_FILTER
+            p for p in players if p.get('level', 0) > min_level
         ]
 
     return data
 
 
-def fetch_all_worlds(world_list=WORLDS):
+def fetch_all_worlds(world_list=None):
     """
     Fetch online players for all worlds concurrently.
     Returns: (results_dict, errors_dict)
         results_dict: {world_name: world_data}
         errors_dict: {world_name: error_info}
     """
+    if world_list is None:
+        world_list = config.settings.worlds
     results = {}
     errors = {}
-    workers = min(len(world_list), config.MAX_WORKERS or len(world_list))
+    workers = min(len(world_list), config.settings.max_parallel_requests or len(world_list))
+    http_pool(workers)
 
     with ThreadPoolExecutor(max_workers=workers) as ex:
         fut = {ex.submit(fetch_world_online_players, w): w for w in world_list}
@@ -91,10 +91,11 @@ def build_member_index(world_guilds):
 
 
 # ========== Online Status Tracking ==========
-def update_player_online_status(online_players, alert_set, premmy_voc_set,
-                                chat_id_mykera, fetched_worlds=None):
+def update_player_online_status(online_players, alert_set, chat_ids, fetched_worlds=None):
     """
     Update player online status tracking and send alerts for new logins.
+
+    chat_ids: Telegram chat IDs that receive login/logoff alerts.
 
     fetched_worlds: set of world names we actually have data for this run.
     Worlds NOT in this set are left untouched, so a failed fetch with no
@@ -105,6 +106,7 @@ def update_player_online_status(online_players, alert_set, premmy_voc_set,
     if fetched_worlds is None:
         fetched_worlds = set(online_players.keys())
 
+    s = config.settings
     online_status = load_online_status()
     now_ts = utcnow_ts()
     changed = False
@@ -127,16 +129,16 @@ def update_player_online_status(online_players, alert_set, premmy_voc_set,
             if not nm:
                 continue
 
-            is_target = nm.lower() in alert_set and p.get('vocation') in premmy_voc_set
+            is_target = nm.lower() in alert_set and p.get('vocation') in s.premium_vocations
             is_new_login = nm not in online_status[world]
 
             if is_new_login:
                 online_status[world][nm] = now_ts
                 changed = True
 
-                # Alert Mykera's group for anyone in alert_set with premium vocation
-                if is_target and chat_id_mykera:
-                    pending_alerts.append(f"*{_escape_markdown(nm)} just logged on!*")
+                # Alert for anyone in alert_set with a premium vocation
+                if is_target:
+                    pending_alerts.append(s.login_message.format(name=_escape_markdown(nm)))
 
             # Register targets for logoff alerts. Also covers targets already
             # online at deploy time (registered silently, no login alert).
@@ -165,10 +167,9 @@ def update_player_online_status(online_players, alert_set, premmy_voc_set,
             # Player logged off: notify with session duration if registered
             if n in world_alerted:
                 duration = format_timedelta_from_epoch(t, now_ts)
-                if chat_id_mykera:
-                    pending_alerts.append(
-                        f"*{_escape_markdown(n)} logged off!* Online for {duration}"
-                    )
+                pending_alerts.append(
+                    s.logoff_message.format(name=_escape_markdown(n), duration=duration)
+                )
                 world_alerted.pop(n, None)
 
         online_status[world] = kept
@@ -179,23 +180,22 @@ def update_player_online_status(online_players, alert_set, premmy_voc_set,
     # Send alerts after state is persisted so a Telegram hiccup can't
     # delay or interfere with the tracking write.
     for msg in pending_alerts:
-        send_alert(chat_id_mykera, msg)
+        for chat_id in chat_ids:
+            send_alert(chat_id, msg)
 
     return online_status
 
 
 # ========== Player Categorization ==========
 def categorize_players(online_players_sorted, member_idx, trolls_set, alert_set,
-                       enemy_block_set, bastex_no_guild_set, dan_troll_set,
-                       nontelegram_set, premmy_voc_set):
+                       enemy_block_set, bastex_no_guild_set):
     """
     Categorize players based on their guild membership and special lists.
-    Returns a dict of {category: [players]}
+    Returns a dict of {category label: [players]}
     """
-    categorized_players = {
-        'Trolls': [], 'Alerts': [], 'Enemy Block': [],
-        'Dan': [], 'Sleeping Beauty': [], 'Watch The Throne': [], 'Others': []
-    }
+    s = config.settings
+    labels = s.labels
+    categorized_players = {labels[k]: [] for k in ('trolls', 'alerts', 'enemy_block', 'others')}
 
     for player in online_players_sorted:
         name = player.get('name', '')
@@ -203,23 +203,18 @@ def categorize_players(online_players_sorted, member_idx, trolls_set, alert_set,
             continue
 
         lname = name.lower()
-        vocation = player.get('vocation', '')
 
         if lname in trolls_set:
-            player_category = 'Trolls'
+            player_category = labels['trolls']
         elif lname in alert_set:
-            player_category = 'Alerts' if vocation in premmy_voc_set else 'Bastex'
+            player_category = (labels['alerts'] if player.get('vocation', '') in s.premium_vocations
+                               else s.unguilded_enemy_label)
         elif lname in enemy_block_set:
-            player_category = 'Enemy Block'
+            player_category = labels['enemy_block']
         elif lname in bastex_no_guild_set:
-            player_category = 'Bastex'
-        elif lname in dan_troll_set:
-            player_category = 'Dan'
-        elif lname in nontelegram_set:
-            player_category = 'Alerts'
+            player_category = s.unguilded_enemy_label
         else:
-            guild_name = member_idx.get(name) or member_idx.get(lname)
-            player_category = guild_name if guild_name else 'Others'
+            player_category = member_idx.get(name) or member_idx.get(lname) or labels['others']
 
         categorized_players.setdefault(player_category, []).append(player)
 
@@ -227,29 +222,22 @@ def categorize_players(online_players_sorted, member_idx, trolls_set, alert_set,
 
 
 # ========== Category Sorting ==========
-def sort_categories(categorized_players, special_guilds_list=SPECIAL_GUILDS,
-                    priority_categories=PRIORITY_CATEGORIES,
-                    green_categories=GREEN_CATEGORIES):
-    """Sort categories in priority order"""
+def sort_categories(categorized_players):
+    """Order: show_first lists, enemies, friends, dan, any other guild, Others"""
+    s = config.settings
+    others = s.labels['others']
     ordered = OrderedDict()
 
-    for c in priority_categories:
-        if c in categorized_players:
-            ordered[c] = categorized_players[c]
-
-    for g in special_guilds_list:
-        if g in categorized_players:
-            ordered[g] = categorized_players[g]
-
-    for c in green_categories:
-        if c in categorized_players:
-            ordered[c] = categorized_players[c]
+    for group in (s.show_first, s.enemies, s.friends, s.dan):
+        for c in group:
+            if c in categorized_players and c not in ordered:
+                ordered[c] = categorized_players[c]
 
     for c, players in categorized_players.items():
-        if c not in ordered and c != "Others":
+        if c not in ordered and c != others:
             ordered[c] = players
 
-    if "Others" in categorized_players:
-        ordered["Others"] = categorized_players["Others"]
+    if others in categorized_players:
+        ordered[others] = categorized_players[others]
 
     return ordered

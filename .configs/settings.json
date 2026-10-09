@@ -24,83 +24,166 @@
     "Royal Paladin",
     "Exalted Monk"
   ],
-  "special_guilds": [
-    "Bastex",
-    "Los Dothraki",
-    "Unfallen",
-    "Bastex Rushback",
-    "Sun Tzu",
-    "Godslayers",
-    "Ragnarok",
-    "Bonstars",
-    "Acord Os",
-    "Namelesss",
-    "Reappers",
-    "No Mercy",
-    "Unlimited Bastex",
-    "Bastex Yellow",
-    "Bastex Green",
-    "Click Clack",
-    "Diamond Reappers",
-    "Mexicore",
-    "Daily Flips",
-    "Badstex",
-    "Gratitude",
-    "Bastex Inwazja"
-  ],
-  "dan_guilds": [
-    "Watch The Throne",
-    "Sleeping Beauty",
-    "La Tampiquiza"
-  ],
-  "priority_categories": [
-    "Trolls",
-    "Dan",
-    "Alerts"
-  ],
-  "green_categories": [
-    "No Freedoms",
-    "Army Airdrop",
-    "Juastara",
-    "Ultimate Ice Strike",
-    "Tibashis",
-    "Inferno",
-    "Loyalty",
-    "Army Navy Seal",
-    "True Hope",
-    "The Rebellion",
-    "Final Frontier",
-    "Retaliation",
-    "Maskeikos Killers",
-    "Winter Brigade",
-    "Watch Os"
-  ],
-  "color_map": {
-    "No Freedoms": "#1D8102",
-    "The Rebellion": "#1D8102",
-    "Army Airdrop": "#1D8102",
-    "Inferno": "#1D8102",
-    "Loyalty": "#1D8102",
-    "Tibashis": "#1D8102",
-    "True Hope": "#1D8102",
-    "Final Frontier": "#1D8102",
-    "Death Line": "#1D8102",
-    "Finale": "#1D8102",
-    "Curse": "#1D8102",
-    "Retaliation": "#1D8102",
-    "Maskeikos Killers": "#1D8102",
-    "Winter Brigade": "#1D8102",
-    "Backlash": "#1D8102",
-    "Ultimate Ice Strike": "#1D8102",
-    "Juastara": "#1D8102",
-    "Trolls": "#1D8102",
-    "Alerts": "#FF0000",
-    "Dan": "#AA336A",
-    "Enemy Block": "#F3FF00",
-    "Others": "#1DAAE5"
+  "guilds": {
+    "enemies": {
+      "color": "#FF8C00",
+      "low_level_color": "#F3FF00",
+      "low_level_below": 300,
+      "unguilded_label": "Bastex",
+      "names": [
+        "Bastex",
+        "Los Dothraki",
+        "Unfallen",
+        "Bastex Rushback",
+        "Sun Tzu",
+        "Godslayers",
+        "Ragnarok",
+        "Bonstars",
+        "Acord Os",
+        "Namelesss",
+        "Reappers",
+        "No Mercy",
+        "Unlimited Bastex",
+        "Bastex Yellow",
+        "Bastex Green",
+        "Click Clack",
+        "Diamond Reappers",
+        "Mexicore",
+        "Daily Flips",
+        "Badstex",
+        "Gratitude",
+        "Bastex Inwazja"
+      ]
+    },
+    "friends": {
+      "color": "#1D8102",
+      "names": [
+        "No Freedoms",
+        "Army Airdrop",
+        "Juastara",
+        "Ultimate Ice Strike",
+        "Tibashis",
+        "Inferno",
+        "Loyalty",
+        "Army Navy Seal",
+        "True Hope",
+        "The Rebellion",
+        "Final Frontier",
+        "Retaliation",
+        "Maskeikos Killers",
+        "Winter Brigade",
+        "Watch Os",
+        "Death Line",
+        "Finale",
+        "Curse",
+        "Backlash"
+      ]
+    },
+    "dan": {
+      "color": "#AA336A",
+      "names": [
+        "Watch The Throne",
+        "Sleeping Beauty",
+        "La Tampiquiza"
+      ]
+    }
   },
-  "min_level_filter": 8,
-  "alert_hours_threshold": 3,
-  "max_failure_rate": 30,
-  "abort_on_server_error": true
+  "lists": {
+    "trolls": {
+      "label": "Trolls",
+      "color": "#1D8102"
+    },
+    "alerts": {
+      "label": "Alerts",
+      "color": "#FF0000"
+    },
+    "enemy_block": {
+      "label": "Enemy Block",
+      "color": "#F3FF00"
+    },
+    "others": {
+      "label": "Others",
+      "color": "#1DAAE5"
+    }
+  },
+  "show_first": [
+    "trolls",
+    "alerts"
+  ],
+  "min_level": 8,
+  "online_too_long": {
+    "after_hours": 3,
+    "color": "#D3D3D3"
+  },
+  "abort": {
+    "max_failed_worlds_percent": 30,
+    "on_server_error": true
+  },
+  "telegram": {
+    "alert_recipients": [
+      "mykera"
+    ],
+    "login_message": "*{name} just logged on!*",
+    "logoff_message": "*{name} logged off!* Online for {duration}"
+  },
+  "api": {
+    "world_url": "https://api.tibiadata.com/v4/world/{world_name}",
+    "connect_timeout_seconds": 3.0,
+    "read_timeout_seconds": 7.5,
+    "retries": 2,
+    "retry_backoff_seconds": 0.3,
+    "max_parallel_requests": 0
+  },
+  "storage": {
+    "online_status_key": "online_status_v2.txt",
+    "last_known_data_key": "last_known_worlds_data.json"
+  },
+  "page": {
+    "title": "Online Tracker",
+    "refresh_seconds": 30,
+    "fresh_minutes": 5,
+    "stale_minutes": 10,
+    "link_color": "#87CEEB",
+    "profile_url": "https://www.tibia.com/community/?name={name}",
+    "character_links": [
+      {
+        "label": "R",
+        "url": "https://www.tibiaring.com/char.php?c={name}"
+      },
+      {
+        "label": "E",
+        "url": "https://guildstats.eu/character?nick={name}&tab=9#experience"
+      }
+    ],
+    "server_types": [
+      {
+        "value": "",
+        "label": "All"
+      },
+      {
+        "value": "retroopen",
+        "label": "Retro Open"
+      },
+      {
+        "value": "open",
+        "label": "Open PvP"
+      },
+      {
+        "value": "optional",
+        "label": "Optional"
+      },
+      {
+        "value": "hardcore",
+        "label": "Hardcore"
+      },
+      {
+        "value": "retrohardcore",
+        "label": "Retro Hardcore"
+      }
+    ]
+  },
+  "death_watch": {
+    "Bastex": "Firmera",
+    "Bastex Ruzh": "Tempestera"
+  }
 }

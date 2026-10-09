@@ -5,7 +5,6 @@ utils.py
 import json
 import gzip
 import hashlib
-import urllib.parse
 from datetime import datetime, timezone
 
 import boto3
@@ -13,12 +12,8 @@ from botocore.exceptions import ClientError
 import urllib3
 from urllib3.util.retry import Retry
 
-from config import (
-    HTTP_POOL_NUM, HTTP_POOL_MAXSIZE, HTTP_CONNECT_TIMEOUT, HTTP_READ_TIMEOUT,
-    HTTP_RETRIES, HTTP_RETRY_BACKOFF,
-    BUCKET_NAME, ONLINE_STATUS_KEY, CONFIG_S3_BUCKET, CONFIG_S3_KEY,
-    TELEGRAM_BOT_TOKEN, LAST_KNOWN_DATA_KEY
-)
+import config
+from config import BUCKET_NAME, CONFIG_S3_BUCKET, CONFIG_S3_KEY, TELEGRAM_BOT_TOKEN
 
 # Compact JSON: no whitespace, smaller S3 payloads
 _JSON_COMPACT = {"separators": (",", ":")}
@@ -40,23 +35,36 @@ class APIError(Exception):
 
 
 # ========== HTTP Client ==========
-# Retry transient failures (connection resets, 502/503/504) so a single blip
-# doesn't mark a world as failed and trip the abort thresholds.
-_RETRY = Retry(
-    total=HTTP_RETRIES,
-    connect=HTTP_RETRIES,
-    read=HTTP_RETRIES,
-    backoff_factor=HTTP_RETRY_BACKOFF,
-    status_forcelist=(502, 503, 504),
-    raise_on_status=False,
-    respect_retry_after_header=True,
-)
+_http = None
 
-HTTP = urllib3.PoolManager(
-    num_pools=HTTP_POOL_NUM,
-    maxsize=HTTP_POOL_MAXSIZE,
-    headers={"Accept-Encoding": "gzip"}
-)
+
+def http_pool(size):
+    """Shared PoolManager with at least `size` connections per host.
+    Rebuilt only when the worker count grows (e.g. worlds added in settings)."""
+    global _http
+    if _http is None or _http.connection_pool_kw.get("maxsize", 0) < size:
+        _http = urllib3.PoolManager(num_pools=4, maxsize=size, headers={"Accept-Encoding": "gzip"})
+    return _http
+
+
+def _timeout():
+    s = config.settings
+    return urllib3.Timeout(connect=s.connect_timeout, read=s.read_timeout)
+
+
+def _retry():
+    """Retry transient failures (connection resets, 502/503/504) so a single
+    blip doesn't mark a world as failed and trip the abort thresholds."""
+    s = config.settings
+    return Retry(
+        total=s.retries,
+        connect=s.retries,
+        read=s.retries,
+        backoff_factor=s.retry_backoff,
+        status_forcelist=(502, 503, 504),
+        raise_on_status=False,
+        respect_retry_after_header=True,
+    )
 
 # ========== AWS Clients (initialized once) ==========
 S3_CLIENT = boto3.client("s3")
@@ -66,11 +74,11 @@ S3_RESOURCE = boto3.resource("s3")
 # ========== HTTP Functions ==========
 def http_get_json(url: str):
     """Fetch JSON data from URL with gzip support and transient-error retries"""
-    r = HTTP.request(
+    r = http_pool(1).request(
         "GET",
         url,
-        timeout=urllib3.Timeout(connect=HTTP_CONNECT_TIMEOUT, read=HTTP_READ_TIMEOUT),
-        retries=_RETRY,
+        timeout=_timeout(),
+        retries=_retry(),
         preload_content=True,
         decode_content=True,
     )
@@ -88,16 +96,15 @@ def http_get_json(url: str):
 
 # ========== S3 Functions ==========
 def load_combined_config():
-    """Load combined configuration from S3 (alerts, bastex, block, trolls, world_guilds_data)"""
-    try:
-        obj = S3_CLIENT.get_object(Bucket=CONFIG_S3_BUCKET, Key=CONFIG_S3_KEY)
-        data = obj["Body"].read()
-        cfg = json.loads(data)
-        print(f"Loaded combined config from s3://{CONFIG_S3_BUCKET}/{CONFIG_S3_KEY}")
-        return cfg
-    except Exception as e:
-        print(f"Failed to load combined config from s3://{CONFIG_S3_BUCKET}/{CONFIG_S3_KEY}: {e}")
-        return {}
+    """Load combined.json from S3 (settings, alerts, bastex, block, trolls,
+    world_guilds_data). Raises on failure: running without config would
+    render a page with every list empty."""
+    obj = S3_CLIENT.get_object(Bucket=CONFIG_S3_BUCKET, Key=CONFIG_S3_KEY)
+    cfg = json.loads(obj["Body"].read())
+    if not isinstance(cfg, dict):
+        raise ValueError("combined config is not a JSON object")
+    print("Loaded combined config")
+    return cfg
 
 
 # Reserved key inside the online-status file. Maps world -> {name: True}
@@ -109,7 +116,7 @@ ALERTED_REGISTRY_KEY = "_alerted"
 def load_online_status():
     """Load online status tracking data from S3"""
     try:
-        response = S3_CLIENT.get_object(Bucket=BUCKET_NAME, Key=ONLINE_STATUS_KEY)
+        response = S3_CLIENT.get_object(Bucket=BUCKET_NAME, Key=config.settings.online_status_key)
         online_status = json.loads(response['Body'].read())
         # Pull the alert registry aside so epoch normalization skips it
         alerted = online_status.pop(ALERTED_REGISTRY_KEY, {})
@@ -132,7 +139,7 @@ def save_online_status(online_status):
     """Save online status tracking data to S3"""
     S3_CLIENT.put_object(
         Bucket=BUCKET_NAME,
-        Key=ONLINE_STATUS_KEY,
+        Key=config.settings.online_status_key,
         Body=json.dumps(online_status, **_JSON_COMPACT),
         ContentType='application/json'
     )
@@ -142,12 +149,12 @@ def load_last_known_worlds_data():
     """Load last known good worlds data from S3 (for partial failure recovery).
     Handles both gzipped (new) and plain JSON (legacy) payloads."""
     try:
-        response = S3_CLIENT.get_object(Bucket=BUCKET_NAME, Key=LAST_KNOWN_DATA_KEY)
+        response = S3_CLIENT.get_object(Bucket=BUCKET_NAME, Key=config.settings.last_known_data_key)
         raw = response['Body'].read()
         if raw[:2] == b'\x1f\x8b':  # gzip magic bytes
             raw = gzip.decompress(raw)
         worlds_data = json.loads(raw)
-        print(f"Loaded last known worlds data from s3://{BUCKET_NAME}/{LAST_KNOWN_DATA_KEY}")
+        print("Loaded last known worlds data")
         return worlds_data
     except ClientError as e:
         if e.response.get('Error', {}).get('Code') in ('NoSuchKey', '404'):
@@ -170,12 +177,12 @@ def save_last_known_worlds_data(worlds_data):
         )
         S3_CLIENT.put_object(
             Bucket=BUCKET_NAME,
-            Key=LAST_KNOWN_DATA_KEY,
+            Key=config.settings.last_known_data_key,
             Body=body,
             ContentType='application/json',
             ContentEncoding='gzip'
         )
-        print(f"Saved last known worlds data to s3://{BUCKET_NAME}/{LAST_KNOWN_DATA_KEY} ({len(body)} bytes gz)")
+        print(f"Saved last known worlds data ({len(body)} bytes gz)")
     except Exception as e:
         print(f"Warning: Failed to save last known worlds data: {e}")
 
@@ -229,14 +236,14 @@ def send_alert(chat_id, message, bot_token=TELEGRAM_BOT_TOKEN):
     }).encode('utf-8')
 
     try:
-        r = HTTP.request(
+        r = http_pool(1).request(
             "POST", send_url,
             body=payload,
             headers={'Content-Type': 'application/json'},
-            timeout=urllib3.Timeout(connect=3.0, read=5.0),
+            timeout=_timeout(),
             preload_content=True, decode_content=True
         )
-        print(f"Message sent to {chat_id}: {r.status}")
+        print(f"Telegram message sent: {r.status}")
         return {'statusCode': 200, 'body': json.dumps('Message sent!')}
     except Exception as e:
         print(f"Failed to send message: {e}")
