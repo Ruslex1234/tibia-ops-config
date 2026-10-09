@@ -3,6 +3,7 @@ AWS Lambda handler for Bastex Online Tracker
 Main entry point that orchestrates the data fetching, processing, and HTML generation.
 lambda_function.py
 """
+import os
 import time
 from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
@@ -132,11 +133,11 @@ def lambda_handler(event, context):
 
     # ========== Update Online Status Tracker ==========
     # fresh_worlds prevents timer wipes for worlds served from cache or missing.
-    chat_ids = config.telegram_chat_ids()
-    recipients = [chat_ids[r] for r in s.alert_recipients if r in chat_ids]
-    unknown = [r for r in s.alert_recipients if r not in chat_ids]
-    if unknown:
-        print(f"⚠️  No chat ID in TELEGRAM_CHAT_IDS for: {', '.join(unknown)}")
+    env_names = [config.chat_id_env(r) for r in s.alert_recipients]
+    recipients = [os.environ[n] for n in env_names if os.environ.get(n)]
+    unset = [n for n in env_names if not os.environ.get(n)]
+    if unset:
+        print(f"⚠️  Alert recipients with no chat ID set: {', '.join(unset)}")
     online_tracker = update_player_online_status(
         worlds_data, alert_set, recipients,
         fetched_worlds=fresh_worlds

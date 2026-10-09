@@ -1,27 +1,19 @@
 # =============================================================================
 # Deploy bastex_online Lambda
 # =============================================================================
-# WHAT:  Ships lambda/bastex_online/ and syncs the function's private
-#        environment variables from GitHub secrets.
-# WHEN:  Push to main touching the Lambda, or manual dispatch (run it by hand
-#        after changing any of the secrets below).
+# WHAT:  Ships the code in lambda/bastex_online/ to the function.
+# WHEN:  Push to main touching the Lambda, or manual dispatch.
 #
-# Config changes do NOT need this: edit .configs/*.json and the config
-# publish workflows ship them. The Lambda reads combined.json on every run.
+# Config changes do NOT need this: edit .configs/*.json (settings.json for
+# guilds, worlds, colors, thresholds) and the config publish workflows ship
+# them. The Lambda reads combined.json on every run.
 #
-# GitHub secrets (Settings > Secrets and variables > Actions):
-#   AWS_ROLE_ARN             OIDC role (already used by the other workflows)
-#   S3_BUCKET                config bucket (already used; becomes CONFIG_S3_BUCKET)
-#   LAMBDA_FUNCTION_NAME     function to deploy
-#   LAMBDA_BUCKET_NAME       bucket for the HTML page and state files
-#   LAMBDA_OUTPUT_FILE_NAME  public HTML file name
-#   TELEGRAM_BOT_TOKEN       bot token
-#   TELEGRAM_CHAT_IDS        JSON, e.g. {"mykera": "-100123", "rod": "456"}
-#                            names match telegram.alert_recipients in settings.json
+# Code only: the function's environment variables (bucket names, Telegram
+# token, CHAT_ID_*) stay in the Lambda console and are never touched here.
 #
-# The OIDC role needs lambda:GetFunction, lambda:GetFunctionConfiguration,
-# lambda:UpdateFunctionCode, lambda:UpdateFunctionConfiguration and
-# lambda:PublishVersion on the function, plus s3:GetObject on the config.
+# Uses the existing AWS_ROLE_ARN and S3_BUCKET secrets. The OIDC role needs
+# lambda:GetFunction, lambda:GetFunctionConfiguration,
+# lambda:UpdateFunctionCode and lambda:PublishVersion on the function.
 # =============================================================================
 
 name: Deploy Lambda
@@ -45,7 +37,7 @@ concurrency:
 env:
   AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
   CONFIG_S3_KEY: configs/combined.json
-  FUNCTION_NAME: ${{ secrets.LAMBDA_FUNCTION_NAME || vars.LAMBDA_FUNCTION_NAME }}
+  FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME || 'bastex_online_v5' }}
 
 jobs:
   deploy:
@@ -67,33 +59,6 @@ jobs:
           pip install -r requirements-dev.txt
           python -m py_compile lambda/bastex_online/*.py
           pytest tests/test_lambda_settings.py --quiet --tb=short
-
-      - name: Check secrets
-        env:
-          LAMBDA_BUCKET_NAME: ${{ secrets.LAMBDA_BUCKET_NAME }}
-          LAMBDA_OUTPUT_FILE_NAME: ${{ secrets.LAMBDA_OUTPUT_FILE_NAME }}
-          S3_BUCKET: ${{ secrets.S3_BUCKET || vars.S3_BUCKET }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
-        run: |
-          python - <<'PY'
-          import json, os, sys
-          need = ["FUNCTION_NAME", "LAMBDA_BUCKET_NAME", "LAMBDA_OUTPUT_FILE_NAME",
-                  "S3_BUCKET", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_IDS"]
-          missing = [k for k in need if not os.environ.get(k)]
-          if missing:
-              sys.exit(f"Missing GitHub secrets: {', '.join(missing)}")
-          try:
-              ids = json.loads(os.environ["TELEGRAM_CHAT_IDS"])
-              assert isinstance(ids, dict)
-          except Exception:
-              sys.exit('TELEGRAM_CHAT_IDS must be a JSON object like {"mykera": "123"}')
-          wanted = json.load(open(".configs/settings.json"))["telegram"]["alert_recipients"]
-          absent = [r for r in wanted if r not in ids]
-          if absent:
-              sys.exit(f"TELEGRAM_CHAT_IDS has no entry for: {', '.join(absent)}")
-          print("All secrets present.")
-          PY
 
       - name: Package
         run: |
@@ -145,39 +110,6 @@ jobs:
             --publish \
             --query '{Version:Version,CodeSha256:CodeSha256}' \
             --output table
-          aws lambda wait function-updated-v2 --function-name "$FUNCTION_NAME"
-
-      # Replaces the whole environment: anything not listed here (old WORLDS,
-      # CHAT_ID_* etc.) is removed because the code no longer reads it.
-      - name: Sync environment variables
-        env:
-          LAMBDA_BUCKET_NAME: ${{ secrets.LAMBDA_BUCKET_NAME }}
-          LAMBDA_OUTPUT_FILE_NAME: ${{ secrets.LAMBDA_OUTPUT_FILE_NAME }}
-          S3_BUCKET: ${{ secrets.S3_BUCKET || vars.S3_BUCKET }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
-        run: |
-          set -euo pipefail
-          ENV_FILE="$RUNNER_TEMP/lambda-env.json"
-          trap 'rm -f "$ENV_FILE"' EXIT
-          python - "$ENV_FILE" <<'PY'
-          import json, os, sys
-          variables = {
-              "BUCKET_NAME": os.environ["LAMBDA_BUCKET_NAME"],
-              "OUTPUT_FILE_NAME": os.environ["LAMBDA_OUTPUT_FILE_NAME"],
-              "CONFIG_S3_BUCKET": os.environ["S3_BUCKET"],
-              "CONFIG_S3_KEY": os.environ["CONFIG_S3_KEY"],
-              "TELEGRAM_BOT_TOKEN": os.environ["TELEGRAM_BOT_TOKEN"],
-              "TELEGRAM_CHAT_IDS": json.dumps(json.loads(os.environ["TELEGRAM_CHAT_IDS"]), separators=(",", ":")),
-          }
-          with open(sys.argv[1], "w") as f:
-              json.dump({"Variables": variables}, f)
-          print("Variables:", ", ".join(sorted(variables)))
-          PY
-          aws lambda update-function-configuration \
-            --function-name "$FUNCTION_NAME" \
-            --environment "file://$ENV_FILE" \
-            --query 'LastUpdateStatus' --output text > /dev/null
           aws lambda wait function-updated-v2 --function-name "$FUNCTION_NAME"
 
       - name: Verify

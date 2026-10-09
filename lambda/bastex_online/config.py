@@ -3,12 +3,11 @@ Configuration for Bastex Online Lambda. Nothing configurable is hardcoded.
 
 Two sources:
 - Environment variables: private values only (bucket names, output file,
-  Telegram token and chat IDs). Synced from GitHub secrets by the CD pipeline.
+  Telegram token and chat IDs). Set in the Lambda console; deploys never touch them.
 - settings: the "settings" block of combined.json, published from
   .configs/settings.json in GitHub. Parsed and validated on every run.
 config.py
 """
-import json
 import os
 import re
 from dataclasses import dataclass
@@ -27,20 +26,16 @@ def missing_env():
     return [k for k in REQUIRED_ENV if not os.environ.get(k)]
 
 
-def telegram_chat_ids():
-    """Recipient name -> chat ID, from the TELEGRAM_CHAT_IDS JSON env var."""
-    try:
-        ids = json.loads(os.environ.get("TELEGRAM_CHAT_IDS") or "{}")
-    except ValueError:
-        print("TELEGRAM_CHAT_IDS is not valid JSON; alerts disabled")
-        return {}
-    return {str(k): str(v) for k, v in ids.items()} if isinstance(ids, dict) else {}
+def chat_id_env(recipient):
+    """Env var holding a recipient's Telegram chat ID: 'mykera' -> CHAT_ID_MYKERA."""
+    return f"CHAT_ID_{recipient.upper()}"
 
 
 # ========== Settings (from GitHub) ==========
 LIST_KEYS = ("trolls", "alerts", "enemy_block", "others")
 _COLOR = re.compile(r"^#[0-9A-Fa-f]{6}$")
 _PVP_VALUE = re.compile(r"^[a-z0-9]*$")
+_RECIPIENT = re.compile(r"^[a-z0-9_]+$")
 
 
 class SettingsError(ValueError):
@@ -206,7 +201,9 @@ def parse_settings(raw):
         gray_color=get("online_too_long.color", _is_color, color),
         max_failed_worlds_percent=get("abort.max_failed_worlds_percent", _is_int(0, 100), "0 to 100"),
         abort_on_server_error=get("abort.on_server_error", lambda v: type(v) is bool, "true or false"),
-        alert_recipients=get("telegram.alert_recipients", _is_names, names),
+        alert_recipients=get("telegram.alert_recipients",
+                             lambda v: _is_names(v) and all(_RECIPIENT.match(x) for x in v),
+                             "a list of lowercase names (letters, digits, _)"),
         login_message=get("telegram.login_message", _formats(["name"]), "text using only {name}"),
         logoff_message=get("telegram.logoff_message", _formats(["name", "duration"]),
                            "text using only {name} and {duration}"),

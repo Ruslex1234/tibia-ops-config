@@ -86,6 +86,7 @@ class TestParseSettings:
         ('min_level', True),
         ('abort.max_failed_worlds_percent', 101),
         ('abort.on_server_error', 1),
+        ('telegram.alert_recipients', ['Mykera']),
         ('telegram.login_message', '{nme} logged on'),
         ('telegram.logoff_message', '{name} {oops}'),
         ('api.world_url', 'http://api.tibiadata.com/v4/world/{world_name}'),
@@ -154,7 +155,7 @@ def _run_handler(settings, extra_env=None):
     env = {k: v for k, v in os.environ.items() if not k.startswith('AWS_')}
     env.update({
         'AWS_DEFAULT_REGION': 'us-east-1', 'BUCKET_NAME': 'b', 'OUTPUT_FILE_NAME': 'o.html',
-        'CONFIG_S3_KEY': 'configs/combined.json', 'TELEGRAM_CHAT_IDS': json.dumps({'mykera': '42'}),
+        'CONFIG_S3_KEY': 'configs/combined.json', 'CHAT_ID_MYKERA': '42',
     })
     env.update(extra_env or {})
     proc = subprocess.run(

@@ -10,7 +10,7 @@ Nothing configurable is hardcoded in the code. There are two sources:
 |---|---|---|
 | Player lists (alerts, trolls, block, bastex) | `.configs/*.json` | config publish on merge, live next run |
 | Everything else configurable | `.configs/settings.json` | same |
-| Private values | GitHub secrets | `deploy-lambda` copies them into the Lambda env |
+| Private values | Lambda environment variables | set in the AWS console, never in git |
 | Code | `lambda/bastex_online/*.py` | `deploy-lambda` on merge |
 
 Every run loads `configs/combined.json` from S3 and validates its `settings`
@@ -33,23 +33,32 @@ fails CI before it can ship.
 | `min_level` | Players at or below this level are hidden |
 | `online_too_long` | Enemies and tracked players online longer than `after_hours` turn `color` (gray) |
 | `abort` | Skip the run (page keeps its last state) when more than `max_failed_worlds_percent` of worlds fail, or on any TibiaData 5xx if `on_server_error` |
-| `telegram.alert_recipients` | Names from the `TELEGRAM_CHAT_IDS` secret that receive alerts |
+| `telegram.alert_recipients` | Who receives alerts. `mykera` reads the chat ID from the `CHAT_ID_MYKERA` env var |
 | `telegram.login_message` / `logoff_message` | Alert text. `{name}` and `{duration}` are filled in |
 | `api` | TibiaData URL (`{world_name}` is filled in), timeouts, retries, parallel requests (0 = one per world) |
 | `storage` | S3 object keys for the online-status tracker and the last-known-data cache |
 | `page` | Title, auto-refresh, freshness colors (`fresh_minutes`, `stale_minutes`), profile and extra character links (`{name}` is filled in), server-type filter chips |
 | `death_watch` | Guild to world map whose members' death lists `scripts/check_online_enemies.py` checks |
 
-## GitHub secrets
+## Environment variables (AWS console)
 
-`deploy-lambda` replaces the function's whole environment with these on every
-deploy. To change one, update the secret and run the workflow by hand.
+Private values stay in the Lambda's environment. Deploys only replace code
+and never touch these.
 
-| Secret | Lambda env var |
+| Variable | Purpose |
 |---|---|
-| `LAMBDA_FUNCTION_NAME` | (which function to deploy) |
-| `LAMBDA_BUCKET_NAME` | `BUCKET_NAME` |
-| `LAMBDA_OUTPUT_FILE_NAME` | `OUTPUT_FILE_NAME` |
-| `S3_BUCKET` | `CONFIG_S3_BUCKET` |
-| `TELEGRAM_BOT_TOKEN` | `TELEGRAM_BOT_TOKEN` |
-| `TELEGRAM_CHAT_IDS` | `TELEGRAM_CHAT_IDS`, JSON like `{"mykera": "-100123", "rod": "456"}` |
+| `BUCKET_NAME` | Bucket for the HTML page and state files (required) |
+| `OUTPUT_FILE_NAME` | Public HTML file name (required) |
+| `CONFIG_S3_KEY` | Location of combined.json (required) |
+| `CONFIG_S3_BUCKET` | Bucket holding combined.json, if not `BUCKET_NAME` |
+| `TELEGRAM_BOT_TOKEN` | Bot token |
+| `CHAT_ID_<NAME>` | One per alert recipient, e.g. `CHAT_ID_MYKERA` |
+
+`WORLDS`, `PREMIUM_VOCATIONS`, `BASE_API_URL` and `ONLINE_STATUS_KEY` are no
+longer read (they live in settings.json now) and can be deleted.
+
+## Adding a guild
+
+Edit `.configs/settings.json` on GitHub, add the name to
+`guilds.enemies.names` (orange) or `guilds.friends.names` (green), commit.
+It is live on the next one-minute run after the config publish finishes.
