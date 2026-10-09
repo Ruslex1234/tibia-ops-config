@@ -334,7 +334,7 @@ terraform output github_actions_config
 
 | Job | What It Does | Output | Schedule |
 |-----|--------------|--------|----------|
-| `update-guild-data` | Fetches guild lists for 14 worlds | `world_guilds_data.json` | Every 10 min |
+| `update-guild-data` | Fetches guild lists for every world in `settings.json` (also runs when `worlds` changes) | `world_guilds_data.json` | Every 10 min |
 | `check-enemies` | Monitors deaths, adds unguilded killers | `trolls.json` | Every 10 min |
 
 `update-guild-data` also writes a minified mirror of the guild data to
