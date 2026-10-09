@@ -3,7 +3,8 @@
 # =============================================================================
 # WHAT:  Runs on a schedule to fetch live data from TibiaData API.
 # WHY:   Keeps player lists and guild data up to date automatically.
-# WHEN:  Up to 3x/hour (~23 min apart, best effort) or manual trigger.
+# WHEN:  Up to 3x/hour (~23 min apart, best effort), manual trigger, or a
+#        push to main that changes worlds / death_watch in settings.json.
 #
 # These jobs are NOT part of the CI/CD pipeline - they are operational tasks
 # that run independently to collect and update game data.
@@ -24,6 +25,12 @@ concurrency:
   cancel-in-progress: false
 
 on:
+  # Re-run immediately when the tracked worlds or death-watch guilds change,
+  # instead of waiting hours for a best-effort scheduled run to land.
+  push:
+    branches: [main]
+    paths:
+      - '.configs/settings.json'
   schedule:
     # Cron's minute field resets every hour, so a true 23-minute interval is
     # not expressible. This fires 3x/hour: 23 min apart inside the hour, 14 min
@@ -48,15 +55,53 @@ on:
 
 jobs:
   # ===========================================================================
+  # On push: which parts of settings.json changed?
+  # ===========================================================================
+  settings-changes:
+    name: "Detect settings changes"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    outputs:
+      worlds: ${{ steps.diff.outputs.worlds }}
+      death_watch: ${{ steps.diff.outputs.death_watch }}
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v7
+
+      - name: "Compare with previous commit"
+        id: diff
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if ! git fetch --quiet --depth=1 origin "$BEFORE" 2>/dev/null ||
+             ! git show "$BEFORE:.configs/settings.json" > "$RUNNER_TEMP/before.json" 2>/dev/null; then
+            echo '{}' > "$RUNNER_TEMP/before.json"
+          fi
+          python - "$RUNNER_TEMP/before.json" >> "$GITHUB_OUTPUT" <<'PY'
+          import json, sys
+          old = json.load(open(sys.argv[1]))
+          new = json.load(open(".configs/settings.json"))
+          for key in ("worlds", "death_watch"):
+              print(f"{key}={'true' if old.get(key) != new.get(key) else 'false'}")
+          PY
+          cat "$GITHUB_OUTPUT"
+
+  # ===========================================================================
   # JOB 1: Update Guild Data
   # ===========================================================================
   update-guild-data:
     name: "Update World Guild Data"
     runs-on: ubuntu-latest
+    needs: settings-changes
+    # always(): run even though settings-changes is skipped on schedule/dispatch
     if: >
-      github.event_name == 'schedule' ||
-      github.event.inputs.job == 'all' ||
-      github.event.inputs.job == 'guild-data'
+      always() && (
+        github.event_name == 'schedule' ||
+        github.event.inputs.job == 'all' ||
+        github.event.inputs.job == 'guild-data' ||
+        needs.settings-changes.outputs.worlds == 'true'
+      )
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v7
@@ -120,10 +165,14 @@ jobs:
   check-enemies:
     name: "Check Online Enemies"
     runs-on: ubuntu-latest
+    needs: settings-changes
     if: >
-      github.event_name == 'schedule' ||
-      github.event.inputs.job == 'all' ||
-      github.event.inputs.job == 'check-enemies'
+      always() && (
+        github.event_name == 'schedule' ||
+        github.event.inputs.job == 'all' ||
+        github.event.inputs.job == 'check-enemies' ||
+        needs.settings-changes.outputs.death_watch == 'true'
+      )
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v7
