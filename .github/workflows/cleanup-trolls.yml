@@ -1,0 +1,66 @@
+# =============================================================================
+# Trolls Cleanup - Remove characters that no longer exist
+# =============================================================================
+# WHAT:  Looks up every name in .configs/trolls.json on TibiaData and removes
+#        characters that do not exist. Also applies renames, fixes
+#        capitalization and drops duplicates.
+# WHY:   Deleted or renamed characters break downstream consumers of the list.
+# WHEN:  Daily, plus manual trigger.
+#
+# SAFETY: A name is only removed after two "does not exist" answers in the
+# same run. API errors (502 etc.) never remove anything, and the run aborts
+# without changes if more than 25% of the list looks missing at once.
+# =============================================================================
+
+name: Cleanup Trolls
+
+concurrency:
+  group: cleanup-trolls
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Daily at 06:17 UTC. Off-peak minute to dodge GitHub's congested buckets.
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  cleanup-trolls:
+    name: "Cleanup trolls.json"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: "Set up Python 3.13"
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: "Run trolls cleanup"
+        run: python -u scripts/cleanup_trolls.py
+
+      - name: "Configure Git"
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: "Commit and push if changes"
+        run: |
+          git add .configs/trolls.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Remove nonexistent characters from trolls.json"
+          # Scheduled jobs also push to main; rebase-and-retry handles the race
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push failed (attempt $attempt), rebasing onto latest main..."
+            git pull --rebase origin main
+          done
+          git push
