@@ -19,7 +19,7 @@ from config import (
 )
 
 
-def fetch_with_retry(url, max_retries=MAX_RETRIES):
+def fetch_with_status(url, max_retries=MAX_RETRIES):
     """
     Fetch URL with exponential backoff retry logic for transient errors.
 
@@ -28,7 +28,10 @@ def fetch_with_retry(url, max_retries=MAX_RETRIES):
         max_retries: Maximum number of retry attempts
 
     Returns:
-        tuple: (data, success) where data is the parsed JSON or None
+        tuple: (data, status) where data is the parsed JSON or None, and
+        status is 200 on success, the HTTP code of a non-retryable error
+        (e.g. 404), or None when the outcome is unknown (transient errors
+        that persisted, network failures, unexpected exceptions).
     """
     request = urllib.request.Request(url, headers={
         'Accept-Encoding': 'gzip',
@@ -41,12 +44,12 @@ def fetch_with_retry(url, max_retries=MAX_RETRIES):
                 raw = response.read()
                 if response.info().get('Content-Encoding') == 'gzip':
                     raw = gzip.decompress(raw)
-                return json.loads(raw), True
+                return json.loads(raw), 200
 
         except urllib.error.HTTPError as e:
             if e.code not in TRANSIENT_ERROR_CODES:
                 print(f"  Error: HTTP {e.code} error (non-retryable). Skipping.")
-                return None, False
+                return None, e.code
             transient_reason = f"HTTP {e.code}"
 
         except urllib.error.URLError as e:
@@ -54,7 +57,7 @@ def fetch_with_retry(url, max_retries=MAX_RETRIES):
 
         except Exception as e:
             print(f"  Error: Unexpected error: {e}")
-            return None, False
+            return None, None
 
         if attempt < max_retries - 1:
             backoff = INITIAL_BACKOFF * (2 ** attempt)
@@ -65,7 +68,57 @@ def fetch_with_retry(url, max_retries=MAX_RETRIES):
         else:
             print(f"  Error: {transient_reason} persisted after {max_retries} attempts. Skipping.")
 
-    return None, False
+    return None, None
+
+
+def fetch_with_retry(url, max_retries=MAX_RETRIES):
+    """
+    Fetch URL with exponential backoff retry logic for transient errors.
+
+    Args:
+        url: The URL to fetch
+        max_retries: Maximum number of retry attempts
+
+    Returns:
+        tuple: (data, success) where data is the parsed JSON or None
+    """
+    data, status = fetch_with_status(url, max_retries)
+    return data, status == 200
+
+
+def lookup_character(character_name):
+    """
+    Look up a character and tell "does not exist" apart from "API failed".
+
+    Callers that delete data based on the answer must only act on
+    'missing'; 'error' means we simply don't know this run.
+
+    Args:
+        character_name: The character name to look up
+
+    Returns:
+        tuple: (status, character_dict) where status is 'found', 'missing'
+        or 'error'. character_dict is only set when status is 'found'.
+    """
+    encoded_name = urllib.parse.quote(character_name)
+    url = f"{TIBIADATA_BASE_URL}/character/{encoded_name}"
+    data, status = fetch_with_status(url)
+
+    if status == 404:
+        return 'missing', None
+    if status != 200 or not isinstance(data, dict):
+        return 'error', None
+
+    # Some TibiaData versions answer 200 with an error status or an empty
+    # character block instead of a 404 for unknown names.
+    api_status = data.get('information', {}).get('status', {})
+    if api_status.get('http_code') == 404:
+        return 'missing', None
+
+    character = data.get('character', {})
+    if not character.get('character', {}).get('name'):
+        return 'missing', None
+    return 'found', character
 
 
 def fetch_character(character_name):

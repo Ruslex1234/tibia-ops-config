@@ -101,6 +101,9 @@ python scripts/gen_worlds_guilds.py
 
 # Run the enemy death tracker
 python scripts/check_online_enemies.py
+
+# Remove characters that no longer exist from trolls.json
+python scripts/cleanup_trolls.py
 ```
 
 ### Run Tests
@@ -134,6 +137,7 @@ tibia-ops-config/
 │   ├── config.py                        #   Centralized configuration
 │   ├── tibia_api.py                     #   Shared API client (DRY principle)
 │   ├── check_online_enemies.py          #   Enemy death tracker
+│   ├── cleanup_trolls.py                #   Removes nonexistent trolls
 │   └── gen_worlds_guilds.py             #   World guild data generator
 │
 ├── tests/                               # Unit tests (pytest)
@@ -141,6 +145,7 @@ tibia-ops-config/
 │   ├── test_config.py                   #   Config validation tests
 │   ├── test_tibia_api.py                #   API client tests (mocked)
 │   ├── test_check_online_enemies.py     #   Enemy tracker tests
+│   ├── test_cleanup_trolls.py           #   Trolls cleanup tests
 │   └── test_gen_worlds_guilds.py        #   Guild data generator tests
 │
 ├── .configs/                            # Data files (deployed to S3)
@@ -336,10 +341,15 @@ terraform output github_actions_config
 |-----|--------------|--------|----------|
 | `update-guild-data` | Fetches guild lists for every world in `settings.json` (also runs when `worlds` changes) | `world_guilds_data.json` | Every 10 min |
 | `check-enemies` | Monitors deaths, adds unguilded killers | `trolls.json` | Every 10 min |
+| `cleanup-trolls` (`cleanup-trolls.yml`) | Removes characters that no longer exist, applies renames, drops duplicates | `trolls.json` | Daily 06:17 UTC |
 
 `update-guild-data` also writes a minified mirror of the guild data to
 `docs/data/world_guilds_data.json` in the same commit, since GitHub Pages
 serves `docs/` and cannot read `.configs/`.
+
+`cleanup-trolls` only removes a name after TibiaData reports it missing twice
+in the same run. API errors (502, timeouts) never remove anything, and the
+run aborts without changes if more than 25% of the list looks missing.
 
 ---
 
