@@ -6,12 +6,19 @@ Lookups are faked, so no real API calls are made.
 import sys
 import os
 import json
+import pytest
 from unittest.mock import patch
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
 
 from cleanup_trolls import clean, dedupe, load_trolls, save_trolls  # noqa: E402
 from tibia_api import lookup_character  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def no_sleep():
+    with patch('cleanup_trolls.time.sleep'):
+        yield
 
 
 def make_lookup(table):
@@ -63,6 +70,19 @@ class TestClean:
         lookup = make_lookup({"A": "A", "B": "B", "C": "C", "D": "D", "Blip": ["missing", "error"]})
         result = clean(names, lookup)
         assert "Blip" in result['trolls']
+
+    def test_retries_errors_in_later_passes(self):
+        lookup = make_lookup({"A": "A", "Flaky": ["error", "error", "Flaky"]})
+        result = clean(["A", "Flaky"], lookup)
+        assert result['trolls'] == ["A", "Flaky"]
+        assert result['errors'] == []
+
+    def test_error_then_missing_still_needs_confirmation(self):
+        names = ["A", "B", "C", "D", "Gone"]
+        lookup = make_lookup({"A": "A", "B": "B", "C": "C", "D": "D", "Gone": ["error", "missing", "missing"]})
+        result = clean(names, lookup)
+        assert result['removed'] == ["Gone"]
+        assert "Gone" not in result['trolls']
 
     def test_aborts_when_too_many_missing(self):
         lookup = make_lookup({"A": "missing", "B": "missing", "C": "C"})

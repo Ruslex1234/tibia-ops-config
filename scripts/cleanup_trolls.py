@@ -6,6 +6,8 @@ Safety rules (this script deletes data, so it errs on the side of keeping):
 - A name is only removed when TibiaData says the character does not exist,
   and says so again on a second lookup later in the same run.
 - API errors (502s, timeouts, rate limits) never remove anything.
+- Requests are paced, and names that errored get retried in later passes
+  after a cooldown, because TibiaData answers bursts with 502s.
 - If too many names look missing at once, assume the API is broken and
   abort without touching the file.
 
@@ -19,6 +21,7 @@ While it is at it, the script also:
 import json
 import os
 import sys
+import time
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -28,6 +31,12 @@ from tibia_api import lookup_character  # noqa: E402
 
 # Abort if more than this share of the list looks missing in one run.
 MAX_REMOVAL_RATIO = 0.25
+
+# TibiaData scrapes tibia.com per request and returns 502s when hit in a
+# burst. This job runs once a day, so trade speed for fewer errors.
+REQUEST_DELAY = 2  # seconds between lookups
+RETRY_PASSES = 2  # extra passes over names that errored
+RETRY_COOLDOWN = 60  # seconds to wait before each retry pass
 
 
 def load_trolls(filepath=TROLLS_FILE):
@@ -69,7 +78,10 @@ def check_names(names, lookup=lookup_character):
     current_names = {}
     missing = []
     errors = []
-    for name in names:
+    for i, name in enumerate(names):
+        if i:
+            time.sleep(REQUEST_DELAY)
+        print(f"[{i + 1}/{len(names)}] {name}")
         status, character = lookup(name)
         if status == 'found':
             current_names[name] = character['character']['name']
@@ -92,6 +104,18 @@ def clean(trolls, lookup=lookup_character, max_removal_ratio=MAX_REMOVAL_RATIO):
     duplicates = len(trolls) - len(unique)
 
     current_names, missing, errors = check_names(unique, lookup)
+
+    # Errors are usually TibiaData being overloaded, not the character.
+    # Let it cool down and try those names again.
+    for attempt in range(RETRY_PASSES):
+        if not errors:
+            break
+        print(f"\n{len(errors)} lookup(s) failed. Waiting {RETRY_COOLDOWN}s, "
+              f"then retry pass {attempt + 1}/{RETRY_PASSES}...")
+        time.sleep(RETRY_COOLDOWN)
+        found, now_missing, errors = check_names(errors, lookup)
+        current_names.update(found)
+        missing.extend(now_missing)
 
     # Second opinion: only names that are missing twice get removed.
     # Anything that flips to found or error on the recheck is kept.
