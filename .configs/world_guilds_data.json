@@ -56,7 +56,6 @@
             "Mini Tacoj",
             "Stained Nemesis",
             "Trekin",
-            "Weosnz",
             "Ghost of Moosa",
             "Vurnior"
         ],
@@ -1697,12 +1696,10 @@
             "Perro Rito",
             "Russitoxx",
             "Elder Obito",
-            "Falma Urus",
             "Lord satanis",
             "Lunnayy",
             "Neo hellslayer",
             "Oracle Web",
-            "Princessa of Yeraly",
             "Tiger Lio",
             "Tissaia Baratheon",
             "Ysokiller"
@@ -2931,6 +2928,7 @@
             "Sharky Tor",
             "Shelox Swift",
             "Sherezade Mand",
+            "Shexie",
             "Shikuza",
             "Shikuza Tronkitos",
             "Shin Dwarfis",
@@ -3807,13 +3805,6 @@
             "Martirr",
             "Shadolili"
         ],
-        "Sadla": [
-            "Ekirna",
-            "Dharmas paladin",
-            "Frikiti",
-            "Randy Del Himalaya",
-            "Snip Throk"
-        ],
         "Secondera": [
             "Outlaw Monk",
             "Artrucos",
@@ -4156,11 +4147,11 @@
         ],
         "Void Paradox": [
             "Pandora Shadows",
+            "Ditosis",
             "Agnalda",
             "Bjorn Dash",
             "Bloody Murderers",
             "Castor El Viejo",
-            "Ditosis",
             "Hachi the knight",
             "Luminantra",
             "Magicpantz",
@@ -7776,6 +7767,7 @@
             "Sustancias",
             "Tthe Pain",
             "Iroth Kael",
+            "Thicket",
             "Vaelkyr",
             "Fomarunga",
             "Harald Huberson",
@@ -8091,12 +8083,13 @@
             "Azteck Ink",
             "Beepy",
             "Belo Betty",
-            "Brincosdierass",
             "Callyandranoch",
             "Carkarahz",
+            "Chaparro Nenuco",
             "Charal asesino",
             "Chimi Chimi Moryo",
             "Dhekron",
+            "Don Beto Quintanilla",
             "Elder Beliks",
             "Facetious",
             "Fibel Torres",
@@ -8104,14 +8097,12 @@
             "Ice raiper",
             "Ken The Tiger",
             "Lord Arizoca",
-            "Majestad Escannor",
             "Masther the Kaozz",
             "Maszect",
             "Max Of Syke",
             "Michelillo Avenger",
             "Nova Chopper",
             "Ortiz Alb",
-            "Platanitoshow",
             "Queen Katthy",
             "Roarc",
             "Sir Mierman",
@@ -8141,10 +8132,8 @@
             "Bonnett",
             "Brandox monk",
             "Cathastrophe",
-            "Chaparro Nenuco",
             "Correpocoyo",
             "Dark Lico",
-            "Don Beto Quintanilla",
             "Elder Chacao",
             "Elite Gnius",
             "Evil Budita",
@@ -11952,13 +11941,11 @@
             "Asmodeho",
             "Catreus",
             "Dhas Magins",
-            "Erza Lindeman",
             "Exivaikerxz",
             "Kohb Dracarys",
             "Matamme Perro",
             "Monkban",
             "Naoka",
-            "Sephiroth Lindeman",
             "Tha Hustler",
             "Daniel Von Terryer",
             "Drax Welslamart",
@@ -12016,6 +12003,14 @@
             "Choro de Puerto",
             "Edd Zendo",
             "Tura Drat"
+        ],
+        "Old Times Fortera": [
+            "Sulfher",
+            "Adexs",
+            "Lia'nena",
+            "Malaka segd",
+            "Wofalira Kenhone",
+            "Kaithou Eloodir"
         ],
         "Only Matanovatos": [
             "Sasori Yee",
@@ -15014,6 +15009,7 @@
             "Bahyano",
             "Bessha",
             "Caron Zeth",
+            "Dead Claw",
             "Eliot Kpez",
             "Estefy Cheisy",
             "Gsuis Novinha",
@@ -15037,7 +15033,8 @@
             "Vaso De Alexisz",
             "Vaso De Duenas",
             "Vola Paoz",
-            "Vollu Zyn"
+            "Vollu Zyn",
+            "Wall Tank Two"
         ],
         "Recolectores de Bless": [
             "Maria Elza",
@@ -25583,6 +25580,7 @@
             "Kwazziii",
             "Royal Of Samera",
             "Sung jo",
+            "Magic Dagen",
             "Prys Gart",
             "Raposaobolado"
         ],
@@ -33724,7 +33722,6 @@
             "Kaiser Azteka",
             "Kakarot Joy",
             "Kakino Sky",
-            "Kambala",
             "Kamuikzc",
             "Kandhill Miilles Maiihilolo",
             "Kangoro Jack",
@@ -33972,6 +33969,7 @@
             "Mi Curita",
             "Mich Moch",
             "Michelle Elyn",
+            "Michoacanito Sixseven",
             "Miguel Angel Rodriguez",
             "Miguel Maximus",
             "Mihawk Legend",
@@ -34932,7 +34930,6 @@
             "Fale Dran",
             "Fallen Seven",
             "Ghuri",
-            "Glugglug",
             "Godlike Chronic",
             "Gonus Valis",
             "Gonuss",
@@ -35246,8 +35243,7 @@
             "Richiiwh",
             "Rlcon",
             "Varita traviesa",
-            "Max The Last",
-            "Ramo Rodil"
+            "Max The Last"
         ],
         "Handless Life": [
             "Exeso",
@@ -38094,6 +38090,7 @@
             "Ze Monster",
             "Zee Eed",
             "Zegin Marder",
+            "Zeinthcito",
             "Zereniidad",
             "Zet Dog",
             "Zeusgodmode",
@@ -41050,7 +41047,6 @@
         "Tungagrabbar": [
             "Outofbounds",
             "Holked",
-            "Junitron",
             "Numlk",
             "Perigrim",
             "Alwaysob",
@@ -42226,6 +42222,7 @@
             "Luchosk Tovolao",
             "Lucia Fernanda",
             "Lucky Palade",
+            "Luiszick",
             "Luiszicks",
             "Luken Skywalker",
             "Lunarsinho Druida",
@@ -48190,6 +48187,8 @@
             "Nove Trich",
             "Pizza Baiana",
             "Zarcka",
+            "Bez Inf Oo",
+            "Bez Renat Oo",
             "Dead'Human"
         ],
         "Olympus Goddesses": [
@@ -48320,6 +48319,7 @@
             "Tzitzimine",
             "Vampire Royaal",
             "Zath Duralius",
+            "Zeverusz",
             "Ziggy Dark Dust"
         ],
         "Red Squad": [
@@ -48706,6 +48706,7 @@
             "Bomba Matatodo",
             "Cenovia Flores",
             "Ceryl",
+            "Chancklon Vandam",
             "Color Green",
             "Contador Ruler",
             "Cryptone",
@@ -48739,9 +48740,11 @@
             "Issaac Newthon",
             "Jackelinne Lestrange",
             "Jams Unchained",
+            "Jay Jonny",
             "Jessi Sas",
             "Kathsidis",
             "Kenha",
+            "Kevin Shaka",
             "Knom Ruler",
             "Kybolt",
             "Laryus Jenlyshan",
@@ -49233,7 +49236,6 @@
             "Knight Aoshi",
             "Legion Aegis",
             "Luu Cznik",
-            "Mago Du Mau",
             "Vitto San"
         ],
         "Veredarii Mortis": [
@@ -49281,6 +49283,7 @@
             "Aka Kron",
             "Ale Der Kaiser",
             "Carpiio",
+            "Chikaba Charlover",
             "Dani Der Kaiser",
             "El monje ank",
             "Faceless Kron",
@@ -49289,6 +49292,7 @@
             "Jan Ito",
             "Paiel",
             "Smyx",
+            "Soux The Legend",
             "Tata Kamikaze",
             "Uleus Elde",
             "Valakazz",
@@ -53092,10 +53096,11 @@
             "Don Falopaxx"
         ],
         "Undead Legion": [
-            "Florecita Ice Izi",
+            "Undead Calexx",
             "Blue garden sheed",
             "Drew Wick",
             "Elta Rado",
+            "Florecita Ice Izi",
             "Ojitos Saiintt",
             "Bamwar",
             "Blackhorse Mex",
@@ -53113,7 +53118,6 @@
             "Tonito Boss",
             "Tupsita",
             "Undead Annihilator",
-            "Undead Calexx",
             "Undead Theor"
         ]
     }
