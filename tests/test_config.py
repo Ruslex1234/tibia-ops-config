@@ -27,8 +27,8 @@ class TestAPIConfig:
     def test_tibiadata_url_is_https(self):
         assert TIBIADATA_BASE_URL.startswith("https://")
 
-    def test_tibiadata_url_is_v4(self):
-        assert "/v4" in TIBIADATA_BASE_URL
+    def test_tibiadata_url_is_v5(self):
+        assert "/v5" in TIBIADATA_BASE_URL
 
     def test_max_retries_is_positive(self):
         assert MAX_RETRIES > 0

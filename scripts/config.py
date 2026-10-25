@@ -11,7 +11,7 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # =============================================================================
 # API Configuration
 # =============================================================================
-TIBIADATA_BASE_URL = "https://api.tibiadata.com/v4"
+TIBIADATA_BASE_URL = "https://api.tibiadata.com/v5"
 
 # Retry configuration for API calls
 MAX_RETRIES = 4
