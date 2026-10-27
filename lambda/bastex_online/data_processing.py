@@ -2,6 +2,7 @@
 Data processing functions for fetching and processing world and player data
 data_processing.py
 """
+import urllib.parse
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -16,7 +17,7 @@ from utils import (
 # ========== API Fetching Functions ==========
 def fetch_world_online_players(world_name):
     """Fetch online players for a specific world, filtered to level > settings min_level"""
-    url = config.settings.world_url.replace("{world_name}", world_name)
+    url = f"{config.settings.base_url}/world/{urllib.parse.quote(world_name)}"
     data = http_get_json(url)
 
     players = data['world'].get('online_players')

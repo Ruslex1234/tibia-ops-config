@@ -8,10 +8,15 @@ import os
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# API base URL, worlds and enemy guilds come from .configs/settings.json, the
+# single source of truth shared with the bastex_online Lambda. Edit that file.
+with open(os.path.join(_REPO_ROOT, '.configs', 'settings.json'), encoding='utf-8') as _f:
+    _SETTINGS = json.load(_f)
+
 # =============================================================================
 # API Configuration
 # =============================================================================
-TIBIADATA_BASE_URL = "https://api.tibiadata.com/v4"
+TIBIADATA_BASE_URL = _SETTINGS['api']['base_url']
 
 # Retry configuration for API calls
 MAX_RETRIES = 4
@@ -22,11 +27,6 @@ REQUEST_TIMEOUT = 30  # seconds
 # =============================================================================
 # World Configuration
 # =============================================================================
-# Worlds and enemy guilds come from .configs/settings.json, the single source
-# of truth shared with the bastex_online Lambda. Edit that file, not this one.
-with open(os.path.join(_REPO_ROOT, '.configs', 'settings.json'), encoding='utf-8') as _f:
-    _SETTINGS = json.load(_f)
-
 # All Tibia worlds we monitor
 WORLDS = _SETTINGS['worlds']
 

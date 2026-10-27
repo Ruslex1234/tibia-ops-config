@@ -35,7 +35,7 @@ fails CI before it can ship.
 | `abort` | Skip the run (page keeps its last state) when more than `max_failed_worlds_percent` of worlds fail, or on any TibiaData 5xx if `on_server_error` |
 | `telegram.alert_recipients` | Who receives alerts. `mykera` reads the chat ID from the `CHAT_ID_MYKERA` env var |
 | `telegram.login_message` / `logoff_message` | Alert text. `{name}` and `{duration}` are filled in |
-| `api` | TibiaData URL (`{world_name}` is filled in), timeouts, retries, parallel requests (0 = one per world) |
+| `api` | TibiaData base URL including the version (also used by `scripts/`), timeouts, retries, parallel requests (0 = one per world) |
 | `storage` | S3 object keys for the online-status tracker and the last-known-data cache |
 | `page` | Title, auto-refresh, freshness colors (`fresh_minutes`, `stale_minutes`), profile and extra character links (`{name}` is filled in), server-type filter chips |
 | `death_watch` | Guild to world map whose members' death lists `scripts/check_online_enemies.py` checks |

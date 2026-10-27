@@ -73,7 +73,7 @@ class Settings:
     alert_recipients: tuple
     login_message: str
     logoff_message: str
-    world_url: str
+    base_url: str
     connect_timeout: float
     read_timeout: float
     retries: int
@@ -207,7 +207,10 @@ def parse_settings(raw):
         login_message=get("telegram.login_message", _formats(["name"]), "text using only {name}"),
         logoff_message=get("telegram.logoff_message", _formats(["name", "duration"]),
                            "text using only {name} and {duration}"),
-        world_url=get("api.world_url", _is_url("{world_name}"), "an https:// url containing {world_name}"),
+        base_url=get("api.base_url",
+                     lambda v: isinstance(v, str) and v.startswith("https://") and not v.endswith("/")
+                     and "{" not in v,
+                     "an https:// url with no trailing slash, e.g. https://api.tibiadata.com/v5"),
         connect_timeout=get("api.connect_timeout_seconds", _is_num, "seconds"),
         read_timeout=get("api.read_timeout_seconds", _is_num, "seconds"),
         retries=get("api.retries", _is_int(0, 10), "0 to 10"),
