@@ -129,7 +129,7 @@
     "logoff_message": "*{name} logged off!* Online for {duration}"
   },
   "api": {
-    "world_url": "https://api.tibiadata.com/v4/world/{world_name}",
+    "base_url": "https://api.tibiadata.com/v5",
     "connect_timeout_seconds": 3.0,
     "read_timeout_seconds": 7.5,
     "retries": 2,
