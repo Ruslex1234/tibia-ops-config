@@ -11,6 +11,7 @@ config.py
 import os
 import re
 from dataclasses import dataclass
+from html.parser import HTMLParser
 
 # ========== Private (environment) ==========
 BUCKET_NAME = os.environ.get("BUCKET_NAME", "")
@@ -120,13 +121,37 @@ def _is_url(placeholder):
     return lambda v: isinstance(v, str) and v.startswith("https://") and placeholder in v
 
 
-def _formats(fields):
+# Tags Telegram accepts with parse_mode HTML
+_TELEGRAM_TAGS = {"b", "strong", "i", "em", "u", "ins", "s", "strike", "del",
+                  "a", "code", "pre", "tg-spoiler", "blockquote"}
+
+
+class _TelegramTagCheck(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.open_tags = []
+        self.ok = True
+
+    def handle_starttag(self, tag, attrs):
+        self.ok = self.ok and tag in _TELEGRAM_TAGS
+        self.open_tags.append(tag)
+
+    def handle_endtag(self, tag):
+        self.ok = self.ok and bool(self.open_tags) and self.open_tags.pop() == tag
+
+
+def _telegram_template(fields):
+    """Template uses only these {fields} and is well-formed Telegram HTML;
+    Telegram rejects the whole message otherwise, so the alert would be lost."""
     def check(v):
         try:
-            v.format(**{f: "x" for f in fields})
-            return True
+            text = v.format(**{f: "x" for f in fields})
         except (AttributeError, KeyError, IndexError, ValueError):
             return False
+        parser = _TelegramTagCheck()
+        parser.feed(text)
+        parser.close()
+        return parser.ok and not parser.open_tags
     return check
 
 
@@ -204,9 +229,10 @@ def parse_settings(raw):
         alert_recipients=get("telegram.alert_recipients",
                              lambda v: _is_names(v) and all(_RECIPIENT.match(x) for x in v),
                              "a list of lowercase names (letters, digits, _)"),
-        login_message=get("telegram.login_message", _formats(["name"]), "text using only {name}"),
-        logoff_message=get("telegram.logoff_message", _formats(["name", "duration"]),
-                           "text using only {name} and {duration}"),
+        login_message=get("telegram.login_message", _telegram_template(["name", "links"]),
+                          "Telegram HTML using only {name} and {links}, every tag closed"),
+        logoff_message=get("telegram.logoff_message", _telegram_template(["name", "duration", "links"]),
+                           "Telegram HTML using only {name}, {duration} and {links}, every tag closed"),
         base_url=get("api.base_url",
                      lambda v: isinstance(v, str) and v.startswith("https://") and not v.endswith("/")
                      and "{" not in v,

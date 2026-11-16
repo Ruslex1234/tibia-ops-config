@@ -89,6 +89,9 @@ class TestParseSettings:
         ('telegram.alert_recipients', ['Mykera']),
         ('telegram.login_message', '{nme} logged on'),
         ('telegram.logoff_message', '{name} {oops}'),
+        ('telegram.login_message', '<b>{name} logged on'),
+        ('telegram.login_message', '<div>{name}</div>'),
+        ('telegram.logoff_message', '<b>{name}</i> off'),
         ('api.base_url', 'http://api.tibiadata.com/v5'),
         ('api.base_url', 'https://api.tibiadata.com/v5/'),
         ('api.base_url', 'https://api.tibiadata.com/v5/world/{world_name}'),
@@ -193,6 +196,14 @@ class TestHandler:
     def test_alert_sent_to_named_recipient(self, run):
         assert run['sent'] and all(chat == '42' for chat, _ in run['sent'])
         assert 'Target' in run['sent'][0][1]
+
+    def test_alert_links_name_and_character_pages(self, run, raw):
+        msg = run['sent'][0][1]
+        profile = raw['page']['profile_url'].replace('{name}', 'Target')
+        assert f'<a href="{profile}">Target</a>' in msg
+        for link in raw['page']['character_links']:
+            url = link['url'].replace('{name}', 'Target').replace('&', '&amp;')
+            assert f'<a href="{url}">{link["label"]}</a>' in msg
 
     def test_page_settings_applied(self, run, raw):
         assert f"<title>{raw['page']['title']}</title>" in run['html']
