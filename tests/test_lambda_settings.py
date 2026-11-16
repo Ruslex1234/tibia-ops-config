@@ -203,7 +203,7 @@ class TestHandler:
         assert f'<a href="{profile}">Target</a>' in msg
         for link in raw['page']['character_links']:
             url = link['url'].replace('{name}', 'Target').replace('&', '&amp;')
-            assert f'<a href="{url}">{link["label"]}</a>' in msg
+            assert f'<a href="{url}">[{link["label"]}]</a>' in msg
 
     def test_page_settings_applied(self, run, raw):
         assert f"<title>{raw['page']['title']}</title>" in run['html']

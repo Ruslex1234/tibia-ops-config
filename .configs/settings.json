@@ -127,8 +127,8 @@
     "alert_recipients": [
       "mykera"
     ],
-    "login_message": "<b>{name} just logged on!</b> {links}",
-    "logoff_message": "<b>{name} logged off!</b> Online for {duration} {links}"
+    "login_message": "<b>{name}</b> {links} <b>just logged on!</b>",
+    "logoff_message": "<b>{name}</b> {links} <b>logged off!</b> Online for {duration}"
   },
   "api": {
     "base_url": "https://api.tibiadata.com/v5",

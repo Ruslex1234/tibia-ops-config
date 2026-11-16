@@ -226,7 +226,8 @@ def telegram_player_links(name: str):
         url = html.escape(url_template.replace("{name}", name_url), quote=True)
         return f'<a href="{url}">{html.escape(text)}</a>'
 
-    extra = " ".join(link(url, label) for label, url in s.character_links)
+    # "[R][E]", same look as the tracker page
+    extra = "".join(link(url, f"[{label}]") for label, url in s.character_links)
     return link(s.profile_url, name), extra
 
 
