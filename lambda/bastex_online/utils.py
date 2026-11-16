@@ -5,6 +5,8 @@ utils.py
 import json
 import gzip
 import hashlib
+import html
+import urllib.parse
 from datetime import datetime, timezone
 
 import boto3
@@ -214,11 +216,19 @@ def put_html_if_changed(bucket, key, html_str):
 
 
 # ========== Telegram Functions ==========
-def _escape_markdown(text: str) -> str:
-    """Escape characters that break Telegram Markdown formatting in names"""
-    for ch in ('_', '*', '`', '['):
-        text = text.replace(ch, '\\' + ch)
-    return text
+def telegram_player_links(name: str):
+    """Telegram HTML for a player: (name linked to its profile, extra links).
+    Uses the same page.profile_url / page.character_links as the tracker page."""
+    s = config.settings
+    name_url = urllib.parse.quote(name, safe='')
+
+    def link(url_template, text):
+        url = html.escape(url_template.replace("{name}", name_url), quote=True)
+        return f'<a href="{url}">{html.escape(text)}</a>'
+
+    # "[R][E]", same look as the tracker page
+    extra = "".join(link(url, f"[{label}]") for label, url in s.character_links)
+    return link(s.profile_url, name), extra
 
 
 def send_alert(chat_id, message, bot_token=TELEGRAM_BOT_TOKEN):
@@ -231,8 +241,11 @@ def send_alert(chat_id, message, bot_token=TELEGRAM_BOT_TOKEN):
     send_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
     payload = json.dumps({
         'chat_id': chat_id,
-        'parse_mode': 'Markdown',
+        'parse_mode': 'HTML',
         'text': message,
+        # Messages carry several links; without this Telegram attaches a
+        # preview card for the first one to every alert.
+        'link_preview_options': {'is_disabled': True},
     }).encode('utf-8')
 
     try:
@@ -244,6 +257,8 @@ def send_alert(chat_id, message, bot_token=TELEGRAM_BOT_TOKEN):
             preload_content=True, decode_content=True
         )
         print(f"Telegram message sent: {r.status}")
+        if r.status != 200:
+            print(f"Telegram rejected the message: {r.data[:200]!r}")
         return {'statusCode': 200, 'body': json.dumps('Message sent!')}
     except Exception as e:
         print(f"Failed to send message: {e}")

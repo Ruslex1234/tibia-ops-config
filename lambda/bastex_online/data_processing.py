@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import config
 from utils import (
     http_get_json, http_pool, load_online_status, save_online_status,
-    send_alert, _escape_markdown, utcnow_ts, APIError,
+    send_alert, telegram_player_links, utcnow_ts, APIError,
     format_timedelta_from_epoch, ALERTED_REGISTRY_KEY
 )
 
@@ -139,7 +139,8 @@ def update_player_online_status(online_players, alert_set, chat_ids, fetched_wor
 
                 # Alert for anyone in alert_set with a premium vocation
                 if is_target:
-                    pending_alerts.append(s.login_message.format(name=_escape_markdown(nm)))
+                    name_html, links = telegram_player_links(nm)
+                    pending_alerts.append(s.login_message.format(name=name_html, links=links))
 
             # Register targets for logoff alerts. Also covers targets already
             # online at deploy time (registered silently, no login alert).
@@ -168,8 +169,9 @@ def update_player_online_status(online_players, alert_set, chat_ids, fetched_wor
             # Player logged off: notify with session duration if registered
             if n in world_alerted:
                 duration = format_timedelta_from_epoch(t, now_ts)
+                name_html, links = telegram_player_links(n)
                 pending_alerts.append(
-                    s.logoff_message.format(name=_escape_markdown(n), duration=duration)
+                    s.logoff_message.format(name=name_html, duration=duration, links=links)
                 )
                 world_alerted.pop(n, None)
 
